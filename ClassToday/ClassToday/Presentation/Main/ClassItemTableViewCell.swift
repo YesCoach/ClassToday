@@ -145,9 +145,6 @@ class ClassItemTableViewCell: UITableViewCell {
             priceUnitLabel.text = nil
         }
         timeLabel.text = classItem.pastDateCalculate()
-//        if let match = classItem.match {
-//            nthClass.text = "\(match.count) 회차"
-//        }
         classItem.thumbnailImage { [weak self] image in
             guard let image = image else {
                 self?.imageEmptyLabel.isHidden = false

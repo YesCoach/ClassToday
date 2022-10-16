@@ -8,10 +8,6 @@
 import UIKit
 import SnapKit
 
-protocol MainViewControllerLocationDelegate: AnyObject {
-    func checkLocationAuthority()
-}
-
 class MainViewController: UIViewController {
     //MARK: - NavigationBar Components
     private lazy var leftTitle: UIButton = {
@@ -88,119 +84,63 @@ class MainViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(beginRefresh), for: .valueChanged)
         return refreshControl
     }()
-    
-    // MARK: Properties
-    private var data: [ClassItem] = []
-    private var dataBuy: [ClassItem] = []
-    private var dataSell: [ClassItem] = []
-    private let firestoreManager = FirestoreManager.shared
-    private let locationManager = LocationManager.shared
-    private let provider = NaverMapAPIProvider()
-    private let dispatchGroup: DispatchGroup = DispatchGroup()
-    private var currentUser: User?
-    weak var delegate: MainViewControllerLocationDelegate?
+
+    // - MVVM
+    private let viewModel = MainViewModel()
 
     //MARK: - view lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         layout()
-        locationManager.delegate = self
+
+        /// 지역명 패칭 진행중인지 바인딩
+        viewModel.isNowLocationFetching.bind { [weak self] isFetching in
+            if isFetching {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
+            }
+        }
+        /// 수업 아이템 패칭중인지 바인딩
+        viewModel.isNowDataFetching.bind { [weak self] isFetching in
+            if isFetching {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+                self?.nonDataAlertLabel.isHidden = true
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
+            }
+        }
+        /// 위치정보권한 유무 바인딩
+        viewModel.isLocationAuthorizationAllowed.bind { [weak self] isAllowed in
+            if !isAllowed {
+                self?.nonAuthorizationAlertLabel.isHidden = false
+                self?.present(UIAlertController.locationAlert(), animated: true) {
+                    self?.refreshControl.endRefreshing()
+                }
+            } else {
+                self?.nonAuthorizationAlertLabel.isHidden = true
+            }
+        }
+        /// 지역명 바인딩
+        viewModel.locationTitle.bind { [weak self] locationTitle in
+            if let locationTitle = locationTitle {
+                DispatchQueue.main.async {
+                    self?.leftTitle.setTitle(locationTitle, for: .normal)
+                    self?.leftTitle.frame.size = self?.leftTitle.titleLabel?.intrinsicContentSize ?? CGSize(width: 0, height: 0)
+                }
+            }
+        }
+        /// 수업아이템 바인딩
+        viewModel.data.bind { [weak self] classItems in
+            if classItems.isEmpty {
+                self?.nonDataAlertLabel.isHidden = false
+            }
+            self?.classItemTableView.reloadData()
+        }
+
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if !requestLocationAuthorization() {
-            configureLocation { [weak self] in
-                self?.fetchData()
-            }
-        }
-    }
-
-    // MARK: - Method
-
-    /// 현재 기기의 위치를 주소명으로 패칭하여 상단에 표시합니다.
-    ///
-    ///  - 출력 형태: "@@시 @@구의 수업"
-    private func configureLocation(_ completion: @escaping ()->()) {
-        dispatchGroup.enter()
-        classItemTableView.refreshControl?.beginRefreshing()
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser = user
-                self.dispatchGroup.leave()
-                self.classItemTableView.refreshControl?.endRefreshing()
-                guard let location = user.detailLocation else {
-                    // 위치 설정 해야됨
-                    return
-                }
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.leftTitle.setTitle(location + "의 수업", for: .normal)
-                    self.leftTitle.frame.size = self.leftTitle.titleLabel?.intrinsicContentSize ?? CGSize(width: 0, height: 0)
-                }
-                completion()
-
-            case .failure(let error):
-                self.dispatchGroup.leave()
-                self.classItemTableView.refreshControl?.endRefreshing()
-                print("ERROR \(error)🌔")
-                completion()
-            }
-        }
-    }
-
-    /// 위치권한상태를 확인하고, 필요한 경우 얼럿을 호출합니다.
-    ///
-    /// - return 값: true - 권한요청, false - 권한허용
-    private func requestLocationAuthorization() -> Bool {
-        if !locationManager.isLocationAuthorizationAllowed() {
-            nonAuthorizationAlertLabel.isHidden = false
-            present(UIAlertController.locationAlert(), animated: true) {
-                self.refreshControl.endRefreshing()
-            }
-            return true
-        }
-        nonAuthorizationAlertLabel.isHidden = true
-        return false
-    }
-
-    /// 키워드 주소를 기준으로 수업 아이템을 패칭합니다.
-    ///
-    /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
-    private func fetchData() {
-        classItemTableView.refreshControl?.beginRefreshing()
-        nonDataAlertLabel.isHidden = true
-        dispatchGroup.notify(queue: .global()) { [weak self] in
-            guard let currentUser = self?.currentUser else {
-                debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
-                return
-            }
-            guard let keyword = currentUser.keywordLocation else {
-                debugPrint("유저의 키워드 주소 설정 값이 없습니다. 주소 설정 먼저 해주세요😭")
-                return
-            }
-
-            self?.firestoreManager.fetch(keyword: keyword) { data in
-                self?.data = data
-                self?.dataBuy = data.filter { $0.itemType == ClassItemType.buy }
-                self?.dataSell = data.filter { $0.itemType == ClassItemType.sell }
-
-                // 최신순 정렬
-                self?.data.sort { $0 > $1 }
-                self?.dataBuy.sort { $0 > $1 }
-                self?.dataSell.sort { $0 > $1 }
-                
-                DispatchQueue.main.async {
-                    self?.classItemTableView.reloadData()
-                    self?.classItemTableView.refreshControl?.endRefreshing()
-                }
-            }
-        }
     }
 }
 
@@ -236,10 +176,7 @@ private extension MainViewController {
 
     @objc func beginRefresh() {
         print("beginRefresh!")
-        if requestLocationAuthorization() {
-            return
-        }
-        fetchData()
+        viewModel.fetchData()
     }
 
     @objc func didTapStarButton() {
@@ -295,14 +232,12 @@ extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count = 0
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                count = data.count
             case 1:
-                count = dataBuy.count
+            count = viewModel.dataBuy.value.count
             case 2:
-                count = dataSell.count
+            count = viewModel.dataSell.value.count
             default:
-                count = data.count
+            count = viewModel.data.value.count
         }
         
         guard nonAuthorizationAlertLabel.isHidden else {
@@ -324,14 +259,12 @@ extension MainViewController: UITableViewDataSource {
         ) as? ClassItemTableViewCell else { return UITableViewCell() }
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
         cell.configureWith(classItem: classItem) { image in
             DispatchQueue.main.async {
@@ -349,39 +282,13 @@ extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
         navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
-    }
-}
-
-//MARK: - LocationManagerDelegate
-extension MainViewController: LocationManagerDelegate {
-    /// 위치정보가 갱신되면 호출됩니다. 보통 권한이 허용될때 최초 호출됩니다.
-    ///
-    /// - 주소명과 수업 아이템을 패칭합니다.
-    func didUpdateLocation() {
-        configureLocation() { [weak self] in
-            self?.fetchData()
-        }
-    }
-
-    /// 위치정보권한 상태 변경에 따른 경고 레이블 처리
-    ///
-    /// - denied, restricted의 경우 경고 레이블 표시
-    /// - allowed, not determined의 경우 경고 레이블 미표시
-    func didUpdateAuthorization() {
-        if locationManager.isLocationAuthorizationAllowed() {
-            nonAuthorizationAlertLabel.isHidden = true
-        } else {
-            nonAuthorizationAlertLabel.isHidden = false
-        }
     }
 }
