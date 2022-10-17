@@ -65,23 +65,18 @@ class SearchViewController: UIViewController {
         return searchRecentTableView
     }()
     
-    //MARK: - SearchHistory
-    
-    private var searchHistoryList = [SearchHistory]()
-    
+    //MARK: - SearchViewModel
+    private let viewModel = SearchViewModel()
     
     //MARK: - view lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setNavigationBar()
-        loadSearchHistory()
         layout()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        searchRecentTableView.reloadData()
+        viewModel.searchHistoryList.bind { [weak self] searchHistory in
+            self?.searchRecentTableView.reloadData()
+        }
     }
 }
 
@@ -96,9 +91,7 @@ private extension SearchViewController {
     }
     
     @objc func didTapClearButton() {
-        searchHistoryList.removeAll()
-        saveSearchHistory()
-        searchRecentTableView.reloadData()
+        viewModel.clearSearchHistory()
     }
 }
 
@@ -133,64 +126,33 @@ private extension SearchViewController {
 extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
-        let newSearchHistory = SearchHistory(text: text)
-        searchHistoryList.insert(newSearchHistory, at: 0)
-        saveSearchHistory()
-        let searchResultViewController = SearchResultViewController()
-        searchResultViewController.keyword = searchBar.text ?? ""
-        navigationController?.pushViewController(searchResultViewController, animated: true)
+        viewModel.addSearchHistory(text: text)
+        navigationController?.pushViewController(viewModel.searchResultViewController(with: searchBar.text), animated: true)
     }
 }
 
 //MARK: - tableview datasource
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchHistoryList.count
+        return viewModel.searchHistoryList.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchRecentTableViewCell.identifier, for: indexPath) as? SearchRecentTableViewCell else { return UITableViewCell() }
-        let searchHistory = searchHistoryList[indexPath.row]
+        let searchHistory = viewModel.searchHistoryList.value[indexPath.row]
         cell.setupView()
         cell.recentLabel.text = searchHistory.text
         return cell
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        searchHistoryList.remove(at: indexPath.row)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-        saveSearchHistory()
+        viewModel.removeSearchHistory(at: indexPath.row)
     }
 }
 
 //MARK: - tableview delegate
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let searchResultViewController = SearchResultViewController()
-        searchResultViewController.keyword = searchHistoryList[indexPath.row].text
-        navigationController?.pushViewController(searchResultViewController, animated: true)
+        navigationController?.pushViewController(viewModel.searchResultViewController(at: indexPath.row), animated: true)
     }
-}
-
-//MARK: - search history save/load
-extension SearchViewController {
-    private func saveSearchHistory() {
-        let searchHistory = searchHistoryList.map {
-            [
-                "text": $0.text
-            ]
-        }
-        let userDefaults = UserDefaults.standard
-        userDefaults.set(searchHistory, forKey: "searchHistoryList")
-    }
-    
-    private func loadSearchHistory() {
-        let userDefaults = UserDefaults.standard
-        guard let data = userDefaults.object(forKey: "searchHistoryList") as? [[String: Any]] else { return }
-        searchHistoryList = data.compactMap {
-            guard let text = $0["text"] as? String else { return nil }
-            return SearchHistory(text: text)
-        }
-    }
-    
 }

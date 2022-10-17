@@ -9,28 +9,9 @@ import UIKit
 
 // public for test
 public class ClassItemViewModel {
-    
-    private let storageManager = StorageManager.shared
-    private let locationManager = LocationManager.shared
-
     private let classItem: ClassItem
-//    var classTitle: String
-//    var semiKeywordLocation: String?
-//    var classPrice: String?
-//    var classPriceUnit: String
-//    var classTime: String?
-//    var classThumbnailImage: UIImage?
 
     init(classItem: ClassItem) {
-//        classTitle = classItem.name
-//        semiKeywordLocation = classItem.semiKeywordLocation)
-//        classPrice = Observable(classItem.price)
-//        classPriceUnit = Observable(classItem.priceUnit.description)
-//        classTime = Observable(classItem.pastDateCalculate())
-//        classItem.thumbnailImage { [weak self] image in
-//            print("이미지다운로드 ON")
-//            self?.classThumbnailImage.value = image
-//        }
         self.classItem = classItem
     }
 
