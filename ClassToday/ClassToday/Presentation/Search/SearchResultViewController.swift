@@ -10,34 +10,13 @@ import SnapKit
 
 class SearchResultViewController: UIViewController {
     //MARK: - NavigationBar Components
-    private lazy var toolBarKeyboard: UIToolbar = {
-        let toolBarKeyboard = UIToolbar()
-        toolBarKeyboard.sizeToFit()
-        let blankSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(didTapDoneButton))
-        toolBarKeyboard.items = [blankSpace, doneButton]
-        toolBarKeyboard.tintColor = UIColor.mainColor
-        return toolBarKeyboard
-    }()
-    
-    lazy var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.setImage(UIImage(), for: UISearchBar.Icon.search, state: .normal)
-        searchBar.placeholder = "검색어를 입력해주세요"
-        searchBar.inputAccessoryView = toolBarKeyboard
-        searchBar.text = keyword
-        searchBar.delegate = self
-        return searchBar
-    }()
-    
     private lazy var leftBarButton: UIBarButtonItem = {
         let leftBarButton = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBackButton))
         return leftBarButton
     }()
-    
-    func setNavigationBar() {
+
+    private func setNavigationBar() {
         navigationItem.leftBarButtonItem = leftBarButton
-        navigationItem.titleView = searchBar
     }
     
     //MARK: - Main View Components
@@ -64,6 +43,7 @@ class SearchResultViewController: UIViewController {
     private lazy var nonAuthorizationAlertLabel: UILabel = {
         let label = UILabel()
         label.text = "위치정보 권한을 허용해주세요."
+        label.isHidden = true
         label.textColor = UIColor.systemGray
         return label
     }()
@@ -71,6 +51,7 @@ class SearchResultViewController: UIViewController {
     private lazy var nonDataAlertLabel: UILabel = {
         let label = UILabel()
         label.text = "현재 수업 아이템이 없어요"
+        label.isHidden = true
         label.textColor = UIColor.systemGray
         return label
     }()
@@ -83,11 +64,17 @@ class SearchResultViewController: UIViewController {
     }()
 
     // MARK: Properties
-    private var data: [ClassItem] = []
-    private var dataBuy: [ClassItem] = []
-    private var dataSell: [ClassItem] = []
-    private let firestoreManager = FirestoreManager.shared
-    var keyword: String = ""
+    private var viewModel: SearchResultViewModel
+
+    init(keyword: String) {
+        viewModel = SearchResultViewModel(keyword: keyword)
+        super.init(nibName: nil, bundle: nil)
+        self.navigationItem.title = keyword
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     //MARK: - view lifecycle
     override func viewDidLoad() {
@@ -95,40 +82,39 @@ class SearchResultViewController: UIViewController {
         view.backgroundColor = .white
         setNavigationBar()
         layout()
-        keywordSearch(keyword: keyword)
-    }
-    
-    // MARK: - Method
-    private func keywordSearch(keyword: String) {
-        classItemTableView.refreshControl?.beginRefreshing()
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.classItemTableView.refreshControl?.endRefreshing()
-                guard let keywordLocation = user.keywordLocation else {
-                    // 위치 설정 해야됨
-                    return
-                }
-                self.firestoreManager.fetch(keyword: keywordLocation) { [weak self] data in
-                    guard let self = self else { return }
-                    self.data = data.filter {
-                        $0.name.contains(keyword) ||
-                        $0.description.contains(keyword)
-                    }
-                    self.dataBuy = self.data.filter { $0.itemType == ClassItemType.buy }
-                    self.dataSell = self.data.filter { $0.itemType == ClassItemType.sell }
-                    DispatchQueue.main.async { [weak self] in
-                        self?.classItemTableView.refreshControl?.endRefreshing()
-                        self?.classItemTableView.reloadData()
-                    }
-                }
-                
-            case .failure(let error):
-                self.classItemTableView.refreshControl?.endRefreshing()
-                print("ERROR \(error)🌔")
+        viewModel.data.bind { [weak self] _ in
+            self?.classItemTableView.reloadData()
+        }
+        viewModel.isNowLocationFetching.bind { [weak self] isFetching in
+            if isFetching {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
             }
         }
+        /// 수업 아이템 패칭중인지 바인딩
+        viewModel.isNowDataFetching.bind { [weak self] isFetching in
+            if isFetching {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+                self?.nonDataAlertLabel.isHidden = true
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
+            }
+        }
+        viewModel.isLocationAuthorizationAllowed.bind { [weak self] isAllowed in
+            if !isAllowed {
+                self?.nonAuthorizationAlertLabel.isHidden = false
+                self?.present(UIAlertController.locationAlert(), animated: true) {
+                    self?.refreshControl.endRefreshing()
+                }
+            } else {
+                self?.nonAuthorizationAlertLabel.isHidden = true
+            }
+        }
+    }
+    
+    private func searchData() {
+        viewModel.fetchData()
     }
 }
 
@@ -153,20 +139,10 @@ private extension SearchResultViewController {
     @objc func didTapBackButton() {
         navigationController?.popViewController(animated: true)
     }
-    
-    @objc func didTapSearchButton() {
-        let searchResultViewController = SearchResultViewController()
-        searchResultViewController.searchBar.text = searchBar.text
-        navigationController?.pushViewController(searchResultViewController, animated: true)
-    }
-    
+
     @objc func beginRefresh() {
         print("beginRefresh!")
-        keywordSearch(keyword: keyword)
-    }
-    
-    @objc func didTapDoneButton() {
-        searchBar.resignFirstResponder()
+        searchData()
     }
 }
 
@@ -190,7 +166,9 @@ private extension SearchResultViewController {
             $0.top.equalTo(segmentedControl.snp.bottom)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-
+        nonAuthorizationAlertLabel.snp.makeConstraints {
+            $0.center.equalTo(view)
+        }
         nonDataAlertLabel.snp.makeConstraints {
             $0.center.equalTo(view)
         }
@@ -200,18 +178,16 @@ private extension SearchResultViewController {
 //MARK: - tableview datasource
 extension SearchResultViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var count = 0
+        var count: Int
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                count = data.count
             case 1:
-                count = dataBuy.count
+            count = viewModel.dataBuy.value.count
             case 2:
-                count = dataSell.count
+            count = viewModel.dataSell.value.count
             default:
-                count = data.count
+            count = viewModel.data.value.count
         }
-        
+
         guard nonAuthorizationAlertLabel.isHidden else {
             nonDataAlertLabel.isHidden = true
             return count
@@ -231,16 +207,14 @@ extension SearchResultViewController: UITableViewDataSource {
         ) as? ClassItemTableViewCell else { return UITableViewCell() }
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
-        cell.configureWith(classItem: classItem) { image in
+        cell.configureWith(viewModel: ClassItemViewModel(classItem: classItem)) { image in
             DispatchQueue.main.async {
                 if indexPath == tableView.indexPath(for: cell) {
                     cell.thumbnailView.image = image
@@ -256,25 +230,13 @@ extension SearchResultViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
         navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
     }
 }
-
-//MARK: - searchbar delegate
-extension SearchResultViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        keyword = searchBar.text ?? ""
-        keywordSearch(keyword: keyword)
-        searchBar.resignFirstResponder()
-    }
-}
-

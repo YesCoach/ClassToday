@@ -140,8 +140,7 @@ extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchRecentTableViewCell.identifier, for: indexPath) as? SearchRecentTableViewCell else { return UITableViewCell() }
         let searchHistory = viewModel.searchHistoryList.value[indexPath.row]
-        cell.setupView()
-        cell.recentLabel.text = searchHistory.text
+        cell.configure(with: searchHistory.text)
         return cell
     }
     

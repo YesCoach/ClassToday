@@ -10,7 +10,7 @@ import UIKit
 class SearchRecentTableViewCell: UITableViewCell {
     
     static let identifier = "SearchRecentTableViewCell"
-    
+
     //MARK: - Cell 내부  UI Components
     private lazy var recentImage: UIImageView = {
         let recentImage = UIImageView()
@@ -18,14 +18,23 @@ class SearchRecentTableViewCell: UITableViewCell {
         recentImage.tintColor = .mainColor
         return recentImage
     }()
-    
-    lazy var recentLabel: UILabel = {
+
+    private lazy var recentLabel: UILabel = {
         let recentLabel = UILabel()
-        recentLabel.text = "TEST"
         recentLabel.font = .systemFont(ofSize: 18.0, weight: .regular)
         return recentLabel
     }()
     
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        layout()
+        self.selectionStyle = .none
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     //MARK: - set autolayout
     private func layout() {
         [
@@ -46,8 +55,12 @@ class SearchRecentTableViewCell: UITableViewCell {
             $0.top.trailing.bottom.equalToSuperview().inset(5.0)
         }
     }
-    
-    func setupView() {
-        layout()
+
+    func configure(with text: String) {
+        recentLabel.text = text
+    }
+
+    override func prepareForReuse() {
+        recentLabel.text = nil
     }
 }

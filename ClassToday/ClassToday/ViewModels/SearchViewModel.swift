@@ -57,15 +57,13 @@ public class SearchViewModel {
     
     /// 선택한 검색기록의 상세 View Controller를 반환합니다.
     func searchResultViewController(at index: Int) -> SearchResultViewController {
-        let searchResultViewController = SearchResultViewController()
-        searchResultViewController.keyword = searchHistoryList.value[index].text
+        let searchResultViewController = SearchResultViewController(keyword: searchHistoryList.value[index].text)
         return searchResultViewController
     }
     
     /// 검색한 텍스트의 상세 View Controller를 반환합니다.
     func searchResultViewController(with text: String?) -> SearchResultViewController {
-        let searchResultViewController = SearchResultViewController()
-        searchResultViewController.keyword = text ?? ""
+        let searchResultViewController = SearchResultViewController(keyword: text ?? "")
         return searchResultViewController
     }
 }

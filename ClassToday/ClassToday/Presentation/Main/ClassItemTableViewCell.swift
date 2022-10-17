@@ -145,6 +145,7 @@ class ClassItemTableViewCell: UITableViewCell {
         }
     }
     
+    /// deprecated function
     func configureWith(classItem: ClassItem, completion: @escaping (UIImage)->()) {
         titleLabel.text = classItem.name
 
