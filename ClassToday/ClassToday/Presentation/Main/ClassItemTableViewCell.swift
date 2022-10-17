@@ -67,8 +67,6 @@ class ClassItemTableViewCell: UITableViewCell {
     // MARK: - Properties
 
     static let identifier = "ClassItemTableViewCell"
-    private let storageManager = StorageManager.shared
-    private let locationManager = LocationManager.shared
 
     // MARK: - Initialize
 
@@ -131,6 +129,22 @@ class ClassItemTableViewCell: UITableViewCell {
         }
     }
 
+    func configureWith(viewModel: ClassItemViewModel, completion: @escaping (UIImage?)->()) {
+        titleLabel.text = viewModel.classTitle()
+        locationLabel.text = viewModel.classSemiKeywordLocation() ?? ""
+        priceLabel.text = viewModel.classPriceWithWon()
+        priceUnitLabel.text = viewModel.classPriceUnit() ?? ""
+        timeLabel.text = viewModel.classTime()
+        viewModel.classThumbnailImage { [weak self] image in
+            if let image = image {
+                self?.imageEmptyLabel.isHidden = true
+                completion(image)
+            } else {
+                self?.imageEmptyLabel.isHidden = false
+            }
+        }
+    }
+    
     func configureWith(classItem: ClassItem, completion: @escaping (UIImage)->()) {
         titleLabel.text = classItem.name
 

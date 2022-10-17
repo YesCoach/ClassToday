@@ -266,10 +266,12 @@ extension MainViewController: UITableViewDataSource {
             default:
             classItem = viewModel.data.value[indexPath.row]
         }
-        cell.configureWith(classItem: classItem) { image in
-            DispatchQueue.main.async {
-                if indexPath == tableView.indexPath(for: cell) {
-                    cell.thumbnailView.image = image
+        cell.configureWith(viewModel: ClassItemViewModel(classItem: classItem)) { image in
+            if let image = image {
+                DispatchQueue.main.async {
+                    if indexPath == tableView.indexPath(for: cell) {
+                        cell.thumbnailView.image = image
+                    }
                 }
             }
         }
