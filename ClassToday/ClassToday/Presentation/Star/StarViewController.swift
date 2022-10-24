@@ -22,13 +22,6 @@ class StarViewController: UIViewController {
         return navigationTitle
     }()
     
-    private lazy var nonDataAlertLabel: UILabel = {
-        let label = UILabel()
-        label.text = "현재 수업 아이템이 없어요"
-        label.textColor = UIColor.systemGray
-        return label
-    }()
-    
     private lazy var rightBarItem: UIBarButtonItem = {
         let rightBarItem = UIBarButtonItem(image: UIImage(systemName: "star.fill"), style: .plain, target: nil, action: nil)
         return rightBarItem
@@ -54,49 +47,45 @@ class StarViewController: UIViewController {
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(beginRefresh), for: .valueChanged)
+        refreshControl.tintColor = .mainColor
         return refreshControl
+    }()
+    
+    private lazy var nonDataAlertLabel: UILabel = {
+        let label = UILabel()
+        label.text = "현재 수업 아이템이 없어요"
+        label.textColor = UIColor.systemGray
+        return label
     }()
 
     // MARK: Properties
 
-    private var data: [ClassItem] = []
-    private let firestoreManager = FirestoreManager.shared
-    private var currentUser: User?
+    private let viewModel = StarViewModel()
 
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         setNavigationBar()
-        starSort()
         layout()
         
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        starSort()
-    }
-    // MARK: - Method
-    private func starSort() {
-        User.getCurrentUser { [weak self] result in
-            switch result {
-                case .success(let user):
-                    print(user.stars!)
-                    FirestoreManager.shared.starSort(starList: user.stars!) { [weak self] data in
-                        self?.data = data
-                        self?.classItemTableView.reloadData()
-                    }
-                case .failure(_):
-                    print("failed")
+        viewModel.data.bind { [weak self] data in
+            self?.classItemTableView.reloadData()
+            if data.isEmpty {
+                self?.nonDataAlertLabel.isHidden = false
+            }
+        }
+        viewModel.isNowDataFetching.bind { [weak self] isTrue in
+            if isTrue {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+                self?.nonDataAlertLabel.isHidden = true
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
             }
         }
     }
-    
-    private func starSort(starList: [String]) {
-        firestoreManager.starSort(starList: starList) { [weak self] data in
-            self?.data = data
-        }
-    }
+
+    // MARK: - Method
 }
 
 //MARK: - objc methods
@@ -107,8 +96,7 @@ private extension StarViewController {
     
     @objc func beginRefresh() {
         print("beginRefresh!")
-        starSort()
-        refreshControl.endRefreshing()
+        viewModel.fetchData()
     }
 }
 
@@ -118,10 +106,8 @@ private extension StarViewController {
         [
             classItemTableView
         ].forEach { view.addSubview($0) }
-        
         classItemTableView.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview()
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.top.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         classItemTableView.addSubview(nonDataAlertLabel)
         nonDataAlertLabel.snp.makeConstraints {
@@ -133,12 +119,12 @@ private extension StarViewController {
 //MARK: - TableView DataSource
 extension StarViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if data.isEmpty {
+        if viewModel.data.value.isEmpty {
             nonDataAlertLabel.isHidden = false
         } else {
             nonDataAlertLabel.isHidden = true
         }
-        return data.count
+        return viewModel.data.value.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -146,7 +132,7 @@ extension StarViewController: UITableViewDataSource {
             withIdentifier: ClassItemTableViewCell.identifier,
             for: indexPath
         ) as? ClassItemTableViewCell else { return UITableViewCell() }
-        let classItem = data[indexPath.row]
+        let classItem = viewModel.data.value[indexPath.row]
         cell.configureWith(classItem: classItem) { image in
             DispatchQueue.main.async {
                 if indexPath == tableView.indexPath(for: cell) {
@@ -160,7 +146,7 @@ extension StarViewController: UITableViewDataSource {
 
 extension StarViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let classItem = data[indexPath.row]
+        let classItem = viewModel.data.value[indexPath.row]
         navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
     }
 }

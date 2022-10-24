@@ -149,6 +149,7 @@
 		89CBB39C28FD4172005161EE /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39B28FD4172005161EE /* SearchViewModel.swift */; };
 		89CBB39E28FD9E1E005161EE /* SearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */; };
 		89CBB3A028FDD19A005161EE /* CategoryDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */; };
+		89CBB3A229070387005161EE /* StarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A129070387005161EE /* StarViewModel.swift */; };
 		89DCD06E28839AAA00C1CCA3 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD06D28839AA900C1CCA3 /* MapView.swift */; };
 		89DCD073288EF10C00C1CCA3 /* MapSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */; };
 		89DCD07E2896C9CA00C1CCA3 /* NaverMapAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */; };
@@ -306,6 +307,7 @@
 		89CBB39B28FD4172005161EE /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultViewModel.swift; sourceTree = "<group>"; };
 		89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailViewModel.swift; sourceTree = "<group>"; };
+		89CBB3A129070387005161EE /* StarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarViewModel.swift; sourceTree = "<group>"; };
 		89DCD06D28839AA900C1CCA3 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionViewController.swift; sourceTree = "<group>"; };
 		89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NaverMapAPI.swift; sourceTree = "<group>"; };
@@ -733,6 +735,7 @@
 				89CBB39B28FD4172005161EE /* SearchViewModel.swift */,
 				89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */,
 				89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */,
+				89CBB3A129070387005161EE /* StarViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1055,6 +1058,7 @@
 				6B5E14A928131408001AF21C /* SubjectUserInfoTableViewCell.swift in Sources */,
 				89098E252820E636006EFD4E /* EnrollNameCell.swift in Sources */,
 				C94C0BD428A494EA00F75B76 /* UIAlertController+.swift in Sources */,
+				89CBB3A229070387005161EE /* StarViewModel.swift in Sources */,
 				89A67346282A638800951300 /* TabbarController.swift in Sources */,
 				89A314442878FEAD00A7F6ED /* MapClassListView.swift in Sources */,
 				FCA26EC12867A193004F4C20 /* ImageMediaItem.swift in Sources */,

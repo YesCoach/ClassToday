@@ -243,8 +243,12 @@ class FirestoreManager {
     }
     
     //star
-    func starSort(starList: [String], completion: @escaping ([ClassItem]) -> ()) {
+    func starSort(starList: [String]?, completion: @escaping ([ClassItem]) -> ()) {
         var data: [ClassItem] = []
+        guard let starList = starList else {
+            completion([])
+            return
+        }
         for classItem in starList {
             FirestoreRoute.classItem.ref.whereField("id", isEqualTo: classItem).getDocuments() { (snapshot, error) in
                 if let error = error {
