@@ -148,6 +148,7 @@
 		89CBB39A28FBF523005161EE /* ClassItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39928FBF523005161EE /* ClassItemViewModel.swift */; };
 		89CBB39C28FD4172005161EE /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39B28FD4172005161EE /* SearchViewModel.swift */; };
 		89CBB39E28FD9E1E005161EE /* SearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */; };
+		89CBB3A028FDD19A005161EE /* CategoryDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */; };
 		89DCD06E28839AAA00C1CCA3 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD06D28839AA900C1CCA3 /* MapView.swift */; };
 		89DCD073288EF10C00C1CCA3 /* MapSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */; };
 		89DCD07E2896C9CA00C1CCA3 /* NaverMapAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */; };
@@ -304,6 +305,7 @@
 		89CBB39928FBF523005161EE /* ClassItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemViewModel.swift; sourceTree = "<group>"; };
 		89CBB39B28FD4172005161EE /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultViewModel.swift; sourceTree = "<group>"; };
+		89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailViewModel.swift; sourceTree = "<group>"; };
 		89DCD06D28839AA900C1CCA3 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionViewController.swift; sourceTree = "<group>"; };
 		89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NaverMapAPI.swift; sourceTree = "<group>"; };
@@ -730,6 +732,7 @@
 				89CBB39928FBF523005161EE /* ClassItemViewModel.swift */,
 				89CBB39B28FD4172005161EE /* SearchViewModel.swift */,
 				89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */,
+				89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1089,6 +1092,7 @@
 				892C1CCF28322AD600DE27D3 /* ClassItemType.swift in Sources */,
 				89CBB39528F7EA75005161EE /* Observable.swift in Sources */,
 				89C26A8C2811EC3A00648206 /* UITextField+.swift in Sources */,
+				89CBB3A028FDD19A005161EE /* CategoryDetailViewModel.swift in Sources */,
 				892C1CD128322B9D00DE27D3 /* FirestoreRoute.swift in Sources */,
 				89098E1A2820564F006EFD4E /* EnrollImageCell.swift in Sources */,
 				89098E2E2820F996006EFD4E /* EnrollPlaceCell.swift in Sources */,

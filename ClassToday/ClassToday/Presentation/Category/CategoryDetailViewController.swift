@@ -24,7 +24,7 @@ class CategoryDetailViewController: UIViewController {
     private func setNavigationBar() {
         navigationItem.leftBarButtonItem = leftBarItem
         navigationItem.titleView = navigationTitle
-        navigationTitle.text = categoryItem?.description
+        navigationTitle.text = viewModel.categoryItem.description
     }
     
     //MARK: - UI Components
@@ -73,18 +73,13 @@ class CategoryDetailViewController: UIViewController {
     
     // MARK: Properties
 
-    private var data: [ClassItem] = []
-    private var dataBuy: [ClassItem] = []
-    private var dataSell: [ClassItem] = []
-    private let firestoreManager = FirestoreManager.shared
-    private let locationManager = LocationManager.shared
-    private var categoryItem: Subject?
-    
+    private var viewModel: CategoryDetailViewModel
+
     // MARK: Initialize
 
     init(categoryItem: Subject) {
+        self.viewModel = CategoryDetailViewModel(category: categoryItem)
         super.init(nibName: nil, bundle: nil)
-        self.categoryItem = categoryItem
     }
 
     required init?(coder: NSCoder) {
@@ -97,59 +92,74 @@ class CategoryDetailViewController: UIViewController {
         view.backgroundColor = .white
         setNavigationBar()
         layout()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if !requestLocationAuthorization() {
-            categorySort()
+        
+        viewModel.data.bind { [weak self] data in
+            self?.classItemTableView.reloadData()
+            if data.isEmpty {
+                self?.nonDataAlertLabel.isHidden = false
+            }
+        }
+        viewModel.isNowLocationFetching.bind { [weak self] isTrue in
+            if isTrue {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
+            }
+        }
+        viewModel.isNowDataFetching.bind { [weak self] isTrue in
+            if isTrue {
+                self?.classItemTableView.refreshControl?.beginRefreshing()
+                self?.nonDataAlertLabel.isHidden = true
+            } else {
+                self?.classItemTableView.refreshControl?.endRefreshing()
+            }
         }
     }
-    
+
     //MARK: - Methods
-    private func categorySort() {
-        classItemTableView.refreshControl?.beginRefreshing()
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.classItemTableView.refreshControl?.endRefreshing()
-                guard let keywordLocation = user.keywordLocation else {
-                    // 위치 설정 해야됨
-                    return
-                }
-                self.firestoreManager.categorySort(keyword: keywordLocation, category: self.categoryItem?.rawValue ?? "") { [weak self] data in
-                    guard let self = self else { return }
-                    self.data = data
-                    self.dataBuy = data.filter { $0.itemType == ClassItemType.buy }
-                    self.dataSell = data.filter { $0.itemType == ClassItemType.sell }
-                    DispatchQueue.main.async { [weak self] in
-                        self?.classItemTableView.refreshControl?.endRefreshing()
-                        self?.classItemTableView.reloadData()
-                    }
-                }
-                
-            case .failure(let error):
-                self.classItemTableView.refreshControl?.endRefreshing()
-                print("ERROR \(error)🌔")
-            }
-        }
-    }
+//    private func categorySort() {
+//        classItemTableView.refreshControl?.beginRefreshing()
+//        User.getCurrentUser { [weak self] result in
+//            guard let self = self else { return }
+//            switch result {
+//            case .success(let user):
+//                self.classItemTableView.refreshControl?.endRefreshing()
+//                guard let keywordLocation = user.keywordLocation else {
+//                    // 위치 설정 해야됨
+//                    return
+//                }
+//                self.firestoreManager.categorySort(keyword: keywordLocation, category: self.categoryItem?.rawValue ?? "") { [weak self] data in
+//                    guard let self = self else { return }
+//                    self.data = data
+//                    self.dataBuy = data.filter { $0.itemType == ClassItemType.buy }
+//                    self.dataSell = data.filter { $0.itemType == ClassItemType.sell }
+//                    DispatchQueue.main.async { [weak self] in
+//                        self?.classItemTableView.refreshControl?.endRefreshing()
+//                        self?.classItemTableView.reloadData()
+//                    }
+//                }
+//
+//            case .failure(let error):
+//                self.classItemTableView.refreshControl?.endRefreshing()
+//                print("ERROR \(error)🌔")
+//            }
+//        }
+//    }
     
-    /// 위치권한상태를 확인하고, 필요한 경우 얼럿을 호출합니다.
-    ///
-    /// - return 값: true - 권한요청, false - 권한허용
-    private func requestLocationAuthorization() -> Bool {
-        if !locationManager.isLocationAuthorizationAllowed() {
-            nonAuthorizationAlertLabel.isHidden = false
-            present(UIAlertController.locationAlert(), animated: true) {
-                self.refreshControl.endRefreshing()
-            }
-            return true
-        }
-        nonAuthorizationAlertLabel.isHidden = true
-        return false
-    }
+//    /// 위치권한상태를 확인하고, 필요한 경우 얼럿을 호출합니다.
+//    ///
+//    /// - return 값: true - 권한요청, false - 권한허용
+//    private func requestLocationAuthorization() -> Bool {
+//        if !locationManager.isLocationAuthorizationAllowed() {
+//            nonAuthorizationAlertLabel.isHidden = false
+//            present(UIAlertController.locationAlert(), animated: true) {
+//                self.refreshControl.endRefreshing()
+//            }
+//            return true
+//        }
+//        nonAuthorizationAlertLabel.isHidden = true
+//        return false
+//    }
 }
 
 //MARK: - objc functions
@@ -176,7 +186,7 @@ private extension CategoryDetailViewController {
     
     @objc func beginRefresh() {
         print("beginRefresh!")
-        categorySort()
+        viewModel.fetchData()
     }
 }
 
@@ -215,14 +225,12 @@ extension CategoryDetailViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var count = 0
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                count = data.count
             case 1:
-                count = dataBuy.count
+            count = viewModel.dataBuy.value.count
             case 2:
-                count = dataSell.count
+            count = viewModel.dataSell.value.count
             default:
-                count = data.count
+            count = viewModel.data.value.count
         }
         
         guard nonAuthorizationAlertLabel.isHidden else {
@@ -244,14 +252,12 @@ extension CategoryDetailViewController: UITableViewDataSource {
         ) as? ClassItemTableViewCell else { return UITableViewCell() }
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
         cell.configureWith(classItem: classItem) { image in
             DispatchQueue.main.async {
@@ -270,14 +276,12 @@ extension CategoryDetailViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let classItem: ClassItem
         switch segmentedControl.selectedSegmentIndex {
-            case 0:
-                classItem = data[indexPath.row]
             case 1:
-                classItem = dataBuy[indexPath.row]
+            classItem = viewModel.dataBuy.value[indexPath.row]
             case 2:
-                classItem = dataSell[indexPath.row]
+            classItem = viewModel.dataSell.value[indexPath.row]
             default:
-                classItem = data[indexPath.row]
+            classItem = viewModel.data.value[indexPath.row]
         }
         navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
     }
