@@ -12,7 +12,7 @@ enum LocationError: Error {
 }
 
 // for test, set ViewModel Public
-public class MainViewModel {
+public class MainViewModel: FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let provider = NaverMapAPIProvider()

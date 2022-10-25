@@ -7,18 +7,18 @@
 
 import Foundation
 
-public class StarViewModel {
+public class StarViewModel: FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let provider = NaverMapAPIProvider()
-    
+
     private var currentUser: User?
     private var group = DispatchGroup()
 
     var isNowDataFetching: Observable<Bool> = Observable(false)
 
     let data: Observable<[ClassItem]> = Observable([])
-    
+
     init() {
         configureLocation()
     }

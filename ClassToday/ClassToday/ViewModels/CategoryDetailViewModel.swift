@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class CategoryDetailViewModel {
+public class CategoryDetailViewModel: FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let provider = NaverMapAPIProvider()

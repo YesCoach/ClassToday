@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SearchViewModel {
+public class SearchViewModel: ViewModel {
     
     private let userDefaults = UserDefaults.standard
     var searchHistoryList: Observable<[SearchHistory]> = Observable([])
