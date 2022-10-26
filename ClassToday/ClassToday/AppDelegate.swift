@@ -18,6 +18,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         LocationManager.shared.requestAuthorization()
         
+        if let uid = UserDefaultsManager.shared.isLogin() {
+            // 로그인 상태인 경우 유저 정보를 UserDefaults에 새로 저장한다(갱신)
+            FirestoreManager.shared.readUser(uid: uid) { result in
+                switch result {
+                case .success(let user):
+                    UserDefaultsManager.shared.updateUserData(user: user)
+                case .failure(let error):
+                    print("ERROR \(error.localizedDescription)👩🏻‍🦳")
+                }
+            }
+        }
+        
         // MARK: - Naver Login
         let instance = NaverThirdPartyLoginConnection.getSharedInstance()
         instance?.isNaverAppOauthEnable = true // 네이버 앱으로 인증 방식 활성화
