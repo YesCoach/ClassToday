@@ -121,17 +121,17 @@ private extension SignUpViewController {
             channels: nil
         )
         FirebaseAuthManager.shared.signUp(user: user, password: password) { [weak self] result in
-            guard let self = self else { return }
             switch result {
             case .success(let uid):
                 print("회원가입 성공!🎉")
-                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .email)
-                self.view.hideToastActivity()
-                self.navigationController?.pushViewController(EssentialUserInfoInputViewController(), animated: true)
+                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .email) {
+                    self?.view.hideToastActivity()
+                    self?.navigationController?.pushViewController(EssentialUserInfoInputViewController(), animated: true)
+                }
             case .failure(let error):
                 print("회원가입 실패 ㅠ \(error.localizedDescription)🐢")
-                self.view.hideToastActivity()
-                self.view.makeToast("회원가입 실패")
+                self?.view.hideToastActivity()
+                self?.view.makeToast("회원가입 실패")
             }
         }
     }

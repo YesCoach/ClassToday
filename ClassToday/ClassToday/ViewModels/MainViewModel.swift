@@ -15,36 +15,32 @@ enum LocationError: Error {
 public class MainViewModel: FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
+    private let userDefaultsManager = UserDefaultsManager.shared
     private let provider = NaverMapAPIProvider()
-    
-    private var currentUser: User?
-    private var group = DispatchGroup()
 
-    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
+    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(false)
     var isNowLocationFetching: Observable<Bool> = Observable(false)
     var isNowDataFetching: Observable<Bool> = Observable(false)
     let locationTitle: Observable<String?> = Observable(nil)
 
+    let currentUser: Observable<User?> = Observable(nil)
     let data: Observable<[ClassItem]> = Observable([])
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
 
     init() {
-        requestLocationAuthorization()
-        configureLocation()
+        checkLocationAuthorization()
     }
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
     ///  - 출력 형태: "@@시 @@구의 수업"
-    private func configureLocation() {
-        group.enter()
+    func configureLocation() {
         isNowLocationFetching.value = true
         User.getCurrentUser { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let user):
-                self.currentUser = user
-                self.group.leave()
+                self.currentUser.value = user
                 self.isNowLocationFetching.value = false
                 guard let location = user.detailLocation else {
                     // TODO: 위치 설정 얼럿 호출 해야됨
@@ -52,10 +48,8 @@ public class MainViewModel: FetchingViewModel {
                     return
                 }
                 self.locationTitle.value = "\(location)의 수업"
-                self.fetchData()
 
             case .failure(let error):
-                self.group.leave()
                 self.isNowLocationFetching.value = false
                 self.locationTitle.value = nil
                 print("ERROR \(error)🌔")
@@ -68,8 +62,7 @@ public class MainViewModel: FetchingViewModel {
     /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
     func fetchData() {
         isNowDataFetching.value = true
-        _ = group.wait(timeout: .now() + 10)
-        guard let currentUser = self.currentUser else {
+        guard let currentUser = self.currentUser.value else {
             debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
             isNowDataFetching.value = false
             return
@@ -79,7 +72,11 @@ public class MainViewModel: FetchingViewModel {
             isNowDataFetching.value = false
             return
         }
-        
+        guard isLocationAuthorizationAllowed.value else {
+            debugPrint("위치정보권한이 허용되지 않았습니다. 권한을 허용해주세요😭")
+            isNowDataFetching.value = false
+            return
+        }
         self.firestoreManager.fetch(keyword: keyword) { [weak self] data in
             self?.isNowDataFetching.value = false
             // 최신순 정렬
@@ -90,7 +87,7 @@ public class MainViewModel: FetchingViewModel {
     }
 
     /// 위치정보 권한의 상태값을 체크합니다.
-    private func requestLocationAuthorization() {
+    func checkLocationAuthorization() {
         isLocationAuthorizationAllowed.value = locationManager.isLocationAuthorizationAllowed()
     }
 }

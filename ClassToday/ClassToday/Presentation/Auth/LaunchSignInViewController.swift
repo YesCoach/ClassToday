@@ -140,9 +140,9 @@ extension LaunchSignInViewController: NaverThirdPartyLoginConnectionDelegate {
                     switch result {
                     case .success(_):
                         print("Naver User Login Success!!💍")
-                        UserDefaultsManager.shared.saveLoginStatus(uid: user.id, type: .naver)
-//                        self?.dismiss(animated: true)
-                        self?.navigationController?.pushViewController(EssentialUserInfoInputViewController(), animated: true)
+                        UserDefaultsManager.shared.saveLoginStatus(uid: user.id, type: .naver) {
+                            self?.navigationController?.pushViewController(EssentialUserInfoInputViewController(), animated: true)
+                        }
                     case .failure(let error):
                         print("ERROR \(error.localizedDescription)💚")
                     }
@@ -162,8 +162,9 @@ extension LaunchSignInViewController: NaverThirdPartyLoginConnectionDelegate {
                 UserDefaultsManager.shared.saveLoginStatus(
                     uid: naverUser.response.id,
                     type: .naver
-                )
-                self?.dismiss(animated: true)
+                ) {
+                    self?.dismiss(animated: true)
+                }
             case .failure(let error):
                 print("ERROR \(error.localizedDescription)🤑")
             }

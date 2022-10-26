@@ -93,7 +93,25 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         layout()
-
+        bindViewModel()
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.configureLocation()
+        viewModel.checkLocationAuthorization()
+    }
+    
+    //MARK: - Methods
+    private func bindViewModel() {
+        /// 유저 정보 바인딩
+        viewModel.currentUser.bind { [weak self] currentUser in
+            if let _ = currentUser {
+                self?.viewModel.fetchData()
+            }
+        }
         /// 지역명 패칭 진행중인지 바인딩
         viewModel.isNowLocationFetching.bind { [weak self] isFetching in
             if isFetching {
@@ -117,6 +135,7 @@ class MainViewController: UIViewController {
                 self?.nonAuthorizationAlertLabel.isHidden = false
                 self?.present(UIAlertController.locationAlert(), animated: true) {
                     self?.refreshControl.endRefreshing()
+                    self?.viewModel.checkLocationAuthorization()
                 }
             } else {
                 self?.nonAuthorizationAlertLabel.isHidden = true
@@ -138,9 +157,6 @@ class MainViewController: UIViewController {
             }
             self?.classItemTableView.reloadData()
         }
-
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 }
 
@@ -176,6 +192,7 @@ private extension MainViewController {
 
     @objc func beginRefresh() {
         print("beginRefresh!")
+        viewModel.checkLocationAuthorization()
         viewModel.fetchData()
     }
 

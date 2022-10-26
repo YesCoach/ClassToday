@@ -134,19 +134,20 @@ class KakaoLoginManager {
                     switch result {
                     case .success(let uid):
                         print("회원가입 성공!🎉")
-                        UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .kakao)
-                        completion(.success((.signUp, uid)))
+                        UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .kakao) {
+                            completion(.success((.signUp, uid)))
+                        }
                     case .failure(let error):
                         print("회원가입 실패 ㅠ \(error.localizedDescription)🐢")
-
                         // 로그인 진행
                         FirebaseAuthManager.shared.signIn(email: kakaoEmail, password: password) { result in
                             switch result {
                             case .success(let uid):
                                 print("로그인 성공🐹")
                                 print(uid, "🥵")
-                                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .kakao)
-                                completion(.success((.signIn, uid)))
+                                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .kakao) {
+                                    completion(.success((.signUp, uid)))
+                                }
                             case .failure(let error):
                                 print("\(error.localizedDescription)🐸🐸")
                                 completion(.failure(error))

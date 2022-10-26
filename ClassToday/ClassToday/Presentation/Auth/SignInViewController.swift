@@ -95,21 +95,21 @@ private extension SignInViewController {
         let email = emailTextField.text!
         let password = pwTextField.text!
         FirebaseAuthManager.shared.signIn(email: email, password: password) { [weak self] result in
-            guard let self = self else { return }
             switch result {
             case .success(let uid):
                 print("로그인 성공🐹")
-                print(uid, "🥵")
-                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .email)
-                self.view.hideToastActivity()
-                self.dismiss(animated: true) {
-                    guard let tabbarController = UIApplication.shared.tabbarController() as? TabbarController else { return }
-                    tabbarController.selectedIndex = 0  // Will redirect to first tab ( index = 0 )
+                print("UUID: \(uid)", "🥵")
+                UserDefaultsManager.shared.saveLoginStatus(uid: uid, type: .email) {
+                    self?.view.hideToastActivity()
+                    self?.dismiss(animated: true) {
+                        guard let tabbarController = UIApplication.shared.tabbarController() as? TabbarController else { return }
+                        tabbarController.selectedIndex = 0  // Will redirect to first tab ( index = 0 )
+                    }
                 }
             case .failure(let error):
                 print("\(error.localizedDescription)🐸🐸")
-                self.view.hideToastActivity()
-                self.view.makeToast("로그인 실패")
+                self?.view.hideToastActivity()
+                self?.view.makeToast("로그인 실패")
             }
         }
     }

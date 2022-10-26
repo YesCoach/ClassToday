@@ -391,9 +391,9 @@
 		6B59562728474677004821F1 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				6B59562828475490004821F1 /* LaunchSignInViewController.swift */,
 				6B59562528474672004821F1 /* SignUpViewController.swift */,
 				6B568EDF284DC47D00B6CA13 /* SignInViewController.swift */,
-				6B59562828475490004821F1 /* LaunchSignInViewController.swift */,
 				6B4942FE28AA69610047CA0B /* EssentialUserInfoInputViewController.swift */,
 				6B4942FC28AA693A0047CA0B /* OptionalUserInfoInputViewController.swift */,
 			);
