@@ -12,13 +12,12 @@ enum LocationError: Error {
 }
 
 // for test, set ViewModel Public
-public class MainViewModel: FetchingViewModel {
+public class MainViewModel: LocationViewModel, FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let userDefaultsManager = UserDefaultsManager.shared
     private let provider = NaverMapAPIProvider()
 
-    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(false)
     var isNowLocationFetching: Observable<Bool> = Observable(false)
     var isNowDataFetching: Observable<Bool> = Observable(false)
     let locationTitle: Observable<String?> = Observable(nil)
@@ -28,7 +27,8 @@ public class MainViewModel: FetchingViewModel {
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
 
-    init() {
+    override init() {
+        super.init()
         checkLocationAuthorization()
     }
     /// 유저의 키워드 주소에 따른 기준 지역 구성
@@ -84,10 +84,5 @@ public class MainViewModel: FetchingViewModel {
             self?.dataBuy.value = data.filter { $0.itemType == ClassItemType.buy }.sorted { $0 > $1 }
             self?.dataSell.value = data.filter { $0.itemType == ClassItemType.sell }.sorted { $0 > $1 }
         }
-    }
-
-    /// 위치정보 권한의 상태값을 체크합니다.
-    func checkLocationAuthorization() {
-        isLocationAuthorizationAllowed.value = locationManager.isLocationAuthorizationAllowed()
     }
 }
