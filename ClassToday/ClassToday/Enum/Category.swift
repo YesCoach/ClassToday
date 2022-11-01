@@ -11,9 +11,18 @@ import UIKit
 enum CategoryType: CaseIterable {
     case subject
     case target
+    
+    var count: Int {
+        switch self {
+        case .subject:
+            return Subject.count
+        case .target:
+            return Target.count
+        }
+    }
 }
 
-protocol CategoryItem: Codable {
+public protocol CategoryItem: Codable {
     static var count: Int { get }
     var description: String { get }
 }

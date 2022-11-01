@@ -203,18 +203,18 @@ extension MapViewController: UICollectionViewDelegateFlowLayout {
 
 extension MapViewController: MapCategoryViewDelegate {
     func pushCategorySelectViewController() {
-        let viewController = MapCategorySelectViewController()
+        let viewController = MapCategorySelectViewController(categoryType: .subject)
         viewController.delegate = self
-        let selectedCategory = viewModel.categoryData.value.map { $0 as? Subject }.compactMap { $0 }
-        viewController.configure(with: Set(selectedCategory))
+        let selectedCategory = viewModel.categoryData.value
+        viewController.configure(with: selectedCategory)
         navigationController?.pushViewController(viewController, animated: true)
     }
 }
 
 // MARK: - 카테고리 선택 시 호출
 extension MapViewController: MapCategorySelectViewControllerDelegate {
-    func passData(subjects: Set<Subject>) {
-        viewModel.selectCategory(categories: Array(subjects))
+    func passData(categoryItems: [CategoryItem]) {
+        viewModel.selectCategory(categories: categoryItems)
     }
 }
 

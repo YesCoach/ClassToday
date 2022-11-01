@@ -152,6 +152,7 @@
 		89CBB3A229070387005161EE /* StarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A129070387005161EE /* StarViewModel.swift */; };
 		89CBB3A42907BCCE005161EE /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A32907BCCD005161EE /* ViewModel.swift */; };
 		89CBB3A62908FDCE005161EE /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A52908FDCE005161EE /* MapViewModel.swift */; };
+		89CBB3AA290FD596005161EE /* MapCategorySelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */; };
 		89DCD06E28839AAA00C1CCA3 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD06D28839AA900C1CCA3 /* MapView.swift */; };
 		89DCD073288EF10C00C1CCA3 /* MapSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */; };
 		89DCD07E2896C9CA00C1CCA3 /* NaverMapAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */; };
@@ -312,6 +313,7 @@
 		89CBB3A129070387005161EE /* StarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarViewModel.swift; sourceTree = "<group>"; };
 		89CBB3A32907BCCD005161EE /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		89CBB3A52908FDCE005161EE /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategorySelectViewModel.swift; sourceTree = "<group>"; };
 		89DCD06D28839AA900C1CCA3 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		89DCD072288EF10C00C1CCA3 /* MapSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionViewController.swift; sourceTree = "<group>"; };
 		89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NaverMapAPI.swift; sourceTree = "<group>"; };
@@ -742,6 +744,7 @@
 				89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */,
 				89CBB3A129070387005161EE /* StarViewModel.swift */,
 				89CBB3A52908FDCE005161EE /* MapViewModel.swift */,
+				89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1158,6 +1161,7 @@
 				8941FF212830CDA200A90AB0 /* Match.swift in Sources */,
 				89865E9E282A70DC00113242 /* SearchRecentTableViewCell.swift in Sources */,
 				892C1CD32832DABF00DE27D3 /* StorageManager.swift in Sources */,
+				89CBB3AA290FD596005161EE /* MapCategorySelectViewModel.swift in Sources */,
 				FC25F8B12865DF9F00B2BBEB /* Channel.swift in Sources */,
 				FCFDFCD02897C6550031F77D /* ChatStreamManager.swift in Sources */,
 				89675B122826776100933C48 /* PriceUnitTableView.swift in Sources */,

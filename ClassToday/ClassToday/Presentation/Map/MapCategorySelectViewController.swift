@@ -8,7 +8,7 @@
 import UIKit
 
 protocol MapCategorySelectViewControllerDelegate: AnyObject {
-    func passData(subjects: Set<Subject>)
+    func passData(categoryItems: [CategoryItem])
 }
 
 class MapCategorySelectViewController: UIViewController {
@@ -45,15 +45,20 @@ class MapCategorySelectViewController: UIViewController {
         collectionView.backgroundColor = .white
         return collectionView
     }()
-    
+
     // MARK: - Properties
-    
     weak var delegate: MapCategorySelectViewControllerDelegate?
-    private var selectedSubject: Set<Subject> = []
-    private var selectedTarget: Set<Target> = []
-    private var categoryType: CategoryType = .subject
-    
+    private var viewModel: MapCategorySelectViewModel
+
     // MARK: - Initialize
+    init(categoryType: CategoryType = .subject) {
+        viewModel = MapCategorySelectViewModel(categoryType: categoryType)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,13 +66,13 @@ class MapCategorySelectViewController: UIViewController {
         setNavigationBar()
         navigationController?.navigationItem.leftBarButtonItem?.title = ""
     }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        delegate?.passData(subjects: selectedSubject)
+        delegate?.passData(categoryItems: viewModel.selectedCategory.value)
     }
     
     // MARK: - Method
-    
     private func configureUI() {
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints {
@@ -75,60 +80,41 @@ class MapCategorySelectViewController: UIViewController {
             $0.top.bottom.equalToSuperview()
         }
     }
-    
-    func configureType(with categoryType: CategoryType) {
-        self.categoryType = categoryType
-    }
-    
+
     // MARK: - categoryTypeMethod
-    
-    func configure(with selectedSubject: Set<Subject>?) {
-        guard let selectedSubject = selectedSubject else {
+    func configure(with selectedItem: [CategoryItem]?) {
+        guard let selectedItem = selectedItem else {
             return
         }
-        self.selectedSubject = selectedSubject
+        viewModel.updateData(data: selectedItem)
     }
-    
-    func configure(with selectedTarget: Set<Target>?) {
-        guard let selectedTarget = selectedTarget else {
-            return
-        }
-        self.selectedTarget = selectedTarget
-    }
-    
+
     @objc func didTapBackButton() {
         navigationController?.popViewController(animated: true)
     }
 }
 
 // MARK: - UICollectionViewDataSource
-
 extension MapCategorySelectViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch categoryType {
-        case .subject:
-            return Subject.allCases.count
-        case .target:
-            return Target.allCases.count
-        }
+        return viewModel.categoryType.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier:ClassCategoryCollectionViewCell.identifier,
             for: indexPath) as? ClassCategoryCollectionViewCell else {
             return UICollectionViewCell()
         }
-        switch categoryType {
+        var categoryItem: CategoryItem
+        switch viewModel.categoryType {
         case .subject:
-            let categoryItem = Subject.allCases[indexPath.row]
-            cell.configure(with: categoryItem)
-            cell.configure(isSelected: selectedSubject.contains(categoryItem))
+            categoryItem = Subject.allCases[indexPath.row]
         case .target:
-            let categoryItem = Target.allCases[indexPath.row]
-            cell.configure(with: categoryItem)
-            cell.configure(isSelected: selectedTarget.contains(categoryItem))
+            categoryItem = Target.allCases[indexPath.row]
         }
+        cell.configure(with: categoryItem)
+        cell.configure(isSelected: viewModel.isSelected(data: categoryItem))
         cell.delegate = self
         return cell
     }
@@ -139,7 +125,7 @@ extension MapCategorySelectViewController: UICollectionViewDataSource {
             guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: ClassCategoryCollectionReusableView.identifier, for: indexPath) as? ClassCategoryCollectionReusableView else {
                 return UICollectionReusableView()
             }
-            headerView.configure(with: categoryType)
+            headerView.configure(with: viewModel.categoryType)
             return headerView
         default:
             assert(false)
@@ -149,7 +135,6 @@ extension MapCategorySelectViewController: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-
 extension MapCategorySelectViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let width: CGFloat = collectionView.frame.width
@@ -158,26 +143,14 @@ extension MapCategorySelectViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-
 // MARK: - CategoryCollectionViewCellDelegate
-
 extension MapCategorySelectViewController: ClassCategoryCollectionViewCellDelegate {
     func reflectSelection(item: CategoryItem?, isChecked: Bool) {
         guard let item = item else { return }
-        if let item = item as? Subject {
-            if isChecked {
-                selectedSubject.insert(item)
-            } else {
-                selectedSubject.remove(item)
-            }
+        if isChecked {
+            viewModel.insertData(data: item)
+        } else {
+            viewModel.removeData(data: item)
         }
-//        else if let item = item as? Target {
-//            if isChecked {
-//                selectedTarget.insert(item)
-//            } else {
-//                selectedTarget.remove(item)
-//            }
-//            delegate?.passData(targets: selectedTarget)
-//        }
     }
 }
