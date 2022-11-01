@@ -18,9 +18,7 @@ protocol ClassUpdateDelegate: AnyObject {
 }
 
 class ClassModifyViewController: UIViewController {
-    
     // MARK: - Views
-    
     private lazy var customNavigationBar: UINavigationBar = {
         let navigationBar = UINavigationBar()
         navigationBar.isTranslucent = false
@@ -28,7 +26,7 @@ class ClassModifyViewController: UIViewController {
         navigationBar.setItems([customNavigationItem], animated: true)
         return navigationBar
     }()
-    
+
     private lazy var customNavigationItem: UINavigationItem = {
         let item = UINavigationItem(title: "게시글 수정")
         let leftButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(didTapBackButton(_:)))
@@ -37,7 +35,7 @@ class ClassModifyViewController: UIViewController {
         item.rightBarButtonItem = rightButton
         return item
     }()
-    
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = self
@@ -54,95 +52,53 @@ class ClassModifyViewController: UIViewController {
         tableView.selectionFollowsFocus = false
         return tableView
     }()
-    
+
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.tintColor = .mainColor
         refreshControl.isHidden = true
         return refreshControl
     }()
-    
+
     private lazy var popover: Popover = {
         let popover = Popover(options: nil, showHandler: nil, dismissHandler: nil)
         return popover
     }()
-    
+
+    private lazy var alert: UIAlertController = {
+        let alert = UIAlertController(title: "알림", message: "필수 항목을 입력해주세요", preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default, handler: nil)
+        alert.addAction(action)
+        return alert
+    }()
+
     // MARK: - Properties
-    
     weak var delegate: ClassItemCellUpdateDelegate?
     weak var imageDelegate: ClassImageUpdateDelegate?
     weak var classUpdateDelegate: ClassUpdateDelegate?
-
-    private let firestoreManager = FirestoreManager.shared
-    private let storageManager = StorageManager.shared
-    private let locationManager = LocationManager.shared
-    private let naverMapAPIProvider = NaverMapAPIProvider()
-
-    private var classItem: ClassItem
-    private var classImages: [UIImage]?
-    private var classImagesURL: [String]?
-    private var className: String?
-    private var classTime: String?
-    private var classDate: Set<DayWeek>?
-    private var classPlace: String?
-    private var classLocation: Location?
-    private var classKeywordLocation: String?
-    private var classSemiKeywordLocation: String?
-    private var classPrice: String?
-    private var classPriceUnit: PriceUnit = .perHour
-    private var classDescription: String?
-    private var classSubject: Set<Subject>?
-    private var classTarget: Set<Target>?
-    private var currentUser: User?
-
-    // MARK: - Initialize
+    private var viewModel:  ClassEnrollModifyViewModel
     
+    // MARK: - Initialize
     init(classItem: ClassItem) {
-        self.classItem = classItem
-        className = classItem.name
-        classTime = classItem.time
-        classDate = classItem.date
-        classPlace = classItem.place
-        classLocation = classItem.location
-        classKeywordLocation = classItem.keywordLocation
-        classSemiKeywordLocation = classItem.semiKeywordLocation
-        classPrice = classItem.price
-        classPriceUnit = classItem.priceUnit
-        classDescription = classItem.description
-        classSubject = classItem.subjects
-        classTarget = classItem.targets
-        classImagesURL = classItem.images
+        viewModel =  ClassEnrollModifyViewModel(classItem: classItem)
         super.init(nibName: nil, bundle: nil)
         self.modalPresentationStyle = .fullScreen
+        viewModel.delegate = self
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Life Cycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        getCurrentUser()
         configureUI()
         configureGesture()
+        bindingViewModel()
     }
-    
+
     // MARK: - Method
-    
-    private func getCurrentUser() {
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-                case .success(let user):
-                    self.currentUser = user
-                case .failure(let error):
-                    print(error)
-            }
-        }
-    }
-    
     private func configureUI() {
         configureNavigationBar()
         view.backgroundColor = .white
@@ -164,14 +120,12 @@ class ClassModifyViewController: UIViewController {
                                                name: UIResponder.keyboardDidHideNotification,
                                                object: nil)
     }
-    
     private func configureNavigationBar() {
         view.addSubview(customNavigationBar)
         customNavigationBar.snp.makeConstraints {
             $0.top.leading.trailing.equalTo(view.safeAreaLayoutGuide)
         }
     }
-    
     private func configureGesture() {
         let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(myTapMethod(_:)))
         singleTapGestureRecognizer.numberOfTapsRequired = 1
@@ -179,150 +133,32 @@ class ClassModifyViewController: UIViewController {
         singleTapGestureRecognizer.cancelsTouchesInView = false
         tableView.addGestureRecognizer(singleTapGestureRecognizer)
     }
-    
+    private func bindingViewModel() {
+        viewModel.isNowDataUploading.bind { [weak self] isTrue in
+            DispatchQueue.main.async {
+                if isTrue {
+                    self?.refreshControl.isHidden = false
+                    self?.refreshControl.beginRefreshing()
+                } else {
+                    self?.refreshControl.isHidden = true
+                    self?.refreshControl.endRefreshing()
+                }
+            }
+        }
+    }
+
     // MARK: - Actions
-    
     @objc func myTapMethod(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
-    
     @objc func didTapBackButton(_ button: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
-
     /// 수업 등록 메서드
     @objc func didTapEnrollButton(_ button: UIBarButtonItem) {
         view.endEditing(true)
-        let group = DispatchGroup()
-        
-        let alert: UIAlertController = {
-            let alert = UIAlertController(title: "알림", message: "필수 항목을 입력해주세요", preferredStyle: .alert)
-            let action = UIAlertAction(title: "확인", style: .default, handler: nil)
-            alert.addAction(action)
-            return alert
-        }()
-        
-        /// 수업 등록시 필수 항목 체크
-        guard let className = className, let classDescription = classDescription else {
-            present(alert, animated: true)
-            return
-        }
-        
-        /// 수업 판매 등록시
-        if classItem.itemType == .sell, classTime == nil {
-            present(alert, animated: true)
-            return
-        }
-        
-        if let classDate = classDate, classDate.isEmpty {
-            self.classDate = nil
-        }
-        if let classSubject = classSubject, classSubject.isEmpty {
-            self.classSubject = nil
-        }
-        if let classTarget = classTarget, classTarget.isEmpty {
-            self.classTarget = nil
-        }
-        
-        /// 1. 삭제한 사진 Storage에서 삭제
-        /// 2. 삭제하지 않은 사진 파악 -> Storage에 올리지 않기
-        var existingImagesCount = 0
-        classItem.images?.forEach({ url in
-            if classImagesURL?.contains(url) == false {
-                storageManager.deleteImage(urlString: url)
-            } else {
-                existingImagesCount += 1
-            }
-        })
-        if let classImages = classImages {
-            for index in existingImagesCount ..< classImages.count {
-                group.enter()
-                storageManager.upload(image: classImages[index]) { [weak self] result in
-                    switch result {
-                    case .success(let url):
-                        self?.classImagesURL?.append(url)
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
-                }
-            }
-        }
-        
-        if classLocation == nil {
-            self.classLocation = locationManager.getCurrentLocation()
-            if let location = classLocation {
-                group.enter()
-                naverMapAPIProvider.locationToDetailAddress(location: location) { [weak self] result in
-                    switch result {
-                    case .success(let address):
-                        self?.classPlace = address
-                    case .failure(let error):
-                        debugPrint(error.localizedDescription)
-                    }
-                    group.leave()
-                }
-            }
-        }
-        
-        if classLocation != classItem.location {
-            /// keyword 주소 추가 (@@구)
-            group.enter()
-            naverMapAPIProvider.locationToKeyword(location: classLocation) { [weak self] result in
-                switch result {
-                case .success(let keyword):
-                    self?.classKeywordLocation = keyword
-                case .failure(let error):
-                    debugPrint(error.localizedDescription)
-                }
-                group.leave()
-            }
-            
-            /// semiKeyword 주소 추가 (@@동)
-            group.enter()
-            naverMapAPIProvider.locationToSemiKeyword(location: classLocation) { [weak self] result in
-                switch result {
-                case .success(let semiKeyword):
-                    self?.classSemiKeywordLocation = semiKeyword
-                case .failure(let error):
-                    debugPrint(error.localizedDescription)
-                }
-                group.leave()
-            }
-        }
-
-
-        group.notify(queue: DispatchQueue.main) { [weak self] in
-            guard let self = self else { return }
-            self.refreshControl.isHidden = false
-            self.refreshControl.beginRefreshing()
-            let modifiedClassItem = ClassItem(id: self.classItem.id,
-                                              name: className,
-                                              date: self.classDate,
-                                              time: self.classTime,
-                                              place: self.classPlace,
-                                              location: self.classLocation,
-                                              semiKeywordLocation: self.classSemiKeywordLocation,
-                                              keywordLocation: self.classKeywordLocation,
-                                              price: self.classPrice,
-                                              priceUnit: self.classPriceUnit,
-                                              description: classDescription,
-                                              images: self.classImagesURL,
-                                              subjects: self.classSubject,
-                                              targets: self.classTarget,
-                                              itemType: self.classItem.itemType,
-                                              validity: true,
-                                              writer: UserDefaultsManager.shared.isLogin()!,
-                                              createdTime: Date(),
-                                              modifiedTime: nil)
-            self.firestoreManager.update(classItem: modifiedClassItem) { [weak self] in
-                guard let self = self else { return }
-                self.classUpdateDelegate?.update(with: modifiedClassItem)
-                self.refreshControl.isHidden = true
-                self.refreshControl.endRefreshing()
-                debugPrint("\(modifiedClassItem) 수정")
-                self.dismiss(animated: true, completion: nil)
-            }
+        viewModel.modifyClassItem { [weak self] classItem in
+            self?.classUpdateDelegate?.update(with: classItem)
         }
     }
 }
@@ -333,15 +169,14 @@ extension ClassModifyViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 8
     }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 7 {
             return CategoryType.allCases.count
         }
         return 1
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let classItem = viewModel.classItem else { fatalError() }
         switch indexPath.section {
         case 0:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollImageCell.identifier, for: indexPath) as? EnrollImageCell else {
@@ -389,7 +224,7 @@ extension ClassModifyViewController: UITableViewDataSource {
             }
             cell.delegate = self
             cell.setUnderline()
-            cell.configureWith(price: classItem.price, priceUnit: classPriceUnit)
+            cell.configureWith(price: classItem.price, priceUnit: classItem.priceUnit)
             delegate = cell
             return cell
         case 6:
@@ -397,7 +232,7 @@ extension ClassModifyViewController: UITableViewDataSource {
                 return UITableViewCell()
             }
             cell.delegate = self
-            cell.configureWith(description: classDescription)
+            cell.configureWith(description: classItem.description)
             return cell
         case 7:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollCategoryCell.identifier, for: indexPath) as? EnrollCategoryCell else {
@@ -408,10 +243,9 @@ extension ClassModifyViewController: UITableViewDataSource {
             cell.configureType(with: categoryType)
             switch categoryType {
             case .subject:
-                cell.configure(with: classSubject)
-                
+                cell.configure(with: classItem.subjects)
             case .target:
-                cell.configure(with: classTarget)
+                cell.configure(with: classItem.targets)
             }
             return cell
         default:
@@ -421,7 +255,6 @@ extension ClassModifyViewController: UITableViewDataSource {
 }
 
 // MARK: - TableViewDelegate
-
 extension ClassModifyViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath.section {
@@ -451,7 +284,6 @@ extension ClassModifyViewController: UITableViewDelegate {
 }
 
 // MARK: - Keyboard 관련 로직
-
 extension ClassModifyViewController {
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -468,61 +300,61 @@ extension ClassModifyViewController {
 }
 
 // MARK: - CellDelegate Extensions
-
+// MARK: - EnrollImageCellDelegate
 extension ClassModifyViewController: EnrollImageCellDelegate {
     func passData(imagesURL: [String]) {
-        classImagesURL = imagesURL
+        viewModel.classImagesURL = imagesURL
     }
-
     func passData(images: [UIImage]) {
-        classImages = images.isEmpty ? nil : images
+        viewModel.classImages = images.isEmpty ? nil : images
     }
-
     func presentFromImageCell(_ viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
 }
 
+// MARK: - EnrollNameCellDelegate
 extension ClassModifyViewController: EnrollNameCellDelegate {
     func passData(name: String?) {
-        className = name
+        viewModel.className = name
     }
-    
     func dismissKeyboard() {
         view.endEditing(true)
     }
 }
 
+// MARK: - EnrollTimeCellDelegate
 extension ClassModifyViewController: EnrollTimeCellDelegate {
     func passData(time: String?) {
-        classTime = time
+        viewModel.classTime = time
     }
     func getClassItemType() -> ClassItemType {
-        return classItem.itemType
+        return viewModel.classItem?.itemType ?? .buy
     }
 }
 
+// MARK: - EnrollDateCellDelegate
 extension ClassModifyViewController: EnrollDateCellDelegate {
     func passData(date: Set<DayWeek>) {
-        classDate = date.isEmpty ? nil : date
+        viewModel.classDate = date.isEmpty ? nil : date
     }
-    
     func presentFromDateCell(_ viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
 }
 
+// MARK: - EnrollPlaceCellDelegate
 extension ClassModifyViewController: EnrollPlaceCellDelegate {
     func presentFromPlaceCell(viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
-    
     func passData(place: String?, location: Location?) {
-        classPlace = place
-        classLocation = location
+        viewModel.classPlace = place
+        viewModel.classLocation = location
     }
 }
 
+// MARK: - EnrollPriceCellDelegate
 extension ClassModifyViewController: EnrollPriceCellDelegate {
     func showPopover(button: UIButton) {
         let rect = button.convert(button.bounds, to: self.view)
@@ -534,38 +366,46 @@ extension ClassModifyViewController: EnrollPriceCellDelegate {
         view.delegate = self
         popover.show(view, point: point)
     }
-    
     func passData(price: String?) {
-        classPrice = price
+        viewModel.classPrice = price
     }
-    
     func passData(priceUnit: PriceUnit) {
-        classPriceUnit = priceUnit
+        viewModel.classPriceUnit = priceUnit
     }
 }
 
+// MARK: - EnrollDescriptionCellDelegate
 extension ClassModifyViewController: EnrollDescriptionCellDelegate {
     func passData(description: String?) {
-        classDescription = description
+        viewModel.classDescription = description
     }
 }
 
+// MARK: - EnrollCategoryCellDelegate
 extension ClassModifyViewController: EnrollCategoryCellDelegate {
     func passData(subjects: Set<Subject>) {
-        classSubject = subjects.isEmpty ? nil : subjects
+        viewModel.classSubject = subjects.isEmpty ? nil : subjects
     }
-    
     func passData(targets: Set<Target>) {
-        classTarget = targets.isEmpty ? nil : targets
+        viewModel.classTarget = targets.isEmpty ? nil : targets
     }
 }
 
 // MARK: - PriceUnitTableViewDelegate
-
 extension ClassModifyViewController: PriceUnitTableViewDelegate {
     func selectedPriceUnit(priceUnit: PriceUnit) {
-        classPriceUnit = priceUnit
+        viewModel.classPriceUnit = priceUnit
         delegate?.updatePriceUnit(with: priceUnit)
         popover.dismiss()
+    }
+}
+
+// MARK: - ClassEnrollModifyViewModelDelegate
+extension ClassModifyViewController: ClassEnrollModifyViewModelDelegate {
+    func presentAlert() {
+        present(alert, animated: true)
+    }
+    func dismissViewController() {
+        dismiss(animated: true)
     }
 }

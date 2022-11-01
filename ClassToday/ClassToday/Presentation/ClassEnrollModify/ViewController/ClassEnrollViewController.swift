@@ -28,7 +28,7 @@ class ClassEnrollViewController: UIViewController {
     }()
 
     private lazy var customNavigationItem: UINavigationItem = {
-        let item = UINavigationItem(title: "수업 \(classItemType.rawValue) 등록하기")
+        let item = UINavigationItem(title: "수업 \(viewModel.classItemType.rawValue) 등록하기")
         let leftButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(didTapBackButton(_:)))
         let rightButton = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(didTapEnrollButton(_:)))
         leftButton.tintColor = UIColor.mainColor
@@ -67,36 +67,25 @@ class ClassEnrollViewController: UIViewController {
         refreshControl.isHidden = true
         return refreshControl
     }()
-    
+
+    private lazy var alert: UIAlertController = {
+        let alert = UIAlertController(title: "알림", message: "필수 항목을 입력해주세요", preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default, handler: nil)
+        alert.addAction(action)
+        return alert
+    }()
+
     // MARK: - Properties
     weak var delegate: ClassItemCellUpdateDelegate?
-    private let firestoreManager = FirestoreManager.shared
-    private let storageManager = StorageManager.shared
-    private let locationManager = LocationManager.shared
-    private let naverMapAPIProvider = NaverMapAPIProvider()
-
-    private let classItemType: ClassItemType
-    private var classImages: [UIImage]?
-    private var className: String?
-    private var classTime: String?
-    private var classDate: Set<DayWeek>?
-    private var classPlace: String?             // 도로명주소 값
-    private var classPrice: String?
-    private var classPriceUnit: PriceUnit = .perHour
-    private var classDescription: String?
-    private var classSubject: Set<Subject>?
-    private var classTarget: Set<Target>?
-    private var classLocation: Location?        // 위도, 경도 값
-    private var classSemiKeywordLocation: String?          // "@@시"
-    private var classKeywordLocation: String?   // 패칭 기준값, "@@구"
-    private var currentUser: User?
+    private var viewModel:  ClassEnrollModifyViewModel
 
     // MARK: - Initialize
 
     init(classItemType: ClassItemType) {
-        self.classItemType = classItemType
+        viewModel =  ClassEnrollModifyViewModel(classItemType: classItemType)
         super.init(nibName: nil, bundle: nil)
-        self.modalPresentationStyle = .fullScreen
+        modalPresentationStyle = .fullScreen
+        viewModel.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -107,25 +96,12 @@ class ClassEnrollViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        getCurrentUser()
         configureUI()
         configureGesture()
+        bindingViewModel()
     }
 
     // MARK: - Method
-
-    private func getCurrentUser() {
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-                case .success(let user):
-                    self.currentUser = user
-                case .failure(let error):
-                    print(error)
-            }
-        }
-    }
-    
     private func configureUI() {
         configureNavigationBar()
         view.backgroundColor = .white
@@ -163,149 +139,37 @@ class ClassEnrollViewController: UIViewController {
         singleTapGestureRecognizer.cancelsTouchesInView = false
         tableView.addGestureRecognizer(singleTapGestureRecognizer)
     }
+    
+    private func bindingViewModel() {
+        viewModel.isNowDataUploading.bind { [weak self] isTrue in
+            DispatchQueue.main.async {
+                if isTrue {
+                    self?.refreshControl.isHidden = false
+                    self?.refreshControl.beginRefreshing()
+                } else {
+                    self?.refreshControl.isHidden = true
+                    self?.refreshControl.endRefreshing()
+                }
+            }
+        }
+    }
 
     // MARK: - Actions
     /// 탭 제스쳐가 들어가면, 수정모드를 종료한다
     @objc func myTapMethod(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
-
     @objc func didTapBackButton(_ button: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
-
     /// 수업 등록 메서드
     @objc func didTapEnrollButton(_ button: UIBarButtonItem) {
         view.endEditing(true)
-        var classImagesURL: [String] = []
-        let group = DispatchGroup()
-
-        let alert: UIAlertController = {
-            let alert = UIAlertController(title: "알림", message: "필수 항목을 입력해주세요", preferredStyle: .alert)
-            let action = UIAlertAction(title: "확인", style: .default, handler: nil)
-            alert.addAction(action)
-            return alert
-        }()
-
-        /// 수업 등록시 필수 항목 체크
-        guard let className = className, let classDescription = classDescription else {
-            present(alert, animated: true)
-            return
-        }
-
-        /// 수업 판매 등록시
-        if classItemType == .sell, classTime == nil {
-            present(alert, animated: true)
-            return
-        }
-
-        if let classDate = classDate, classDate.isEmpty {
-            self.classDate = nil
-        }
-        if let classSubject = classSubject, classSubject.isEmpty {
-            self.classSubject = nil
-        }
-        if let classTarget = classTarget, classTarget.isEmpty {
-            self.classTarget = nil
-        }
-        if let classImages = classImages {
-            for image in classImages {
-                group.enter()
-                storageManager.upload(image: image) { result in
-                    switch result {
-                    case .success(let url):
-                        classImagesURL.append(url)
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
-                }
-            }
-        }
-        /// location 추가
-        if classLocation == nil {
-            self.classLocation = locationManager.getCurrentLocation()
-        }
-        /// place (도로명주소) 추가
-        if classPlace == nil {
-            if let location = classLocation {
-                group.enter()
-                naverMapAPIProvider.locationToDetailAddress(location: location) { [weak self] result in
-                    guard let self = self else { return }
-                    switch result {
-                    case .success(let address):
-                        self.classPlace = address
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
-                }
-            } else {
-                print("Enroll ClassItem but, No Location")
-            }
-        }
-        /// keyword 주소 추가 (@@구)
-        group.enter()
-        naverMapAPIProvider.locationToKeyword(location: classLocation) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let keyword):
-                self.classKeywordLocation = keyword
-            case .failure(let error):
-                debugPrint(error)
-            }
-            group.leave()
-        }
-        
-        /// semiKeyword 주소 추가 (@@동)
-        group.enter()
-        naverMapAPIProvider.locationToSemiKeyword(location: classLocation) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let semiKeyword):
-                self.classSemiKeywordLocation = semiKeyword
-            case .failure(let error):
-                debugPrint(error)
-            }
-            group.leave()
-        }
-
-        group.notify(queue: DispatchQueue.main) { [weak self] in
-            guard let self = self else { return }
-            self.refreshControl.isHidden = false
-            self.refreshControl.beginRefreshing()
-            let classItem = ClassItem(name: className,
-                                      date: self.classDate,
-                                      time: self.classTime,
-                                      place: self.classPlace,
-                                      location: self.classLocation,
-                                      semiKeywordLocation: self.classSemiKeywordLocation,
-                                      keywordLocation: self.classKeywordLocation,
-                                      price: self.classPrice,
-                                      priceUnit: self.classPriceUnit,
-                                      description: classDescription,
-                                      images: classImagesURL,
-                                      subjects: self.classSubject,
-                                      targets: self.classTarget,
-                                      itemType: self.classItemType,
-                                      validity: true,
-                                      writer: UserDefaultsManager.shared.isLogin()!,
-                                      createdTime: Date(),
-                                      modifiedTime: nil
-            )
-            self.firestoreManager.upload(classItem: classItem) { [weak self] in
-                guard let self = self else { return }
-                debugPrint("\(classItem) 등록")
-                self.refreshControl.isHidden = true
-                self.refreshControl.endRefreshing()
-                self.dismiss(animated: true, completion: nil)
-            }
-        }
+        viewModel.enrollClassItem()
     }
 }
 
 // MARK: - TableViewDataSource
-
 extension ClassEnrollViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 8
@@ -372,7 +236,6 @@ extension ClassEnrollViewController: UITableViewDataSource {
 }
 
 // MARK: - TableViewDelegate
-
 extension ClassEnrollViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath.section {
@@ -402,7 +265,6 @@ extension ClassEnrollViewController: UITableViewDelegate {
 }
 
 // MARK: - Keyboard 관련 로직
-
 extension ClassEnrollViewController {
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
@@ -411,7 +273,6 @@ extension ClassEnrollViewController {
         tableView.contentInset = contentInset
         tableView.scrollIndicatorInsets = contentInset
     }
-
     @objc func keyboardWillHide() {
         let contentInset = UIEdgeInsets.zero
         tableView.contentInset = contentInset
@@ -420,52 +281,52 @@ extension ClassEnrollViewController {
 }
 
 // MARK: - CellDelegate Extensions
-
 extension ClassEnrollViewController: EnrollImageCellDelegate {
     func passData(imagesURL: [String]) {
         return
     }
-
     func passData(images: [UIImage]) {
-        classImages = images.isEmpty ? nil : images
+        viewModel.classImages = images.isEmpty ? nil : images
     }
-
     func presentFromImageCell(_ viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
 }
 
+// MARK: - EnrollNameCellDelegate
 extension ClassEnrollViewController: EnrollNameCellDelegate {
     func passData(name: String?) {
-        className = name
+        viewModel.className = name
     }
 }
 
+// MARK: - EnrollTimeCellDelegate
 extension ClassEnrollViewController: EnrollTimeCellDelegate {
     func passData(time: String?) {
-        classTime = time
+        viewModel.classTime = time
         view.endEditing(true)
     }
     func getClassItemType() -> ClassItemType {
-        return classItemType
+        return viewModel.classItemType
     }
 }
 
+// MARK: - EnrollDateCellDelegate
 extension ClassEnrollViewController: EnrollDateCellDelegate {
     func passData(date: Set<DayWeek>) {
-        classDate = date
+        viewModel.classDate = date
     }
-
     func presentFromDateCell(_ viewController: UIViewController) {
         view.endEditing(true)
         self.present(viewController, animated: true, completion: nil)
     }
 }
 
+// MARK: - EnrollPlaceCellDelegate
 extension ClassEnrollViewController: EnrollPlaceCellDelegate {
     func passData(place: String?, location: Location?) {
-        classPlace = place
-        classLocation = location
+        viewModel.classPlace = place
+        viewModel.classLocation = location
     }
     
     func presentFromPlaceCell(viewController: UIViewController) {
@@ -473,6 +334,7 @@ extension ClassEnrollViewController: EnrollPlaceCellDelegate {
     }
 }
 
+// MARK: - EnrollPriceCellDelegate
 extension ClassEnrollViewController: EnrollPriceCellDelegate {
     func showPopover(button: UIButton) {
         let rect = button.convert(button.bounds, to: self.view)
@@ -484,38 +346,46 @@ extension ClassEnrollViewController: EnrollPriceCellDelegate {
         view.delegate = self
         popover.show(view, point: point)
     }
-
     func passData(price: String?) {
-        classPrice = price
+        viewModel.classPrice = price
     }
-
     func passData(priceUnit: PriceUnit) {
-        classPriceUnit = priceUnit
+        viewModel.classPriceUnit = priceUnit
     }
 }
 
+// MARK: - EnrollDescriptionCellDelegate
 extension ClassEnrollViewController: EnrollDescriptionCellDelegate {
     func passData(description: String?) {
-        classDescription = description
+        viewModel.classDescription = description
     }
 }
 
+// MARK: - EnrollCategoryCellDelegate
 extension ClassEnrollViewController: EnrollCategoryCellDelegate {
     func passData(subjects: Set<Subject>) {
-        classSubject = subjects
+        viewModel.classSubject = subjects
     }
-
     func passData(targets: Set<Target>) {
-        classTarget = targets
+        viewModel.classTarget = targets
     }
 }
 
 // MARK: - PriceUnitTableViewDelegate
-
 extension ClassEnrollViewController: PriceUnitTableViewDelegate {
     func selectedPriceUnit(priceUnit: PriceUnit) {
-        classPriceUnit = priceUnit
+        viewModel.classPriceUnit = priceUnit
         delegate?.updatePriceUnit(with: priceUnit)
         popover.dismiss()
+    }
+}
+
+// MARK: - ClassEnrollModifyViewModelDelegate
+extension ClassEnrollViewController: ClassEnrollModifyViewModelDelegate {
+    func presentAlert() {
+        present(alert, animated: true)
+    }
+    func dismissViewController() {
+        dismiss(animated: true)
     }
 }
