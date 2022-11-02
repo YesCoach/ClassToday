@@ -80,7 +80,6 @@ class ClassEnrollViewController: UIViewController {
     private var viewModel:  ClassEnrollModifyViewModel
 
     // MARK: - Initialize
-
     init(classItemType: ClassItemType) {
         viewModel =  ClassEnrollModifyViewModel(classItemType: classItemType)
         super.init(nibName: nil, bundle: nil)
@@ -93,7 +92,6 @@ class ClassEnrollViewController: UIViewController {
     }
 
     // MARK: - Life Cycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()

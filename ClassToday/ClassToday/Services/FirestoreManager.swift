@@ -87,7 +87,7 @@ class FirestoreManager {
             }
         }
     }
-    
+
     /// ClassItem을 지역 기준으로 패칭합니다.
     ///
     /// - parameter keyword: 키워드 문자열(@@구)

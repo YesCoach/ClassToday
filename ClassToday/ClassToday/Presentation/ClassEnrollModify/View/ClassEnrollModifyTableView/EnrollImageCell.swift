@@ -7,7 +7,6 @@
 
 import UIKit
 import PhotosUI
-import SwiftUI
 
 protocol EnrollImageCellDelegate: AnyObject {
     func presentFromImageCell(_ viewController: UIViewController)

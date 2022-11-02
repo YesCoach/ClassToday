@@ -15,7 +15,6 @@ protocol ClassDateSelectionViewControllerDelegate: AnyObject {
 class ClassDateSelectionViewController: UIViewController {
 
     // MARK: - Views
-
     private lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.itemSize = CGSize(width: view.frame.width * 0.30, height: ClassCategoryCollectionViewCell.height)
@@ -45,7 +44,6 @@ class ClassDateSelectionViewController: UIViewController {
     }()
 
     // MARK: - Properties
- 
     weak var delegate: ClassDateSelectionViewControllerDelegate?
     var selectedDate: Set<DayWeek> = []
 
@@ -56,7 +54,6 @@ class ClassDateSelectionViewController: UIViewController {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         containerView.addSubview(collectionView)
         collectionView.snp.makeConstraints {
@@ -76,7 +73,6 @@ class ClassDateSelectionViewController: UIViewController {
 }
 
 // MARK: - Touch 관련 메소드
-
 extension ClassDateSelectionViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         dismiss(animated: true) { [weak self] in
@@ -122,7 +118,6 @@ extension ClassDateSelectionViewController: UICollectionViewDataSource {
 }
 
 // MARK: - CollectionViewDelegateFlowLayout
-
 extension ClassDateSelectionViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         let width: CGFloat = collectionView.frame.width
