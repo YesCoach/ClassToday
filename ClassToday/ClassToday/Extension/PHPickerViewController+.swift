@@ -8,7 +8,6 @@
 import PhotosUI
 
 // MARK: PHPickerViewController 생성 함수
-
 extension PHPickerViewController {
     static func makeImagePicker(selectLimit: Int) -> PHPickerViewController {
         var configuration = PHPickerConfiguration()
