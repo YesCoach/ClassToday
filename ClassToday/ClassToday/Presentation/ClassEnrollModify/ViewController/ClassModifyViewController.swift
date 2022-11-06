@@ -240,12 +240,11 @@ extension ClassModifyViewController: UITableViewDataSource {
             }
             cell.delegate = self
             let categoryType = CategoryType.allCases[indexPath.row]
-            cell.configureType(with: categoryType)
             switch categoryType {
             case .subject:
-                cell.configure(with: classItem.subjects)
+                cell.configure(with: categoryType, selectedCategory: Array(classItem.subjects ?? []))
             case .target:
-                cell.configure(with: classItem.targets)
+                cell.configure(with: categoryType, selectedCategory: Array(classItem.targets ?? []))
             }
             return cell
         default:
@@ -383,11 +382,22 @@ extension ClassModifyViewController: EnrollDescriptionCellDelegate {
 
 // MARK: - EnrollCategoryCellDelegate
 extension ClassModifyViewController: EnrollCategoryCellDelegate {
-    func passData(subjects: Set<Subject>) {
-        viewModel.classSubject = subjects.isEmpty ? nil : subjects
-    }
-    func passData(targets: Set<Target>) {
-        viewModel.classTarget = targets.isEmpty ? nil : targets
+    func passData(categoryType: CategoryType, categoryItems: [CategoryItem]) {
+        /// 중복체크를 위한 Set 처리
+        switch categoryType {
+        case .subject:
+            if categoryItems.isEmpty {
+                viewModel.classSubject = nil
+            } else {
+                viewModel.classSubject = Set(categoryItems.compactMap{$0 as? Subject})
+            }
+        case .target:
+            if categoryItems.isEmpty {
+                viewModel.classTarget = nil
+            } else {
+                viewModel.classTarget = Set(categoryItems.compactMap{$0 as? Target})
+            }
+        }
     }
 }
 

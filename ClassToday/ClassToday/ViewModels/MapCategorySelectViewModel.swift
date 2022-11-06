@@ -27,10 +27,16 @@ public class MapCategorySelectViewModel: ViewModel {
         }
         selectedCategory.value.remove(at: index)
     }
+    
+    /// 특정 카테고리 항목을 받아옵니다.
+    func getCategoryItem(at index: Int) -> CategoryItem {
+        return categoryType.allcases[index]
+    }
+    
     /// 포함되어 있는지 확인 후 Boolean 반환
-    func isSelected(data: CategoryItem) -> Bool {
+    func isCategorySelected(categoryItem: CategoryItem) -> Bool {
         return selectedCategory.value.contains { item in
-            item.description == data.description
+            item.description == categoryItem.description
         }
     }
 }

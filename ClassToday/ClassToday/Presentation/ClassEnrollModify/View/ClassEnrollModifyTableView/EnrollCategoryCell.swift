@@ -8,14 +8,12 @@
 import UIKit
 
 protocol EnrollCategoryCellDelegate: AnyObject {
-    func passData(subjects: Set<Subject>)
-    func passData(targets: Set<Target>)
+    func passData(categoryType: CategoryType, categoryItems: [CategoryItem])
 }
 
 class EnrollCategoryCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.itemSize = CGSize(width: contentView.frame.width * 0.50, height: ClassCategoryCollectionViewCell.height)
@@ -39,19 +37,16 @@ class EnrollCategoryCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: EnrollCategoryCellDelegate?
     static let identifier = "EnrollCategoryCell"
-    private var selectedSubject: Set<Subject> = []
-    private var selectedTarget: Set<Target> = []
-    private var categoryType: CategoryType = .subject
+    private var viewModel: EnrollCategoryViewModel = EnrollCategoryViewModel()
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
         configureUI()
+        bindingViewModel()
     }
 
     required init?(coder: NSCoder) {
@@ -59,7 +54,6 @@ class EnrollCategoryCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(collectionView)
         collectionView.snp.makeConstraints {
@@ -68,37 +62,30 @@ class EnrollCategoryCell: UITableViewCell {
         }
     }
 
-    func configureType(with categoryType: CategoryType) {
-        self.categoryType = categoryType
+    private func bindingViewModel() {
+        viewModel.categoryType.bind { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.collectionView.reloadData()
+            }
+        }
+        viewModel.selectedCategory.bind { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.collectionView.reloadData()
+            }
+        }
     }
 
     // MARK: - categoryTypeMethod
-
-    func configure(with selectedSubject: Set<Subject>?) {
-        guard let selectedSubject = selectedSubject else {
-            return
-        }
-        self.selectedSubject = selectedSubject
-    }
-
-    func configure(with selectedTarget: Set<Target>?) {
-        guard let selectedTarget = selectedTarget else {
-            return
-        }
-        self.selectedTarget = selectedTarget
+    func configure(with categoryType: CategoryType, selectedCategory: [CategoryItem]?) {
+        viewModel.setCategoryType(with: categoryType)
+        viewModel.setSelectedCategory(with: selectedCategory)
     }
 }
 
 // MARK: - UICollectionViewDataSource
-
 extension EnrollCategoryCell: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch categoryType {
-        case .subject:
-            return Subject.allCases.count
-        case .target:
-            return Target.allCases.count
-        }
+        return viewModel.categoryType.value?.count ?? 0
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -107,16 +94,11 @@ extension EnrollCategoryCell: UICollectionViewDataSource {
             for: indexPath) as? ClassCategoryCollectionViewCell else {
             return UICollectionViewCell()
         }
-        switch categoryType {
-        case .subject:
-            let categoryItem = Subject.allCases[indexPath.row]
-            cell.configure(with: categoryItem)
-            cell.configure(isSelected: selectedSubject.contains(categoryItem))
-        case .target:
-            let categoryItem = Target.allCases[indexPath.row]
-            cell.configure(with: categoryItem)
-            cell.configure(isSelected: selectedTarget.contains(categoryItem))
+        guard let categoryItem = viewModel.getCategoryItem(at: indexPath.row) else {
+            return UICollectionViewCell()
         }
+        cell.configure(with: categoryItem,
+                       isSelected: viewModel.isCategorySelected(categoryItem: categoryItem))
         cell.delegate = self
         return cell
     }
@@ -127,7 +109,7 @@ extension EnrollCategoryCell: UICollectionViewDataSource {
             guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: ClassCategoryCollectionReusableView.identifier, for: indexPath) as? ClassCategoryCollectionReusableView else {
                 return UICollectionReusableView()
             }
-            headerView.configure(with: categoryType)
+            headerView.configure(with: viewModel.categoryType.value ?? .subject)
             return headerView
         default:
             assert(false)
@@ -147,24 +129,12 @@ extension EnrollCategoryCell: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - CategoryCollectionViewCellDelegate
-
 extension EnrollCategoryCell: ClassCategoryCollectionViewCellDelegate {
     func reflectSelection(item: CategoryItem?, isChecked: Bool) {
-        guard let item = item else { return }
-        if let item = item as? Subject {
-            if isChecked {
-                selectedSubject.insert(item)
-            } else {
-                selectedSubject.remove(item)
-            }
-            delegate?.passData(subjects: selectedSubject)
-        } else if let item = item as? Target {
-            if isChecked {
-                selectedTarget.insert(item)
-            } else {
-                selectedTarget.remove(item)
-            }
-            delegate?.passData(targets: selectedTarget)
-        }
+        guard let item = item,
+              let type = viewModel.categoryType.value else { return }
+        isChecked ? viewModel.appendCategoryItem(with: item) : viewModel.removeCategoryItem(with: item)
+        delegate?.passData(categoryType: type,
+                           categoryItems: viewModel.selectedCategory.value)
     }
 }

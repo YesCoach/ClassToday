@@ -67,19 +67,17 @@ class ClassCategoryCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    func configure(with category: CategoryItem) {
+    func configure(with category: CategoryItem, isSelected: Bool) {
         categoryItem = category
         nameLabel.text = category.description
-    }
-
-    func configure(isSelected: Bool) {
         if isSelected {
             button.isSelected = true
+        } else {
+            button.isSelected = false
         }
     }
 
     // MARK: - Actions
-
     @objc func clicked(_ button: UIButton) {
         if button.isSelected {
             button.isSelected = false

@@ -106,15 +106,9 @@ extension MapCategorySelectViewController: UICollectionViewDataSource {
             for: indexPath) as? ClassCategoryCollectionViewCell else {
             return UICollectionViewCell()
         }
-        var categoryItem: CategoryItem
-        switch viewModel.categoryType {
-        case .subject:
-            categoryItem = Subject.allCases[indexPath.row]
-        case .target:
-            categoryItem = Target.allCases[indexPath.row]
-        }
-        cell.configure(with: categoryItem)
-        cell.configure(isSelected: viewModel.isSelected(data: categoryItem))
+        let categoryItem = viewModel.getCategoryItem(at: indexPath.row)
+        cell.configure(with: categoryItem,
+                       isSelected: viewModel.isCategorySelected(categoryItem: categoryItem))
         cell.delegate = self
         return cell
     }

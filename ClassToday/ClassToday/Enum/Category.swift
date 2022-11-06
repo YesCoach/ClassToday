@@ -20,6 +20,15 @@ enum CategoryType: CaseIterable {
             return Target.count
         }
     }
+    
+    var allcases: [CategoryItem] {
+        switch self {
+        case .subject:
+            return Subject.allCases
+        case .target:
+            return Target.allCases
+        }
+    }
 }
 
 public protocol CategoryItem: Codable {

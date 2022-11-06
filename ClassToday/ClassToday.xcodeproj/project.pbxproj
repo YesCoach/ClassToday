@@ -113,6 +113,7 @@
 		89846E1B2910E6E200121B40 /* ClassEnrollModifyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */; };
 		89846E1D2912635300121B40 /* MapSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89846E1C2912635300121B40 /* MapSelectionViewModel.swift */; };
 		89846E1F2912C10C00121B40 /* EnrollImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */; };
+		89846E2129137EE600121B40 /* EnrollCategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */; };
 		89865E9D282A70D700113242 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF850F9280DC02800D5D3DC /* MainViewController.swift */; };
 		89865E9E282A70DC00113242 /* SearchRecentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC87FA9F281ECF6500F57CE0 /* SearchRecentTableViewCell.swift */; };
 		89865E9F282A70DE00113242 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCF850FE280E6AD300D5D3DC /* SearchViewController.swift */; };
@@ -295,6 +296,7 @@
 		89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassEnrollModifyViewModel.swift; sourceTree = "<group>"; };
 		89846E1C2912635300121B40 /* MapSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSelectionViewModel.swift; sourceTree = "<group>"; };
 		89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnrollImageViewModel.swift; sourceTree = "<group>"; };
+		89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnrollCategoryViewModel.swift; sourceTree = "<group>"; };
 		8996175928D1B18100BCCB0D /* KakaoLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KakaoLoginManager.swift; sourceTree = "<group>"; };
 		899D3EFF2834E5E8009061CD /* DetailContentCategoryCollectionFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailContentCategoryCollectionFlowLayout.swift; sourceTree = "<group>"; };
 		89A0CD3B280D441A006FDF89 /* ClassImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassImageCell.swift; sourceTree = "<group>"; };
@@ -754,6 +756,7 @@
 				89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */,
 				89846E1C2912635300121B40 /* MapSelectionViewModel.swift */,
 				89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */,
+				89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1090,6 +1093,7 @@
 				89098E0D28203A04006EFD4E /* Category.swift in Sources */,
 				89CBB3A42907BCCE005161EE /* ViewModel.swift in Sources */,
 				89098E4D28245503006EFD4E /* DayWeek.swift in Sources */,
+				89846E2129137EE600121B40 /* EnrollCategoryViewModel.swift in Sources */,
 				89DCD073288EF10C00C1CCA3 /* MapSelectionViewController.swift in Sources */,
 				6B7997BD27F33C4C00F37393 /* User.swift in Sources */,
 				89A3143C286D9DA300A7F6ED /* MapCategoryView.swift in Sources */,

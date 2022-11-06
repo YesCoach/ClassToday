@@ -225,7 +225,7 @@ extension ClassEnrollViewController: UITableViewDataSource {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollCategoryCell.identifier, for: indexPath)
                     as? EnrollCategoryCell else { return UITableViewCell() }
             cell.delegate = self
-            cell.configureType(with: CategoryType.allCases[indexPath.row])
+            cell.configure(with: CategoryType.allCases[indexPath.row], selectedCategory: [])
             return cell
         default:
             return UITableViewCell()
@@ -361,11 +361,14 @@ extension ClassEnrollViewController: EnrollDescriptionCellDelegate {
 
 // MARK: - EnrollCategoryCellDelegate
 extension ClassEnrollViewController: EnrollCategoryCellDelegate {
-    func passData(subjects: Set<Subject>) {
-        viewModel.classSubject = subjects
-    }
-    func passData(targets: Set<Target>) {
-        viewModel.classTarget = targets
+    func passData(categoryType: CategoryType, categoryItems: [CategoryItem]) {
+        /// 중복체크를 위한 Set 처리
+        switch categoryType {
+        case .subject:
+            viewModel.classSubject = Set(categoryItems.compactMap{$0 as? Subject})
+        case .target:
+            viewModel.classTarget = Set(categoryItems.compactMap{$0 as? Target})
+        }
     }
 }
 
