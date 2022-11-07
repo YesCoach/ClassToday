@@ -26,7 +26,7 @@ class ClassDetailViewController: UIViewController {
     }()
     private lazy var navigationBar: DetailCustomNavigationBar = {
         let navigationBar = DetailCustomNavigationBar(isImages: true)
-        navigationBar.setupButton(with: classItem.writer)
+        navigationBar.setupButton(with: viewModel.classItem.writer)
         navigationBar.delegate = self
         return navigationBar
     }()
@@ -40,34 +40,28 @@ class ClassDetailViewController: UIViewController {
     private lazy var disableAlertController: UIAlertController = {
         let alert = UIAlertController(title: "모집을 종료하시겠습니까?", message: nil, preferredStyle: .alert)
         alert.view?.tintColor = .mainColor
-        
         let closeAction = UIAlertAction(title: "예", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.toggleClassItem()
         }
-        
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
         cancelAction.titleTextColor = .red
-        
         [
             closeAction,
             cancelAction
         ].forEach { alert.addAction($0) }
         return alert
     }()
-    
+
     private lazy var enableAlertController: UIAlertController = {
         let alert = UIAlertController(title: "모집을 재개할까요?", message: nil, preferredStyle: .alert)
         alert.view?.tintColor = .mainColor
-        
         let closeAction = UIAlertAction(title: "예", style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.toggleClassItem()
         }
-        
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
         cancelAction.titleTextColor = .red
-        
         [
             closeAction,
             cancelAction
@@ -86,19 +80,14 @@ class ClassDetailViewController: UIViewController {
     }()
 
     // MARK: - Properties
-    var checkChannel: [Channel] = []
-    private var classItem: ClassItem
-    private var currentUser: User?
-    private var writer: User?
     var delegate: ClassUpdateDelegate?
-    private let storageManager = StorageManager.shared
-    private let firestoreManager = FirestoreManager.shared
-    private let firebaseAuthManager = FirebaseAuthManager.shared
+    private var viewModel: ClassDetailViewModel
 
     // MARK: - Initialize
     init(classItem: ClassItem) {
-        self.classItem = classItem
+        viewModel = ClassDetailViewModel(classItem: classItem)
         super.init(nibName: nil, bundle: nil)
+        viewModel.delegate = self
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -110,16 +99,14 @@ class ClassDetailViewController: UIViewController {
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        getUsers()
         setUpUI()
-        activityIndicator.startAnimating()
+        bindingViewModel()
         self.setNeedsStatusBarAppearanceUpdate()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        checkIsChannelAlreadyMade()
-        checkStar()
+        viewModel.checkIsChannelAlreadyMade()
         navigationController?.navigationBar.isHidden = true
         blackBackNavigationBar()
     }
@@ -129,55 +116,14 @@ class ClassDetailViewController: UIViewController {
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.barStyle = .default
-        navigationController?.navigationBar.isHidden = false
     }
 
     // MARK: - Method
-    private func checkIsChannelAlreadyMade() {
-        switch classItem.itemType {
-            case .buy:
-                firestoreManager.checkChannel(sellerID: UserDefaultsManager.shared.isLogin()!, buyerID: classItem.writer, classItemID: classItem.id) { [weak self] data in
-                    guard let self = self else { return }
-                    self.checkChannel = data
-                }
-            case .sell:
-                firestoreManager.checkChannel(sellerID: classItem.writer, buyerID: UserDefaultsManager.shared.isLogin()!, classItemID: classItem.id) { [weak self] data in
-                    guard let self = self else { return }
-                    self.checkChannel = data
-                }
-        }
-        
-        print(checkChannel.count)
-    }
-    
-    func getUsers() {
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser = user
-                self.checkStar()
-            case .failure(let error):
-                print("ERROR \(error)🌔")
-            }
-        }
-        FirestoreManager.shared.readUser(uid: classItem.writer) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-                case .success(let user):
-                    self.writer = user
-                case .failure(let error):
-                    print(error)
-            }
-        }
-    }
-
     private func setUpUI() {
         view.backgroundColor = .white
         [tableView, navigationBar].forEach {view.addSubview($0)}
         tableView.addSubview(matchingButton)
         tableView.addSubview(activityIndicator)
-
         tableView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
             $0.top.equalToSuperview()
@@ -189,12 +135,6 @@ class ClassDetailViewController: UIViewController {
             $0.centerX.equalTo(view)
             $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-24)
             $0.width.equalTo(view).multipliedBy(0.5)
-        }
-
-        if classItem.validity {
-            setButtonOnSale()
-        } else {
-            setButtonOffSale()
         }
     }
 
@@ -218,68 +158,22 @@ class ClassDetailViewController: UIViewController {
         navigationController?.navigationBar.barStyle = .black
     }
 
-    // MARK: - Actions
-    @objc func didTapMatchingButton(_ button: UIButton) {
-//        if matchingButton.titleLabel?.text == "종료된 수업입니다" {
-//            print("종료된 수업입니다")
-//            return
-//        }
-        if classItem.validity == true {
-            if classItem.writer == currentUser?.id {
-                present(disableAlertController, animated: true)
-            } else {
-                if checkChannel.isEmpty {
-                    let channel: Channel
-                    switch classItem.itemType {
-                        case .buy:
-                            channel = Channel(sellerID: currentUser?.id ?? "", buyerID: classItem.writer, classItem: classItem)
-                        case .sell:
-                            channel = Channel(sellerID: classItem.writer, buyerID: currentUser?.id ?? "", classItem: classItem)
-                    }
-                    
-                    if let channels = currentUser?.channels {
-                        currentUser?.channels!.append(channel.id)
-                    } else {
-                        currentUser?.channels = [channel.id]
-                    }
-                    
-                    if let channels2 = writer?.channels {
-                        writer?.channels!.append(channel.id)
-                    } else {
-                        writer?.channels = [channel.id]
-                    }
-                    
-                    firestoreManager.uploadUser(user: currentUser!) { result in
-                        switch result {
-                            case .success(_):
-                                print("업로드 성공")
-                            case .failure(_):
-                                print("업로드 실패")
-                        }
-                    }
-                    
-                    firestoreManager.uploadUser(user: writer!) { result in
-                        switch result {
-                            case .success(_):
-                                print("업로드 성공2")
-                            case .failure(_):
-                                print("업로드 실패2")
-                        }
-                    }
-                    firestoreManager.uploadChannel(channel: channel)
-                    let viewcontroller = ChatViewController(channel: channel)
-                    navigationController?.pushViewController(viewcontroller, animated: true)
-                } else {
-                    let channel = checkChannel[0]
-                    let viewController = ChatViewController(channel: channel)
-                    navigationController?.pushViewController(viewController, animated: true)
-                }
-            }
-        } else {
-            if classItem.writer == currentUser?.id {
-                present(enableAlertController, animated: true)
+    private func bindingViewModel() {
+        viewModel.isNowFetchingImages.bind { [weak self] isTrue in
+            DispatchQueue.main.async {
+                isTrue ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
             }
         }
+        viewModel.isClassItemOnSale.bind { [weak self] isTrue in
+            isTrue ? self?.setButtonOnSale() : self?.setButtonOffSale()
+        }
+        viewModel.isStarButtonSelected.bind { [weak self] isTrue in
+            self?.navigationBar.starButton.isSelected = isTrue
+        }
+    }
+    // MARK: - Actions
+    @objc func didTapMatchingButton(_ button: UIButton) {
+        viewModel.matchingUsers()
     }
 }
 
@@ -300,25 +194,19 @@ extension ClassDetailViewController: UITableViewDataSource {
                 return UITableViewCell()
             }
             cell.delegate = self
-            classItem.fetchedImages { [weak self] images in
-                DispatchQueue.main.async {
-                    self?.activityIndicator.stopAnimating()
-                    cell.configureWith(images: images)
-                }
+            viewModel.classItemImages.bind { images in
+                cell.configureWith(images: images)
             }
             return cell
         case 1:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailUserCell.identifier, for: indexPath) as? DetailUserCell else {
                 return UITableViewCell()
             }
-            firestoreManager.readUser(uid: classItem.writer) { [weak self] result in
-                switch result {
-                case .success(let user):
+            viewModel.writer.bind { [weak self] user in
+                if let user = user {
                     cell.configure(with: user) {
                         self?.navigationController?.pushViewController(ProfileDetailViewController(user: $0), animated: true)
                     }
-                case .failure(let error):
-                    debugPrint(error)
                 }
             }
             return cell
@@ -326,7 +214,7 @@ extension ClassDetailViewController: UITableViewDataSource {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailContentCell.identifier, for: indexPath) as? DetailContentCell else {
                 return UITableViewCell()
             }
-            cell.configureWith(classItem: classItem)
+            cell.configureWith(classItem: viewModel.classItem)
             return cell
         default:
             return UITableViewCell()
@@ -365,6 +253,7 @@ extension ClassDetailViewController: DetailImageCellDelegate {
     func present(_ viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
+
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         return 400
     }
@@ -375,69 +264,39 @@ extension ClassDetailViewController: DetailCustomNavigationBarDelegate {
     func goBackPage() {
         navigationController?.popViewController(animated: true)
     }
+ 
     func pushEditPage() {
-        let modifyViewController = ClassModifyViewController(classItem: classItem)
+        let modifyViewController = ClassModifyViewController(classItem: viewModel.classItem)
         modifyViewController.classUpdateDelegate = self
         present(modifyViewController, animated: true, completion: nil)
     }
+
     func pushAlert(alert: UIAlertController) {
         present(alert, animated: true)
     }
+
     func deleteClassItem() {
-        firestoreManager.delete(classItem: classItem)
+        viewModel.deleteClassItem()
         navigationController?.popViewController(animated: true)
     }
+
     func toggleClassItem() {
-        classItem.validity.toggle()
-        if classItem.validity {
-            setButtonOnSale()
-        } else {
-            setButtonOffSale()
-        }
-        firestoreManager.update(classItem: classItem) {}
+        viewModel.toggleClassItem()
     }
+
     func addStar() {
-        currentUser?.stars?.append(classItem.id)
-        firestoreManager.uploadUser(user: currentUser!) { result in
-            switch result {
-                case .success(_):
-                    print("업로드 성공")
-                case .failure(_):
-                    print("업로드 실패")
-            }
-        }
+        viewModel.addStar()
     }
+
     func deleteStar() {
-        if let index = currentUser?.stars?.firstIndex(of: classItem.id) {
-            currentUser?.stars?.remove(at: index)
-        }
-        firestoreManager.uploadUser(user: currentUser!) { result in
-            switch result {
-                case .success(_):
-                    print("업로드 성공")
-                case .failure(_):
-                    print("업로드 실패")
-            }
-        }
-    }
-    func checkStar() {
-        guard let starList: [String] = currentUser?.stars else { return }
-        print(starList)
-        if starList.contains(classItem.id) {
-            print("isalreadystared")
-            navigationBar.starButton.isSelected = true
-        }
-        else {
-            print("nostared")
-            navigationBar.starButton.isSelected = false
-        }
+        viewModel.deleteStar()
     }
 }
 
 // MARK: - ClassUpdateDelegate
 extension ClassDetailViewController: ClassUpdateDelegate {
     func update(with classItem: ClassItem) {
-        self.classItem = classItem
+        viewModel.classItem = classItem
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.tableView.reloadData()
@@ -445,10 +304,23 @@ extension ClassDetailViewController: ClassUpdateDelegate {
     }
 }
 
+// MARK: - ClassDetailViewModelDelegate
+extension ClassDetailViewController: ClassDetailViewModelDelegate {
+    func presentDisableAlert() {
+        present(disableAlertController, animated: true)
+    }
+    func presentEnableAlert() {
+        present(enableAlertController, animated: true)
+    }
+    func pushViewÇontroller(vc: UIViewController) {
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+
 // MARK: - Extension for Button
 extension ClassDetailViewController {
     func setButtonOnSale() {
-        matchingButton.setTitle(classItem.writer == UserDefaultsManager.shared.isLogin()! ? "비활성화" : "신청하기", for: .normal)
+        matchingButton.setTitle(viewModel.isMyClassItem ? "비활성화" : "신청하기", for: .normal)
         matchingButton.backgroundColor = .mainColor
         matchingButton.titleLabel?.font = UIFont.systemFont(ofSize: 24, weight: .bold)
     }

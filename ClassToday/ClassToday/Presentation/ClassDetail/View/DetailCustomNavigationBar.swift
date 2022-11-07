@@ -15,7 +15,6 @@ protocol DetailCustomNavigationBarDelegate: AnyObject {
     func deleteClassItem()
     func addStar()
     func deleteStar()
-    func checkStar()
 }
 
 class DetailCustomNavigationBar: UIView {
