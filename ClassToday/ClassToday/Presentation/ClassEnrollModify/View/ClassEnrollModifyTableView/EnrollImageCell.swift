@@ -17,7 +17,6 @@ protocol EnrollImageCellDelegate: AnyObject {
 class EnrollImageCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var imageEnrollCollectionView: UICollectionView = {
         let flowlayout = UICollectionViewFlowLayout()
         flowlayout.scrollDirection = .horizontal
@@ -99,7 +98,6 @@ extension EnrollImageCell: UICollectionViewDataSource {
 }
 
 // MARK: - CollectionViewDeleagetFlowLayout
-
 extension EnrollImageCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = collectionView.frame.width
@@ -113,10 +111,9 @@ extension EnrollImageCell: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - CollectionViewDelegate
-
 extension EnrollImageCell: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let availableImageCount = viewModel.availableImageCount
+        let availableImageCount = viewModel.getAvailableImageCount()
         if indexPath.row == 0 {
             if availableImageCount == 0 {
                 let alert = UIAlertController(title: "이미지 등록", message: "이미지 등록은 최대 8개 까지 가능합니다", preferredStyle: .alert)

@@ -10,7 +10,6 @@ import UIKit
 class DetailContentPriceView: UIView {
 
     // MARK: - Views
-
     private lazy var headLabel: UILabel = {
         let label = UILabel()
         label.text = "수업가격"
@@ -38,7 +37,6 @@ class DetailContentPriceView: UIView {
     }()
 
     // MARK: - Intialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -49,7 +47,6 @@ class DetailContentPriceView: UIView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.addSubview(headLabel)
         self.addSubview(priceUnitLabel)

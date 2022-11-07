@@ -10,7 +10,6 @@ import UIKit
 class DetailContentCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 24)
@@ -60,12 +59,10 @@ class DetailContentCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     static let identifier = "DetailContentCell"
     private var classItem: ClassItem?
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
@@ -76,7 +73,6 @@ class DetailContentCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(stackView)
         stackView.snp.makeConstraints {

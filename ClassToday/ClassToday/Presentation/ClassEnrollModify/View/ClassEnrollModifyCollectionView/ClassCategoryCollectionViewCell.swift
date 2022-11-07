@@ -14,7 +14,6 @@ protocol ClassCategoryCollectionViewCellDelegate: AnyObject {
 class ClassCategoryCollectionViewCell: UICollectionViewCell {
 
     // MARK: - Views
-
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
@@ -33,14 +32,12 @@ class ClassCategoryCollectionViewCell: UICollectionViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: ClassCategoryCollectionViewCellDelegate?
     static let identifier = "ClassCategoryCollectionViewCell"
     static let height: CGFloat = 40.0
     private var categoryItem: CategoryItem?
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureLayout()
@@ -51,7 +48,6 @@ class ClassCategoryCollectionViewCell: UICollectionViewCell {
     }
 
     // MARK: - Method
-
     private func configureLayout() {
         contentView.addSubview(nameLabel)
         contentView.addSubview(button)

@@ -36,13 +36,11 @@ class EnrollDescriptionCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: EnrollDescriptionCellDelegate?
     static let identifier = "EnrollDescriptionCell"
     private let textViewPlaceHolder = "텍스트를 입력하세요(필수)"
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -54,7 +52,6 @@ class EnrollDescriptionCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(descriptionTextView)
         descriptionTextView.snp.makeConstraints {
@@ -74,7 +71,6 @@ class EnrollDescriptionCell: UITableViewCell {
 }
 
 // MARK: - UITextViewDelegate
-
 extension EnrollDescriptionCell: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.text == textViewPlaceHolder {

@@ -14,7 +14,6 @@ protocol ClassImageViewDelegate: AnyObject {
 class ClassImageView: UIView {
 
     // MARK: - Views
-
     private lazy var classImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -37,11 +36,9 @@ class ClassImageView: UIView {
     }()
 
     // MARK: - Properties
-
     weak var delegate: ClassImageViewDelegate?
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -52,7 +49,6 @@ class ClassImageView: UIView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.addSubview(classImageView)
         self.addSubview(deleteButton)
@@ -72,7 +68,6 @@ class ClassImageView: UIView {
     }
 
     // MARK: - Actions
-
     @objc func deleteClicked(_ button: UIButton) {
         delegate?.deleteClicked()
     }

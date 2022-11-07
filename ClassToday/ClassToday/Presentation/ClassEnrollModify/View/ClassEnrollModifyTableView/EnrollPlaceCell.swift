@@ -15,7 +15,6 @@ protocol EnrollPlaceCellDelegate: AnyObject {
 class EnrollPlaceCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var placeTextField: UITextField = {
         let textField = UITextField()
         textField.configureWith(placeholder: "수업장소 미지정시 현재 위치로 저장됩니다")
@@ -51,13 +50,11 @@ class EnrollPlaceCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     static let identifier = "EnrollPlaceCell"
     weak var delegate: EnrollPlaceCellDelegate?
     private var location: Location?
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -69,7 +66,6 @@ class EnrollPlaceCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(placeTextField)
         placeTextField.snp.makeConstraints {
@@ -92,7 +88,6 @@ class EnrollPlaceCell: UITableViewCell {
     }
 
     // MARK: - Actions
-
     @objc func selectPlace(_ button: UIButton) {
         let mapSelectionViewController = MapSelectionViewController()
         mapSelectionViewController.configure(location: location)
@@ -107,7 +102,6 @@ class EnrollPlaceCell: UITableViewCell {
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EnrollPlaceCell: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         return false

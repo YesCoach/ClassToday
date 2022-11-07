@@ -10,7 +10,6 @@ import UIKit
 class ClassDateSelectionCollectionReusableView: UICollectionReusableView {
 
     // MARK: - Views
-
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "수업 요일"
@@ -27,12 +26,10 @@ class ClassDateSelectionCollectionReusableView: UICollectionReusableView {
     }()
 
     // MARK: - Properties
-
     static let identifier = "ClassDateSelectionCollectionReusableView"
     static let height = 36
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -43,7 +40,6 @@ class ClassDateSelectionCollectionReusableView: UICollectionReusableView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.addSubview(titleLabel)
         self.addSubview(supplementaryLabel)

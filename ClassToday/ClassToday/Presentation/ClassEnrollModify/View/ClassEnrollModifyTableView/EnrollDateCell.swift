@@ -15,7 +15,6 @@ protocol EnrollDateCellDelegate: AnyObject {
 class EnrollDateCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var dateTextField: UITextField = {
         let textField = UITextField()
         textField.configureWith(placeholder: "수업 요일(선택)")
@@ -24,13 +23,11 @@ class EnrollDateCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: EnrollDateCellDelegate?
     static let identifier = "EnrollDateCell"
     var selectedDate: Set<DayWeek> = []
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -43,7 +40,6 @@ class EnrollDateCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(dateTextField)
         dateTextField.snp.makeConstraints {
@@ -76,9 +72,7 @@ class EnrollDateCell: UITableViewCell {
 }
 
 // MARK: - Touch 관련 Extension
-
 extension EnrollDateCell {
-
     private func configureGesture() {
         let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(myTapMethod(_:)))
         singleTapGestureRecognizer.numberOfTapsRequired = 1
@@ -88,7 +82,6 @@ extension EnrollDateCell {
     }
 
     // MARK: - Actions
-
     @objc func myTapMethod(_ sender: UITapGestureRecognizer) {
         let viewController = ClassDateSelectionViewController()
         viewController.modalPresentationStyle = .formSheet
@@ -100,7 +93,6 @@ extension EnrollDateCell {
 }
 
 // MARK: - DateSelectionViewControllerDelegate
-
 extension EnrollDateCell: ClassDateSelectionViewControllerDelegate {
     func selectionResult(date: Set<DayWeek>) {
         configureWith(date: date)

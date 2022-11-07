@@ -15,7 +15,6 @@ protocol DetailImageCellDelegate: AnyObject {
 class DetailImageCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView(frame: contentView.frame)
         scrollView.showsVerticalScrollIndicator = false
@@ -33,13 +32,11 @@ class DetailImageCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: DetailImageCellDelegate?
     static var identifier = "DetailImageCell"
     private var images: [UIImage]? = []
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(touchImageView(_:)))
@@ -54,7 +51,6 @@ class DetailImageCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         let width = contentView.frame.width
         let height = contentView.frame.height
@@ -96,7 +92,6 @@ class DetailImageCell: UITableViewCell {
     }
 
     // MARK: - Actions
-
     @objc func touchImageView(_ sender: UITapGestureRecognizer) {
         if let images = images, images.isEmpty {
             return
@@ -108,7 +103,6 @@ class DetailImageCell: UITableViewCell {
 }
 
 // MARK: - ScrollViewDelegate
-
 extension DetailImageCell: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if fmod(scrollView.contentOffset.x, scrollView.frame.maxX) == 0 {

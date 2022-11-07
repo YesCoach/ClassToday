@@ -12,7 +12,6 @@ import SwiftUI
 class ClassDetailViewController: UIViewController {
     
     // MARK: - Views
-    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = self
@@ -87,7 +86,6 @@ class ClassDetailViewController: UIViewController {
     }()
 
     // MARK: - Properties
-
     var checkChannel: [Channel] = []
     private var classItem: ClassItem
     private var currentUser: User?
@@ -98,7 +96,6 @@ class ClassDetailViewController: UIViewController {
     private let firebaseAuthManager = FirebaseAuthManager.shared
 
     // MARK: - Initialize
-
     init(classItem: ClassItem) {
         self.classItem = classItem
         super.init(nibName: nil, bundle: nil)
@@ -111,7 +108,6 @@ class ClassDetailViewController: UIViewController {
     }
 
     // MARK: - Life Cycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         getUsers()
@@ -137,7 +133,6 @@ class ClassDetailViewController: UIViewController {
     }
 
     // MARK: - Method
-
     private func checkIsChannelAlreadyMade() {
         switch classItem.itemType {
             case .buy:
@@ -224,7 +219,6 @@ class ClassDetailViewController: UIViewController {
     }
 
     // MARK: - Actions
-
     @objc func didTapMatchingButton(_ button: UIButton) {
 //        if matchingButton.titleLabel?.text == "종료된 수업입니다" {
 //            print("종료된 수업입니다")
@@ -290,7 +284,6 @@ class ClassDetailViewController: UIViewController {
 }
 
 // MARK: - TableViewDataSource
-
 extension ClassDetailViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
@@ -342,7 +335,6 @@ extension ClassDetailViewController: UITableViewDataSource {
 }
 
 // MARK: - TableViewDelegate
-
 extension ClassDetailViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath.section {

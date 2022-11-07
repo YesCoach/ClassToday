@@ -14,7 +14,6 @@ protocol ClassDateSelectionCollectionViewCellDelegate: AnyObject {
 class ClassDateSelectionCollectionViewCell: UICollectionViewCell {
 
     // MARK: - Views
-
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
@@ -33,14 +32,12 @@ class ClassDateSelectionCollectionViewCell: UICollectionViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: ClassDateSelectionCollectionViewCellDelegate?
     static let identifier = "ClassDateSelectionCollectionViewCell"
     static let height: CGFloat = 40.0
     private var date: DayWeek?
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureLayout()
@@ -51,7 +48,6 @@ class ClassDateSelectionCollectionViewCell: UICollectionViewCell {
     }
 
     // MARK: - Method
-
     private func configureLayout() {
         contentView.addSubview(nameLabel)
         contentView.addSubview(button)
@@ -76,7 +72,6 @@ class ClassDateSelectionCollectionViewCell: UICollectionViewCell {
     }
 
     // MARK: Actions
-
     @objc func clicked(_ button: UIButton) {
         if button.isSelected {
             button.isSelected = false

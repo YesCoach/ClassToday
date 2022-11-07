@@ -14,7 +14,6 @@ protocol EnrollNameCellDelegate: AnyObject {
 class EnrollNameCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
         textField.configureWith(placeholder: "제목을 입력해주세요(필수)")
@@ -24,12 +23,10 @@ class EnrollNameCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     static let identifier = "EnrollNameCell"
     weak var delegate: EnrollNameCellDelegate?
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -41,7 +38,6 @@ class EnrollNameCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(nameTextField)
         nameTextField.snp.makeConstraints {

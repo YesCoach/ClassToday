@@ -11,7 +11,6 @@ import NMapsMap
 class DetailContentPlaceView: UIView {
 
     // MARK: - Views
-
     private lazy var headLabel: UILabel = {
         let label = UILabel()
         label.text = "수업장소"
@@ -45,7 +44,6 @@ class DetailContentPlaceView: UIView {
     }
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -56,7 +54,6 @@ class DetailContentPlaceView: UIView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         [headLabel, seperator, placeLabel, mapView].forEach { addSubview($0) }
 

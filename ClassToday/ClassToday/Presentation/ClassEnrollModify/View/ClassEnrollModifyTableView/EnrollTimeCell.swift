@@ -15,7 +15,6 @@ protocol EnrollTimeCellDelegate: AnyObject {
 class EnrollTimeCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var toolBarKeyboard: UIToolbar = {
         let toolBarKeyboard = UIToolbar()
         toolBarKeyboard.sizeToFit()
@@ -37,12 +36,10 @@ class EnrollTimeCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: EnrollTimeCellDelegate?
     static let identifier = "EnrollTimeCell"
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -54,7 +51,6 @@ class EnrollTimeCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(timeTextField)
         timeTextField.snp.makeConstraints {
@@ -82,14 +78,12 @@ class EnrollTimeCell: UITableViewCell {
     }
 
     // MARK: - Actions
-
     @objc func didTapDoneButton(_ button: UIButton) {
         timeTextField.resignFirstResponder()
     }
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EnrollTimeCell: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

@@ -10,7 +10,6 @@ import UIKit
 class ClassImageEnrollCell: UICollectionViewCell {
 
     // MARK: - Views
-
     private lazy var classImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "camera")?.withTintColor(.black, renderingMode: .alwaysOriginal)
@@ -25,12 +24,10 @@ class ClassImageEnrollCell: UICollectionViewCell {
     }()
 
     // MARK: - Properties
-
     static let identifier = "ClassImageEnrollCell"
     private let limitImageCount = 8
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -41,7 +38,6 @@ class ClassImageEnrollCell: UICollectionViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(classImageView)
         contentView.addSubview(imageCountLabel)

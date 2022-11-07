@@ -11,7 +11,6 @@ import SnapKit
 class FullImagesViewController: UIViewController {
 
     // MARK: - Views
-
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView(frame: view.frame)
         scrollView.showsVerticalScrollIndicator = false
@@ -38,12 +37,10 @@ class FullImagesViewController: UIViewController {
     }()
 
     // MARK: - Properties
-
     private var images: [UIImage]? = []
     private var startIndex: Int = 0
 
     // MARK: - Initialize
-
     init(images: [UIImage]?, startIndex: Int) {
         self.images = images
         self.startIndex = startIndex
@@ -56,14 +53,12 @@ class FullImagesViewController: UIViewController {
     }
 
     // MARK: - Life Cycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.modalPresentationStyle = .fullScreen
         self.modalTransitionStyle = .coverVertical
@@ -95,14 +90,12 @@ class FullImagesViewController: UIViewController {
     }
 
     // MARK: - Actions
-
     @objc func dismiss(_ button: UIButton) {
         presentingViewController?.dismiss(animated: true)
     }
 }
 
 // MARK: - ScrollViewDelegate
-
 extension FullImagesViewController: UIScrollViewDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

@@ -16,7 +16,6 @@ protocol EnrollPriceCellDelegate: AnyObject {
 class EnrollPriceCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var toolBarKeyboard: UIToolbar = {
         let toolBarKeyboard = UIToolbar()
         toolBarKeyboard.sizeToFit()
@@ -64,12 +63,10 @@ class EnrollPriceCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: EnrollPriceCellDelegate?
     static let identifier = "EnrollPriceCell"
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -81,7 +78,6 @@ class EnrollPriceCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(priceTextField)
         priceTextField.snp.makeConstraints {
@@ -104,7 +100,6 @@ class EnrollPriceCell: UITableViewCell {
     }
 
     // MARK: - Actions
-
     @objc func selectUnit(_ button: UIButton) {
         delegate?.showPopover(button: button)
     }
@@ -115,7 +110,6 @@ class EnrollPriceCell: UITableViewCell {
 }
 
 // MARK: - UITextFieldDelegate
-
 extension EnrollPriceCell: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

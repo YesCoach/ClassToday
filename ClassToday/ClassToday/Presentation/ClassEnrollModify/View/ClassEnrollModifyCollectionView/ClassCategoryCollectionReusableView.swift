@@ -10,7 +10,6 @@ import UIKit
 class ClassCategoryCollectionReusableView: UICollectionReusableView {
 
     // MARK: - Views
-
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
@@ -26,12 +25,10 @@ class ClassCategoryCollectionReusableView: UICollectionReusableView {
     }()
 
     // MARK: - Properties
-
     static let identifier = "ClassCategoryCollectionReusableView"
     static let height = 36
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -42,7 +39,6 @@ class ClassCategoryCollectionReusableView: UICollectionReusableView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.addSubview(titleLabel)
         self.addSubview(supplementaryLabel)

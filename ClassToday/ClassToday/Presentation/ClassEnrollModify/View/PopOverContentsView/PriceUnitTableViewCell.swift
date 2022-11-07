@@ -11,19 +11,16 @@ import SnapKit
 class PriceUnitTableViewCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var label: UILabel = {
         let label = UILabel()
         return label
     }()
 
     // MARK: - Properties
-
     static let identifier = "PriceUnitTableViewCell"
     static let height: CGFloat = 40.0
 
     // MARK: - Initialize
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
@@ -34,7 +31,6 @@ class PriceUnitTableViewCell: UITableViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(label)
         label.snp.makeConstraints { make in

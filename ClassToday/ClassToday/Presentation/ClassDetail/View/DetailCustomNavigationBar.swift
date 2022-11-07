@@ -21,7 +21,6 @@ protocol DetailCustomNavigationBarDelegate: AnyObject {
 class DetailCustomNavigationBar: UIView {
 
     // MARK: - Views
-
     lazy var backButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "chevron.left"), for: .normal)
@@ -75,12 +74,10 @@ class DetailCustomNavigationBar: UIView {
     }()
 
     // MARK: - Properties
-
     weak var delegate: DetailCustomNavigationBarDelegate?
     private let viewWidth = UIScreen.main.bounds.width
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -101,7 +98,6 @@ class DetailCustomNavigationBar: UIView {
     }
 
     // MARK: - Method
-
     private func setupUI() {
         setupAttributes()
         setupConstraints()
@@ -157,7 +153,6 @@ class DetailCustomNavigationBar: UIView {
     }
 
     // MARK: - Method for change bar status
-
     func setupWhiteBackground() {
         gradientLayer.backgroundColor = UIColor.white.cgColor
         gradientLayer.colors = [UIColor.white.cgColor]
@@ -175,7 +170,6 @@ class DetailCustomNavigationBar: UIView {
     }
 
     // MARK: - Actions
-
     @objc func didTapBackButton(_ button: UIButton) {
         delegate?.goBackPage()
     }

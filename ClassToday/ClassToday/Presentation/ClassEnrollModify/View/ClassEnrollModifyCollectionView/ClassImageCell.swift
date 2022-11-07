@@ -15,7 +15,6 @@ protocol ClassImageCellDelegate: AnyObject {
 class ClassImageCell: UICollectionViewCell {
 
     // MARK: - Views
-
     private lazy var classImageView: ClassImageView = {
         let imageView = ClassImageView()
         imageView.delegate = self
@@ -23,13 +22,11 @@ class ClassImageCell: UICollectionViewCell {
     }()
 
     // MARK: - Properties
-
     weak var delegate: ClassImageCellDelegate?
     static let identifier = "ClassImageCell"
     private var indexPath: IndexPath?
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -40,7 +37,6 @@ class ClassImageCell: UICollectionViewCell {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         contentView.addSubview(classImageView)
         classImageView.snp.makeConstraints {
@@ -55,7 +51,6 @@ class ClassImageCell: UICollectionViewCell {
 }
 
 // MARK: - ClassImageViewDelegate
-
 extension ClassImageCell: ClassImageViewDelegate {
     func deleteClicked() {
         guard let indexPath = indexPath else { return }

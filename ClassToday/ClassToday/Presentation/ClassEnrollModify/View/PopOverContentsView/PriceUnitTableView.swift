@@ -15,7 +15,6 @@ protocol PriceUnitTableViewDelegate: AnyObject {
 class PriceUnitTableView: UIView {
 
     // MARK: - Views
-
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(PriceUnitTableViewCell.self, forCellReuseIdentifier: PriceUnitTableViewCell.identifier)
@@ -27,11 +26,9 @@ class PriceUnitTableView: UIView {
     }()
 
     // MARK: - Properties
-
     weak var delegate: PriceUnitTableViewDelegate?
 
     // MARK: - Initialize
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureUI()
@@ -42,7 +39,6 @@ class PriceUnitTableView: UIView {
     }
 
     // MARK: - Method
-
     private func configureUI() {
         self.addSubview(tableView)
         tableView.snp.makeConstraints {
@@ -53,7 +49,6 @@ class PriceUnitTableView: UIView {
 }
 
 // MARK: - TableViewDataSource
-
 extension PriceUnitTableView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return PriceUnit.allCases.count
@@ -69,7 +64,6 @@ extension PriceUnitTableView: UITableViewDataSource {
 }
 
 // MARK: - TableViewDelegate
-
 extension PriceUnitTableView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let priceUnit = PriceUnit.allCases[indexPath.row]

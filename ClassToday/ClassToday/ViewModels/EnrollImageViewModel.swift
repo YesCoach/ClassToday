@@ -14,7 +14,7 @@ public class EnrollImageViewModel: ViewModel {
 
     let imagesURL: Observable<[String]> = Observable([])
     let images: Observable<[UIImage]> = Observable([])
-    var availableImageCount: Int {
+    private var availableImageCount: Int {
         return limitImageCount - images.value.count
     }
     init(limitImageCount: Int = 8) {
@@ -55,5 +55,10 @@ public class EnrollImageViewModel: ViewModel {
             imagesURL.value.remove(at: index)
         }
         images.value.remove(at: index)
+    }
+    
+    /// 앞으로 등록 가능한 이미지 수를 반환합니다.
+    func getAvailableImageCount() -> Int {
+        return availableImageCount
     }
 }
