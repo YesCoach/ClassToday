@@ -35,15 +35,14 @@ public class ClassDetailViewModel: ViewModel {
 
     init(classItem: ClassItem) {
         self.classItem = classItem
+        isClassItemOnSale.value = classItem.validity
         getUserData()
         checkStar()
         fetchClassItemImages()
-        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
-            if isTrue {
-                self?.getUserData()
-                self?.userDefaultsManager.isUserDataChanged.value = false
-            }
-        }
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateUserData(_:)),
+                                               name: NSNotification.Name("updateUserData"),
+                                               object: nil)
     }
 
     func checkIsChannelAlreadyMade() {
@@ -187,6 +186,12 @@ public class ClassDetailViewModel: ViewModel {
         }
     }
 
+    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
+    @objc func updateUserData(_ notification: Notification) {
+        getUserData()
+    }
+
+    // MARK: - 즐겨찾기 관련 메서드
     /// 즐겨찾기 추가 메서드
     func addStar() {
         currentUser?.stars?.append(classItem.id)

@@ -30,12 +30,10 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     override init() {
         super.init()
         checkLocationAuthorization()
-        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
-            if isTrue {
-                self?.configureLocation()
-                self?.userDefaultsManager.isUserDataChanged.value = false
-            }
-        }
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateUserData(_:)),
+                                               name: NSNotification.Name("updateUserData"),
+                                               object: nil)
     }
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
@@ -90,5 +88,10 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
             self?.dataBuy.value = data.filter { $0.itemType == ClassItemType.buy }.sorted { $0 > $1 }
             self?.dataSell.value = data.filter { $0.itemType == ClassItemType.sell }.sorted { $0 > $1 }
         }
+    }
+
+    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
+    @objc func updateUserData(_ notification: Notification) {
+        configureLocation()
     }
 }

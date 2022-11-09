@@ -23,12 +23,10 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
     override init() {
         super.init()
         getUserData()
-        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
-            if isTrue {
-                self?.getUserData()
-                self?.userDefaultsManager.isUserDataChanged.value = false
-            }
-        }
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateUserData(_:)),
+                                               name: NSNotification.Name("updateUserData"),
+                                               object: nil)
     }
 
     /// 위치정보권한 확인 및 허용 시 지역 패칭
@@ -104,6 +102,11 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
                 }
             }
         }
+    }
+
+    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
+    @objc func updateUserData(_ notification: Notification) {
+        getUserData()
     }
 
     // MARK: - Input

@@ -19,7 +19,6 @@ class UserDefaultsManager {
     private let typeKey = "LoginType"
     private let userKey = "UserData"
     private let standard = UserDefaults.standard
-    let isUserDataChanged: Observable<Bool> = Observable(false)
 
     private init() {}
     /// 현재 로그인 상태인지 확인하는 메서드
@@ -78,16 +77,16 @@ class UserDefaultsManager {
         NotificationCenter.default.post(name: NSNotification.Name("updateUserData"), object: nil, userInfo: nil)
     }
 
-    /// 앱 실행시 유저 정보를 최신화하기 위한 메서드
-    func initUserData(user: User) {
-        let userEncoder = try? PropertyListEncoder().encode(user)
-        self.standard.set(userEncoder, forKey: self.userKey)
-    }
-
     /// 로그아웃 시 로그인 정보 및 유저 정보를 삭제하는 메서드
     func removeLoginStatus() {
         standard.removeObject(forKey: statusKey)
         standard.removeObject(forKey: typeKey)
         standard.removeObject(forKey: userKey)
+    }
+
+    /// 앱 실행시 유저 정보를 최신화하기 위한 메서드
+    func initUserData(user: User) {
+        let userEncoder = try? PropertyListEncoder().encode(user)
+        self.standard.set(userEncoder, forKey: self.userKey)
     }
 }
