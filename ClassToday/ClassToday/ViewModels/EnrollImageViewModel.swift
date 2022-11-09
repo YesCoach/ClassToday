@@ -8,7 +8,6 @@
 import UIKit
 
 public class EnrollImageViewModel: ViewModel {
-
     private let storageManager = StorageManager.shared
     private let limitImageCount: Int
 

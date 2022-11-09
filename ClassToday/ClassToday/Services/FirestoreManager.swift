@@ -245,7 +245,7 @@ class FirestoreManager {
     //star
     func starSort(starList: [String]?, completion: @escaping ([ClassItem]) -> ()) {
         var data: [ClassItem] = []
-        guard let starList = starList else {
+        guard let starList = starList, starList.isEmpty == false else {
             completion([])
             return
         }
@@ -279,6 +279,7 @@ extension FirestoreManager {
     func uploadUser(user: User, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             try FirestoreRoute.user.ref.document(user.id).setData(from: user)
+            UserDefaultsManager.shared.updateUserData(user: user)
             completion(.success(()))
             return
         } catch {

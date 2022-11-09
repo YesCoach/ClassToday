@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             FirestoreManager.shared.readUser(uid: uid) { result in
                 switch result {
                 case .success(let user):
-                    UserDefaultsManager.shared.updateUserData(user: user)
+                    UserDefaultsManager.shared.initUserData(user: user)
                 case .failure(let error):
                     print("ERROR \(error.localizedDescription)👩🏻‍🦳")
                 }

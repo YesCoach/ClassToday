@@ -5,7 +5,6 @@
 //  Created by 박태현 on 2022/11/07.
 //
 
-import Foundation
 import UIKit
 
 protocol ClassDetailViewModelDelegate: AnyObject {
@@ -18,12 +17,13 @@ public class ClassDetailViewModel: ViewModel {
     private let storageManager = StorageManager.shared
     private let firestoreManager = FirestoreManager.shared
     private let firebaseAuthManager = FirebaseAuthManager.shared
+    private let userDefaultsManager = UserDefaultsManager.shared
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
     private var currentUser: User?
     weak var delegate: ClassDetailViewModelDelegate?
-    
+
     let isStarButtonSelected: Observable<Bool> = Observable(false)
     let isClassItemOnSale: Observable<Bool> = Observable(true)
     let isNowFetchingImages: Observable<Bool> = Observable(true)
@@ -35,9 +35,15 @@ public class ClassDetailViewModel: ViewModel {
 
     init(classItem: ClassItem) {
         self.classItem = classItem
-        getUsers()
+        getUserData()
         checkStar()
         fetchClassItemImages()
+        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
+            if isTrue {
+                self?.getUserData()
+                self?.userDefaultsManager.isUserDataChanged.value = false
+            }
+        }
     }
 
     func checkIsChannelAlreadyMade() {
@@ -147,7 +153,7 @@ public class ClassDetailViewModel: ViewModel {
     }
 
     /// 현재 유저 정보와 작성자 정보를 불러오는 메서드
-    private func getUsers() {
+    private func getUserData() {
         User.getCurrentUser { [weak self] result in
             guard let self = self else { return }
             switch result {

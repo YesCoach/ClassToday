@@ -19,7 +19,9 @@ class UserDefaultsManager {
     private let typeKey = "LoginType"
     private let userKey = "UserData"
     private let standard = UserDefaults.standard
-    
+    let isUserDataChanged: Observable<Bool> = Observable(false)
+
+    private init() {}
     /// 현재 로그인 상태인지 확인하는 메서드
     ///
     /// return: User의 UUID(Optional)
@@ -67,9 +69,17 @@ class UserDefaultsManager {
             }
         }
     }
-    
-    /// 앱 실행시 유저 정보를 최신화하기 위한 메서드
+
+    /// 유저 정보 변경시 필수 호출 메서드
+    /// - Parameter user: <#user description#>
     func updateUserData(user: User) {
+        let userEncoder = try? PropertyListEncoder().encode(user)
+        self.standard.set(userEncoder, forKey: self.userKey)
+        NotificationCenter.default.post(name: NSNotification.Name("updateUserData"), object: nil, userInfo: nil)
+    }
+
+    /// 앱 실행시 유저 정보를 최신화하기 위한 메서드
+    func initUserData(user: User) {
         let userEncoder = try? PropertyListEncoder().encode(user)
         self.standard.set(userEncoder, forKey: self.userKey)
     }

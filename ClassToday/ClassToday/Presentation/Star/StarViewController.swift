@@ -19,20 +19,15 @@ class StarViewController: UIViewController {
         let navigationTitle = UILabel()
         navigationTitle.text = "즐겨찾기"
         navigationTitle.font = .systemFont(ofSize: 18.0, weight: .semibold)
+        navigationTitle.textColor = .black
         return navigationTitle
     }()
-    
-    private lazy var rightBarItem: UIBarButtonItem = {
-        let rightBarItem = UIBarButtonItem(image: UIImage(systemName: "star.fill"), style: .plain, target: nil, action: nil)
-        return rightBarItem
-    }()
-    
+
     private func setNavigationBar() {
         navigationItem.leftBarButtonItem = leftBarItem
         navigationItem.titleView = navigationTitle
-        navigationItem.rightBarButtonItem = rightBarItem
     }
-    
+
     //MARK: TableView
     private lazy var classItemTableView: UITableView = {
         let classItemTableView = UITableView()
@@ -59,7 +54,6 @@ class StarViewController: UIViewController {
     }()
 
     // MARK: Properties
-
     private let viewModel = StarViewModel()
 
     // MARK: Life Cycle
@@ -68,7 +62,16 @@ class StarViewController: UIViewController {
         view.backgroundColor = .white
         setNavigationBar()
         layout()
-        
+        bindingViewModel()
+    }
+
+    // MARK: - Method
+    func bindingViewModel() {
+        viewModel.currentUser.bind { [weak self] user in
+            if let _ = user {
+                self?.viewModel.fetchData()
+            }
+        }
         viewModel.data.bind { [weak self] data in
             self?.classItemTableView.reloadData()
             if data.isEmpty {
@@ -77,15 +80,13 @@ class StarViewController: UIViewController {
         }
         viewModel.isNowDataFetching.bind { [weak self] isTrue in
             if isTrue {
-                self?.classItemTableView.refreshControl?.beginRefreshing()
+                self?.refreshControl.beginRefreshing()
                 self?.nonDataAlertLabel.isHidden = true
             } else {
-                self?.classItemTableView.refreshControl?.endRefreshing()
+                self?.refreshControl.endRefreshing()
             }
         }
     }
-
-    // MARK: - Method
 }
 
 //MARK: - objc methods
@@ -119,11 +120,6 @@ private extension StarViewController {
 //MARK: - TableView DataSource
 extension StarViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if viewModel.data.value.isEmpty {
-            nonDataAlertLabel.isHidden = false
-        } else {
-            nonDataAlertLabel.isHidden = true
-        }
         return viewModel.data.value.count
     }
     

@@ -30,6 +30,12 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     override init() {
         super.init()
         checkLocationAuthorization()
+        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
+            if isTrue {
+                self?.configureLocation()
+                self?.userDefaultsManager.isUserDataChanged.value = false
+            }
+        }
     }
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///

@@ -13,7 +13,7 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let naverMapAPIProvider = NaverMapAPIProvider()
     
-    private let currentUser: User
+    private var currentUser: User?
     let currentKeyword: Observable<String?> = Observable(nil)
     let currentLocation: Observable<Location?> = Observable(nil)
     let categoryData: Observable<[CategoryItem]> = Observable([])
@@ -21,11 +21,14 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
     let listClassItemData: Observable<[ClassItem]> = Observable([])
     
     override init() {
-        guard let user = userDefaultsManager.getUserData() else {
-            fatalError()
-        }
-        currentUser = user
         super.init()
+        getUserData()
+        userDefaultsManager.isUserDataChanged.bind { [weak self] isTrue in
+            if isTrue {
+                self?.getUserData()
+                self?.userDefaultsManager.isUserDataChanged.value = false
+            }
+        }
     }
 
     /// 위치정보권한 확인 및 허용 시 지역 패칭
@@ -34,6 +37,13 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
         if isLocationAuthorizationAllowed.value {
             getCurrentLocation()
         }
+    }
+
+    func getUserData() {
+        guard let user = userDefaultsManager.getUserData() else {
+            fatalError()
+        }
+        currentUser = user
     }
 
     /// 전체 수업 아이템을 패칭합니다.
@@ -69,7 +79,7 @@ public class MapViewModel: LocationViewModel, FetchingViewModel {
     ///
     /// - 기존 맵 수업 리스트를 즐겨찾기 리스트로 대체
     func fetchStarData() {
-        guard let list = currentUser.stars, list.isEmpty == false else {
+        guard let list = currentUser?.stars, list.isEmpty == false else {
             mapClassItemData.value = []
             return
         }
