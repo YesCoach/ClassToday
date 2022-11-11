@@ -9,7 +9,8 @@ import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
-class FirestoreManager {
+final class FirestoreManager {
+
     static let shared = FirestoreManager()
     private init() {}
 
@@ -30,7 +31,7 @@ class FirestoreManager {
             debugPrint(error)
         }
     }
-    
+
     /// 모든 ClassItem을 패칭합니다.
     func fetch(completion: @escaping ([ClassItem]) -> ()) {
         var data: [ClassItem] = []
@@ -115,51 +116,41 @@ class FirestoreManager {
     }
 
     /// ClassItem을 직접 패칭합니다.
-    func fetch(classItemID: String, completion: @escaping (ClassItem) -> ()) {
-        FirestoreRoute.classItem.ref.document(classItemID).getDocument(as: ClassItem.self) { result in
-            switch result {
-            case .success(let classItem):
-                completion(classItem)
-            case .failure(let error):
-                debugPrint(error)
-            }
-        }
-    }
-
-    func fetch(classItemId: String, completion: @escaping (Result<ClassItem, Error>) -> ()) {
+    func fetch(classItemId: String, completion: @escaping (ClassItem) -> ()) {
         FirestoreRoute.classItem.ref.document(classItemId).getDocument{ snapshot, error in
             if let error = error {
-                completion(.failure(error))
+                debugPrint(error)
                 return
             }
             if let snapshot = snapshot {
                 do {
                     let classItem = try snapshot.data(as: ClassItem.self)
-                    completion(.success(classItem))
+                    return completion(classItem)
                 } catch {
-                    completion(.failure(error))
+                    debugPrint(error)
                 }
                 return
             }
         }
     }
-    
+
     /// ClassItem을 업데이트 합니다.
     func update(classItem: ClassItem, completion: @escaping () -> ()) {
         upload(classItem: classItem, completion: completion)
     }
     
     /// ClassItem을 삭제합니다.
-    func delete(classItem: ClassItem) {
+    func delete(classItem: ClassItem, completion: @escaping () -> ()) {
         FirestoreRoute.classItem.ref.document(classItem.id).delete { error in
             if let error = error {
                 debugPrint("Error removing document: \(error)")
             } else {
                 debugPrint("Document successfully removed!")
+                completion()
             }
         }
     }
-    
+
     //category
     /// Category에 해당하는 ClassItem을 패칭합니다.
     ///

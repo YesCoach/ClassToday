@@ -98,22 +98,17 @@ class ReviewListViewController: UIViewController {
 // MARK: - UITableViewDelegate
 extension ReviewListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        FirestoreManager.shared.fetch(classItemId: reviewList[indexPath.row].classItem) { [weak self] result in
-            switch result {
-            case .success(let classItem):
-                self?.classItem = classItem
-                FirestoreManager.shared.readUser(uid: self!.reviewList[indexPath.row].buyer) { [weak self] result in
-                    switch result {
-                    case .success(let user):
-                        self?.buyer = user
-                        let reviewDetailViewController = ReviewDetailViewController(match: self!.reviewList[indexPath.row], buyer: self!.buyer!, classItem: self!.classItem!)
-                        self?.navigationController?.pushViewController(reviewDetailViewController, animated: true)
-                    case .failure(_):
-                        print("fetchbuyer fail")
-                    }
+        FirestoreManager.shared.fetch(classItemId: reviewList[indexPath.row].classItem) { [weak self] classItem in
+            self?.classItem = classItem
+            FirestoreManager.shared.readUser(uid: self!.reviewList[indexPath.row].buyer) { [weak self] result in
+                switch result {
+                case .success(let user):
+                    self?.buyer = user
+                    let reviewDetailViewController = ReviewDetailViewController(match: self!.reviewList[indexPath.row], buyer: self!.buyer!, classItem: self!.classItem!)
+                    self?.navigationController?.pushViewController(reviewDetailViewController, animated: true)
+                case .failure(_):
+                    print("fetchbuyer fail")
                 }
-            case .failure(_):
-                print("fetchClassItem Fail")
             }
         }
     }

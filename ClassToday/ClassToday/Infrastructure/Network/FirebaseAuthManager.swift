@@ -8,9 +8,9 @@
 import Foundation
 import FirebaseAuth
 
-struct FirebaseAuthManager {
+final class FirebaseAuthManager {
     static let shared = FirebaseAuthManager()
-    
+    private init() {}
     private let auth = Auth.auth()
     
     /// 회원가입 메서드

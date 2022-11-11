@@ -15,7 +15,7 @@ enum StorageError: Error {
     case invailidURL
 }
 
-class StorageManager {
+final class StorageManager {
     static let shared = StorageManager()
     let storage = Storage.storage()
 

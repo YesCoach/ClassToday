@@ -93,7 +93,7 @@ private extension ClassHistoryViewController {
         refreshControl.beginRefreshing()
         classItemsID.forEach { id in
             dispatchGroup.enter()
-            firestoreManager.fetch(classItemID: id) { [weak self] classItem in
+            firestoreManager.fetch(classItemId: id) { [weak self] classItem in
                 self?.classItems.append(classItem)
                 self?.dispatchGroup.leave()
             }

@@ -83,6 +83,13 @@
 		8941FF1F2830C97300A90AB0 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8941FF1E2830C97300A90AB0 /* Location.swift */; };
 		8941FF212830CDA200A90AB0 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8941FF202830CDA200A90AB0 /* Match.swift */; };
 		895209DA282A0D520009E97B /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895209D9282A0D520009E97B /* UIApplication+.swift */; };
+		895A0574291E0F48009103CC /* ClassItemUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0573291E0F48009103CC /* ClassItemUseCase.swift */; };
+		895A0577291E0FA5009103CC /* UseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0576291E0FA5009103CC /* UseCase.swift */; };
+		895A057B291E1AD0009103CC /* ClassItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A057A291E1AD0009103CC /* ClassItemRepository.swift */; };
+		895A057F291E1B3D009103CC /* DefaultClassItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */; };
+		895A0583291E1FB2009103CC /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0582291E1FB2009103CC /* DataTransferService.swift */; };
+		895A0585291E317D009103CC /* UserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0584291E317D009103CC /* UserRepository.swift */; };
+		895A0587291E41B9009103CC /* ClassItemQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0586291E41B9009103CC /* ClassItemQuery.swift */; };
 		895D107A27F32DCA009FB26F /* (null) in Sources */ = {isa = PBXBuildFile; };
 		895D107F27F32DCB009FB26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 895D107E27F32DCB009FB26F /* Assets.xcassets */; };
 		895D108227F32DCB009FB26F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 895D108027F32DCB009FB26F /* LaunchScreen.storyboard */; };
@@ -265,6 +272,13 @@
 		8941FF1E2830C97300A90AB0 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		8941FF202830CDA200A90AB0 /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
 		895209D9282A0D520009E97B /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
+		895A0573291E0F48009103CC /* ClassItemUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemUseCase.swift; sourceTree = "<group>"; };
+		895A0576291E0FA5009103CC /* UseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseCase.swift; sourceTree = "<group>"; };
+		895A057A291E1AD0009103CC /* ClassItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemRepository.swift; sourceTree = "<group>"; };
+		895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultClassItemRepository.swift; sourceTree = "<group>"; };
+		895A0582291E1FB2009103CC /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
+		895A0584291E317D009103CC /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
+		895A0586291E41B9009103CC /* ClassItemQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemQuery.swift; sourceTree = "<group>"; };
 		895D107227F32DCA009FB26F /* ClassToday.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClassToday.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		895D107E27F32DCB009FB26F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		895D108127F32DCB009FB26F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -491,19 +505,6 @@
 			path = Protocol;
 			sourceTree = "<group>";
 		};
-		6B7997BE27F33C4F00F37393 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				6B7997BF27F33C5A00F37393 /* ClassItem.swift */,
-				6B7997BC27F33C4C00F37393 /* User.swift */,
-				8941FF1E2830C97300A90AB0 /* Location.swift */,
-				89DCD0802896C9FB00C1CCA3 /* NaverMapAddress.swift */,
-				6BC2B234288C4A710025817D /* NaverUserInfo.swift */,
-				8967E5D128CF9E9A00BA1F6F /* KoreaAdministrativeDistrict.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		6BA8E0112821023900B0CC8C /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -527,15 +528,7 @@
 		892C1CC72832118500DE27D3 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				892C1CC8283211B300DE27D3 /* FirestoreManager.swift */,
-				6B42D940284BBE6000384480 /* FirebaseAuthManager.swift */,
-				892C1CD22832DABF00DE27D3 /* StorageManager.swift */,
-				8971F21B283A1A4200D4AAD0 /* ImageCacheManager.swift */,
 				89B891D0284735A8008B27DD /* LocationManager.swift */,
-				89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */,
-				89DCD07D2896C9CA00C1CCA3 /* NaverMapAPIProvider.swift */,
-				6BC2B236288C4D8F0025817D /* NaverLoginManager.swift */,
-				8996175928D1B18100BCCB0D /* KakaoLoginManager.swift */,
 				6B4FA9DC28917E3B0048B60F /* UserDefaultsManager.swift */,
 			);
 			path = Services;
@@ -556,6 +549,235 @@
 				892C1CD028322B9D00DE27D3 /* FirestoreRoute.swift */,
 			);
 			path = Enum;
+			sourceTree = "<group>";
+		};
+		895A0562291B8993009103CC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FCF850F9280DC02800D5D3DC /* MainViewController.swift */,
+				FCF850FB280DC05900D5D3DC /* ClassItemTableViewCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		895A0563291B89A0009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89CBB39728F7EE33005161EE /* MainViewModel.swift */,
+				89CBB39928FBF523005161EE /* ClassItemViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A0564291B89E1009103CC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FCF850FE280E6AD300D5D3DC /* SearchViewController.swift */,
+				FCF85100280E7F9F00D5D3DC /* SearchResultViewController.swift */,
+				FC87FA9F281ECF6500F57CE0 /* SearchRecentTableViewCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		895A0565291B89E8009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89CBB39B28FD4172005161EE /* SearchViewModel.swift */,
+				89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A0567291B8A82009103CC /* Scene */ = {
+			isa = PBXGroup;
+			children = (
+				FC25F8AB2865DE5E00B2BBEB /* Chat */,
+				6B59562728474677004821F1 /* Auth */,
+				6BA8E0112821023900B0CC8C /* Profile */,
+				FC3458682816F55A00EB7B43 /* Tabbar */,
+				FC3458692816F56300EB7B43 /* Main */,
+				FC34586A2816F56D00EB7B43 /* Search */,
+				FC34586C2816F57D00EB7B43 /* Category */,
+				FC34586B2816F57600EB7B43 /* Star */,
+				8980574F28677F110089CF47 /* Map */,
+				89675B4D282990B900933C48 /* ClassEnrollModify */,
+				89675B4F2829916500933C48 /* ClassDetail */,
+			);
+			path = Scene;
+			sourceTree = "<group>";
+		};
+		895A0568291B8B22009103CC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FC58F0F9280F134D00AB9B07 /* CategoryListViewController.swift */,
+				FC3458662816E5A800EB7B43 /* CategoryListCollectionViewCell.swift */,
+				FC58F0FB280F137900AB9B07 /* CategoryDetailViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		895A0569291B8B27009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A056A291B8B49009103CC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				FC58F0F7280F12FE00AB9B07 /* StarViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		895A056B291B8B52009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89CBB3A129070387005161EE /* StarViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A056C291B8B64009103CC /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8980575028677F290089CF47 /* MapViewController.swift */,
+				89DCD06D28839AA900C1CCA3 /* MapView.swift */,
+				89A3143F2870AE2000A7F6ED /* MapCategorySelectViewController.swift */,
+				89A3143B286D9DA300A7F6ED /* MapCategoryView.swift */,
+				89A31445287900CD00A7F6ED /* MapClassListCell.swift */,
+				89A314432878FEAC00A7F6ED /* MapClassListView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		895A056D291B8B69009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89CBB3A52908FDCE005161EE /* MapViewModel.swift */,
+				89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A056E291B8BAA009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */,
+				89846E1C2912635300121B40 /* MapSelectionViewModel.swift */,
+				89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */,
+				89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A056F291B8BD7009103CC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				89846E222918F7E200121B40 /* ClassDetailViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		895A0570291B8E74009103CC /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				895A0571291B8E89009103CC /* Entities */,
+				895A0572291B9140009103CC /* UseCases */,
+				895A0578291E1A8B009103CC /* Interfaces */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		895A0571291B8E89009103CC /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				6B7997BF27F33C5A00F37393 /* ClassItem.swift */,
+				6B7997BC27F33C4C00F37393 /* User.swift */,
+				8941FF1E2830C97300A90AB0 /* Location.swift */,
+				FC8507D128202036008A8618 /* SearchHistory.swift */,
+				89DCD0802896C9FB00C1CCA3 /* NaverMapAddress.swift */,
+				6BC2B234288C4A710025817D /* NaverUserInfo.swift */,
+				8967E5D128CF9E9A00BA1F6F /* KoreaAdministrativeDistrict.swift */,
+				895A0586291E41B9009103CC /* ClassItemQuery.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		895A0572291B9140009103CC /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				895A0573291E0F48009103CC /* ClassItemUseCase.swift */,
+				895A0575291E0F7E009103CC /* Protocol */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		895A0575291E0F7E009103CC /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				895A0576291E0FA5009103CC /* UseCase.swift */,
+			);
+			path = Protocol;
+			sourceTree = "<group>";
+		};
+		895A0578291E1A8B009103CC /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				895A0579291E1AA9009103CC /* Repositories */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		895A0579291E1AA9009103CC /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				895A057A291E1AD0009103CC /* ClassItemRepository.swift */,
+				895A0584291E317D009103CC /* UserRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		895A057C291E1B0B009103CC /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				895A057D291E1B23009103CC /* Repositories */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		895A057D291E1B23009103CC /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		895A0580291E1F01009103CC /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+				895A0581291E1F15009103CC /* Network */,
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		895A0581291E1F15009103CC /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				892C1CC8283211B300DE27D3 /* FirestoreManager.swift */,
+				6B42D940284BBE6000384480 /* FirebaseAuthManager.swift */,
+				892C1CD22832DABF00DE27D3 /* StorageManager.swift */,
+				8971F21B283A1A4200D4AAD0 /* ImageCacheManager.swift */,
+				89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */,
+				89DCD07D2896C9CA00C1CCA3 /* NaverMapAPIProvider.swift */,
+				6BC2B236288C4D8F0025817D /* NaverLoginManager.swift */,
+				8996175928D1B18100BCCB0D /* KakaoLoginManager.swift */,
+				895A0582291E1FB2009103CC /* DataTransferService.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		895D106927F32DCA009FB26F = {
@@ -581,12 +803,10 @@
 			isa = PBXGroup;
 			children = (
 				89EDC56928C62CC600F53A5A /* ClassToday.entitlements */,
-				89CBB39328F7EA62005161EE /* Utilities */,
-				89CBB39628F7EE19005161EE /* ViewModels */,
-				6B5E14C028131A59001AF21C /* Protocol */,
-				6B5E14BE28131A37001AF21C /* Extension */,
+				895A0570291B8E74009103CC /* Domain */,
 				FCF850FD280E6A8700D5D3DC /* Presentation */,
-				6B7997BE27F33C4F00F37393 /* Model */,
+				895A057C291E1B0B009103CC /* Data */,
+				895A0580291E1F01009103CC /* Infrastructure */,
 				892C1CCD28322AA800DE27D3 /* Enum */,
 				FCF850F8280DBDE900D5D3DC /* Common */,
 				892C1CC72832118500DE27D3 /* Services */,
@@ -630,8 +850,8 @@
 		89675B4D282990B900933C48 /* ClassEnrollModify */ = {
 			isa = PBXGroup;
 			children = (
-				89675B512829937400933C48 /* ViewController */,
 				89675B522829938B00933C48 /* View */,
+				895A056E291B8BAA009103CC /* ViewModel */,
 			);
 			path = ClassEnrollModify;
 			sourceTree = "<group>";
@@ -653,8 +873,8 @@
 		89675B4F2829916500933C48 /* ClassDetail */ = {
 			isa = PBXGroup;
 			children = (
-				89675B542829941900933C48 /* ViewController */,
 				89675B50282991E000933C48 /* View */,
+				895A056F291B8BD7009103CC /* ViewModel */,
 			);
 			path = ClassDetail;
 			sourceTree = "<group>";
@@ -662,6 +882,7 @@
 		89675B50282991E000933C48 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				89675B542829941900933C48 /* ViewController */,
 				89675B242826F07300933C48 /* ClassDetailTableView */,
 				89C26A892811EC1400648206 /* ClassDetailCollectionView */,
 				89675B442828C25C00933C48 /* DetailCustomNavigationBar.swift */,
@@ -686,6 +907,7 @@
 		89675B522829938B00933C48 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				89675B512829937400933C48 /* ViewController */,
 				89675B1A2826C0BE00933C48 /* ClassEnrollModifyTableView */,
 				89675B4E2829911500933C48 /* ClassEnrollModifyCollectionView */,
 				89675B53282993DE00933C48 /* PopOverContentsView */,
@@ -714,12 +936,8 @@
 		8980574F28677F110089CF47 /* Map */ = {
 			isa = PBXGroup;
 			children = (
-				8980575028677F290089CF47 /* MapViewController.swift */,
-				89DCD06D28839AA900C1CCA3 /* MapView.swift */,
-				89A3143B286D9DA300A7F6ED /* MapCategoryView.swift */,
-				89A3143F2870AE2000A7F6ED /* MapCategorySelectViewController.swift */,
-				89A314432878FEAC00A7F6ED /* MapClassListView.swift */,
-				89A31445287900CD00A7F6ED /* MapClassListCell.swift */,
+				895A056C291B8B64009103CC /* View */,
+				895A056D291B8B69009103CC /* ViewModel */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -738,30 +956,12 @@
 		89CBB39328F7EA62005161EE /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				6B5E14C028131A59001AF21C /* Protocol */,
+				6B5E14BE28131A37001AF21C /* Extension */,
 				89CBB39428F7EA75005161EE /* Observable.swift */,
+				89CBB3A32907BCCD005161EE /* ViewModel.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		89CBB39628F7EE19005161EE /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				89CBB3A32907BCCD005161EE /* ViewModel.swift */,
-				89CBB39728F7EE33005161EE /* MainViewModel.swift */,
-				89CBB39928FBF523005161EE /* ClassItemViewModel.swift */,
-				89CBB39B28FD4172005161EE /* SearchViewModel.swift */,
-				89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */,
-				89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */,
-				89CBB3A129070387005161EE /* StarViewModel.swift */,
-				89CBB3A52908FDCE005161EE /* MapViewModel.swift */,
-				89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */,
-				89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */,
-				89846E1C2912635300121B40 /* MapSelectionViewModel.swift */,
-				89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */,
-				89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */,
-				89846E222918F7E200121B40 /* ClassDetailViewModel.swift */,
-			);
-			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		FC25F8AB2865DE5E00B2BBEB /* Chat */ = {
@@ -787,8 +987,8 @@
 		FC3458692816F56300EB7B43 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				FCF850FB280DC05900D5D3DC /* ClassItemTableViewCell.swift */,
-				FCF850F9280DC02800D5D3DC /* MainViewController.swift */,
+				895A0562291B8993009103CC /* View */,
+				895A0563291B89A0009103CC /* ViewModel */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -796,10 +996,8 @@
 		FC34586A2816F56D00EB7B43 /* Search */ = {
 			isa = PBXGroup;
 			children = (
-				FC87FA9F281ECF6500F57CE0 /* SearchRecentTableViewCell.swift */,
-				FCF850FE280E6AD300D5D3DC /* SearchViewController.swift */,
-				FCF85100280E7F9F00D5D3DC /* SearchResultViewController.swift */,
-				FC8507D128202036008A8618 /* SearchHistory.swift */,
+				895A0564291B89E1009103CC /* View */,
+				895A0565291B89E8009103CC /* ViewModel */,
 			);
 			path = Search;
 			sourceTree = "<group>";
@@ -807,7 +1005,8 @@
 		FC34586B2816F57600EB7B43 /* Star */ = {
 			isa = PBXGroup;
 			children = (
-				FC58F0F7280F12FE00AB9B07 /* StarViewController.swift */,
+				895A056A291B8B49009103CC /* View */,
+				895A056B291B8B52009103CC /* ViewModel */,
 			);
 			path = Star;
 			sourceTree = "<group>";
@@ -815,9 +1014,8 @@
 		FC34586C2816F57D00EB7B43 /* Category */ = {
 			isa = PBXGroup;
 			children = (
-				FC3458662816E5A800EB7B43 /* CategoryListCollectionViewCell.swift */,
-				FC58F0F9280F134D00AB9B07 /* CategoryListViewController.swift */,
-				FC58F0FB280F137900AB9B07 /* CategoryDetailViewController.swift */,
+				895A0568291B8B22009103CC /* View */,
+				895A0569291B8B27009103CC /* ViewModel */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -835,17 +1033,8 @@
 		FCF850FD280E6A8700D5D3DC /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				FC25F8AB2865DE5E00B2BBEB /* Chat */,
-				6B59562728474677004821F1 /* Auth */,
-				6BA8E0112821023900B0CC8C /* Profile */,
-				FC3458682816F55A00EB7B43 /* Tabbar */,
-				FC3458692816F56300EB7B43 /* Main */,
-				FC34586A2816F56D00EB7B43 /* Search */,
-				FC34586C2816F57D00EB7B43 /* Category */,
-				FC34586B2816F57600EB7B43 /* Star */,
-				8980574F28677F110089CF47 /* Map */,
-				89675B4D282990B900933C48 /* ClassEnrollModify */,
-				89675B4F2829916500933C48 /* ClassDetail */,
+				895A0567291B8A82009103CC /* Scene */,
+				89CBB39328F7EA62005161EE /* Utilities */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -1042,6 +1231,7 @@
 				6B5E149328131286001AF21C /* UserProfileType.swift in Sources */,
 				6B5E149B2813130F001AF21C /* ClassHistoryViewController.swift in Sources */,
 				89CBB39828F7EE33005161EE /* MainViewModel.swift in Sources */,
+				895A0587291E41B9009103CC /* ClassItemQuery.swift in Sources */,
 				FCD624D828951FDC002F443A /* MatchConfirmViewController.swift in Sources */,
 				6B5E14AF28131446001AF21C /* SellUserInfoTableViewCell.swift in Sources */,
 				6BA8E00E2820CA5100B0CC8C /* UILabel+.swift in Sources */,
@@ -1088,6 +1278,7 @@
 				89A314442878FEAD00A7F6ED /* MapClassListView.swift in Sources */,
 				FCA26EC12867A193004F4C20 /* ImageMediaItem.swift in Sources */,
 				89098E4B282454A5006EFD4E /* ClassDateSelectionCollectionViewCell.swift in Sources */,
+				895A0585291E317D009103CC /* UserRepository.swift in Sources */,
 				6B4FA9DD28917E3B0048B60F /* UserDefaultsManager.swift in Sources */,
 				89098E492824540B006EFD4E /* ClassDateSelectionCollectionReusableView.swift in Sources */,
 				6B59562628474672004821F1 /* SignUpViewController.swift in Sources */,
@@ -1096,6 +1287,7 @@
 				89675B172826782600933C48 /* PriceUnit.swift in Sources */,
 				89098E0D28203A04006EFD4E /* Category.swift in Sources */,
 				89CBB3A42907BCCE005161EE /* ViewModel.swift in Sources */,
+				895A0577291E0FA5009103CC /* UseCase.swift in Sources */,
 				89098E4D28245503006EFD4E /* DayWeek.swift in Sources */,
 				89846E2129137EE600121B40 /* EnrollCategoryViewModel.swift in Sources */,
 				89DCD073288EF10C00C1CCA3 /* MapSelectionViewController.swift in Sources */,
@@ -1119,6 +1311,7 @@
 				89675B2F2827BFDE00933C48 /* DetailUserCell.swift in Sources */,
 				FC7FB97128A7DB32004958FA /* ReviewInputViewController.swift in Sources */,
 				6B42D941284BBE6000384480 /* FirebaseAuthManager.swift in Sources */,
+				895A0583291E1FB2009103CC /* DataTransferService.swift in Sources */,
 				8971F21C283A1A4200D4AAD0 /* ImageCacheManager.swift in Sources */,
 				6B4942FD28AA693A0047CA0B /* OptionalUserInfoInputViewController.swift in Sources */,
 				892C1CCF28322AD600DE27D3 /* ClassItemType.swift in Sources */,
@@ -1144,6 +1337,7 @@
 				89098E312820FA5B006EFD4E /* EnrollPriceCell.swift in Sources */,
 				89A314402870AE2100A7F6ED /* MapCategorySelectViewController.swift in Sources */,
 				89DCD07F2896C9CA00C1CCA3 /* NaverMapAPIProvider.swift in Sources */,
+				895A057B291E1AD0009103CC /* ClassItemRepository.swift in Sources */,
 				89846E1F2912C10C00121B40 /* EnrollImageViewModel.swift in Sources */,
 				89865E9F282A70DE00113242 /* SearchViewController.swift in Sources */,
 				89A0CD3C280D441A006FDF89 /* ClassImageCell.swift in Sources */,
@@ -1158,6 +1352,7 @@
 				89675B3F2828101400933C48 /* DetailContentCategoryCollectionViewCell.swift in Sources */,
 				89A67347282A638B00951300 /* ClassItemTableViewCell.swift in Sources */,
 				89865EA4282A70EA00113242 /* CategoryListViewController.swift in Sources */,
+				895A0574291E0F48009103CC /* ClassItemUseCase.swift in Sources */,
 				89DCD0812896C9FC00C1CCA3 /* NaverMapAddress.swift in Sources */,
 				89865EA1282A70E300113242 /* SearchHistory.swift in Sources */,
 				89675B422828336C00933C48 /* DetailContentPlaceView.swift in Sources */,
@@ -1171,6 +1366,7 @@
 				89675B452828C25C00933C48 /* DetailCustomNavigationBar.swift in Sources */,
 				89CBB39A28FBF523005161EE /* ClassItemViewModel.swift in Sources */,
 				89A31446287900CD00A7F6ED /* MapClassListCell.swift in Sources */,
+				895A057F291E1B3D009103CC /* DefaultClassItemRepository.swift in Sources */,
 				89A67348282A639600951300 /* Tabbar.swift in Sources */,
 				89B891D1284735A8008B27DD /* LocationManager.swift in Sources */,
 				FCD78A0528731B3A00714EC7 /* UIAlertAction+.swift in Sources */,

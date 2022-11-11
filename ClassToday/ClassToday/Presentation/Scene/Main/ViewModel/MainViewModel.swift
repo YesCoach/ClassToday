@@ -13,6 +13,8 @@ enum LocationError: Error {
 
 // for test, set ViewModel Public
 public class MainViewModel: LocationViewModel, FetchingViewModel {
+
+    private let classItemUseCase: ClassItemUseCase
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let userDefaultsManager = UserDefaultsManager.shared
@@ -27,7 +29,8 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
 
-    override init() {
+    init(classItemUseCase: ClassItemUseCase) {
+        self.classItemUseCase = classItemUseCase
         super.init()
         checkLocationAuthorization()
         NotificationCenter.default.addObserver(self,
@@ -35,6 +38,7 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
                                                name: NSNotification.Name("updateUserData"),
                                                object: nil)
     }
+
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
     ///  - 출력 형태: "@@시 @@구의 수업"
@@ -81,7 +85,7 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
             isNowDataFetching.value = false
             return
         }
-        self.firestoreManager.fetch(keyword: keyword) { [weak self] data in
+        classItemUseCase.excute(param: .fetchByKeyword(keyword: keyword)) { [weak self] data in
             self?.isNowDataFetching.value = false
             // 최신순 정렬
             self?.data.value = data.sorted { $0 > $1 }

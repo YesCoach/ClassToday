@@ -121,7 +121,7 @@ public class ClassDetailViewModel: ViewModel {
 
     /// 수업 아이템 삭제 메서드
     func deleteClassItem() {
-        firestoreManager.delete(classItem: classItem)
+        firestoreManager.delete(classItem: classItem) {}
     }
 
     /// 수업 활성화/비활성화 메서드
