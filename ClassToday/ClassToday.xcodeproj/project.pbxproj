@@ -94,6 +94,7 @@
 		895D107F27F32DCB009FB26F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 895D107E27F32DCB009FB26F /* Assets.xcassets */; };
 		895D108227F32DCB009FB26F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 895D108027F32DCB009FB26F /* LaunchScreen.storyboard */; };
 		895D521628C8ADA500F8A464 /* LocationSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895D521528C8ADA500F8A464 /* LocationSettingViewController.swift */; };
+		8966A02529238F5A0070B10C /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A02429238F5A0070B10C /* DIContainer.swift */; };
 		8966CF5B28100652001CBBDC /* FullImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5A28100652001CBBDC /* FullImagesViewController.swift */; };
 		8966CF5E2810787C001CBBDC /* ClassImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5D2810787C001CBBDC /* ClassImageView.swift */; };
 		89675B122826776100933C48 /* PriceUnitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89675B112826776100933C48 /* PriceUnitTableView.swift */; };
@@ -284,6 +285,8 @@
 		895D108127F32DCB009FB26F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		895D108327F32DCB009FB26F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		895D521528C8ADA500F8A464 /* LocationSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSettingViewController.swift; sourceTree = "<group>"; };
+		8966A0212923894B0070B10C /* ClassToday.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClassToday.entitlements; sourceTree = "<group>"; };
+		8966A02429238F5A0070B10C /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
 		8966CF5A28100652001CBBDC /* FullImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImagesViewController.swift; sourceTree = "<group>"; };
 		8966CF5D2810787C001CBBDC /* ClassImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassImageView.swift; sourceTree = "<group>"; };
 		89675B112826776100933C48 /* PriceUnitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceUnitTableView.swift; sourceTree = "<group>"; };
@@ -343,7 +346,6 @@
 		89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NaverMapAPI.swift; sourceTree = "<group>"; };
 		89DCD07D2896C9CA00C1CCA3 /* NaverMapAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NaverMapAPIProvider.swift; sourceTree = "<group>"; };
 		89DCD0802896C9FB00C1CCA3 /* NaverMapAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaverMapAddress.swift; sourceTree = "<group>"; };
-		89EDC56928C62CC600F53A5A /* ClassToday.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClassToday.entitlements; sourceTree = "<group>"; };
 		8EA1F2C39C39BCCBDDEC4511 /* Pods_ClassToday.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ClassToday.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C93CCEEE28AC7C7400B17CEE /* NaverMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaverMapView.swift; sourceTree = "<group>"; };
 		C94C0BD328A494EA00F75B76 /* UIAlertController+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+.swift"; sourceTree = "<group>"; };
@@ -588,7 +590,7 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		895A0567291B8A82009103CC /* Scene */ = {
+		895A0567291B8A82009103CC /* View */ = {
 			isa = PBXGroup;
 			children = (
 				6B59562728474677004821F1 /* Auth */,
@@ -603,7 +605,7 @@
 				FC25F8AB2865DE5E00B2BBEB /* Chat */,
 				6BA8E0112821023900B0CC8C /* Profile */,
 			);
-			path = Scene;
+			path = View;
 			sourceTree = "<group>";
 		};
 		895A0568291B8B22009103CC /* View */ = {
@@ -709,8 +711,8 @@
 		895A0572291B9140009103CC /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
-				895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */,
 				895A0575291E0F7E009103CC /* Protocol */,
+				895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -760,6 +762,7 @@
 			isa = PBXGroup;
 			children = (
 				895A0581291E1F15009103CC /* Network */,
+				892C1CC72832118500DE27D3 /* Services */,
 			);
 			path = Infrastructure;
 			sourceTree = "<group>";
@@ -802,24 +805,48 @@
 		895D107427F32DCA009FB26F /* ClassToday */ = {
 			isa = PBXGroup;
 			children = (
-				89EDC56928C62CC600F53A5A /* ClassToday.entitlements */,
+				8966A0212923894B0070B10C /* ClassToday.entitlements */,
+				8966A020292388A40070B10C /* Application */,
 				FCF850FD280E6A8700D5D3DC /* Presentation */,
 				895A0570291B8E74009103CC /* Domain */,
 				895A057C291E1B0B009103CC /* Data */,
 				895A0580291E1F01009103CC /* Infrastructure */,
 				892C1CCD28322AA800DE27D3 /* Enum */,
 				FCF850F8280DBDE900D5D3DC /* Common */,
-				892C1CC72832118500DE27D3 /* Services */,
+				8966A02229238A380070B10C /* Resources */,
 				89098E3B28227271006EFD4E /* Mock */,
-				895D108027F32DCB009FB26F /* LaunchScreen.storyboard */,
+			);
+			path = ClassToday;
+			sourceTree = "<group>";
+		};
+		8966A020292388A40070B10C /* Application */ = {
+			isa = PBXGroup;
+			children = (
 				89A67341282A634C00951300 /* AppDelegate.swift */,
 				89A67340282A634C00951300 /* SceneDelegate.swift */,
+				8966A02329238E530070B10C /* DIContainer */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		8966A02229238A380070B10C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
 				8967E5CF28CF9E8300BA1F6F /* korea-administrative-district.json */,
 				8941FF1C2830C2B600A90AB0 /* GoogleService-Info.plist */,
 				895D108327F32DCB009FB26F /* Info.plist */,
+				895D108027F32DCB009FB26F /* LaunchScreen.storyboard */,
 				895D107E27F32DCB009FB26F /* Assets.xcassets */,
 			);
-			path = ClassToday;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		8966A02329238E530070B10C /* DIContainer */ = {
+			isa = PBXGroup;
+			children = (
+				8966A02429238F5A0070B10C /* DIContainer.swift */,
+			);
+			path = DIContainer;
 			sourceTree = "<group>";
 		};
 		89675B1A2826C0BE00933C48 /* ClassEnrollModifyTableView */ = {
@@ -1033,7 +1060,7 @@
 		FCF850FD280E6A8700D5D3DC /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				895A0567291B8A82009103CC /* Scene */,
+				895A0567291B8A82009103CC /* View */,
 				89CBB39328F7EA62005161EE /* Utilities */,
 			);
 			path = Presentation;
@@ -1394,6 +1421,7 @@
 				893D70E4281B1935006CD232 /* ClassCategoryCollectionViewCell.swift in Sources */,
 				8922C94328AA3FE300EC82C9 /* ReviewItem.swift in Sources */,
 				89098E282820EF75006EFD4E /* EnrollTimeCell.swift in Sources */,
+				8966A02529238F5A0070B10C /* DIContainer.swift in Sources */,
 				8967E5D428CFA2F600BA1F6F /* LocationSelectViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1548,7 +1576,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67D46DJNPH;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ClassToday/Info.plist;
+				INFOPLIST_FILE = ClassToday/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "카메라 접근 권한을 허용하시겠어요?";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
@@ -1585,7 +1613,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67D46DJNPH;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ClassToday/Info.plist;
+				INFOPLIST_FILE = ClassToday/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "카메라 접근 권한을 허용하시겠어요?";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
