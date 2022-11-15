@@ -15,8 +15,8 @@ enum NaverMapAPIError: Error {
     case nonLocation
 }
 
-class NaverMapAPIProvider {
-    let provider: MoyaProvider<NaverMapAPI>
+final class NaverMapAPIProvider {
+    private let provider: MoyaProvider<NaverMapAPI>
     
     init(provider: MoyaProvider<NaverMapAPI> = .init()) {
         self.provider = provider

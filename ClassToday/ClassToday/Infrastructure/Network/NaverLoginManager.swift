@@ -9,11 +9,12 @@ import Foundation
 import Alamofire
 import NaverThirdPartyLogin
 
-class NaverLoginManager {
+final class NaverLoginManager {
     static let shared = NaverLoginManager()
-    
     private let instance = NaverThirdPartyLoginConnection.getSharedInstance()
-    
+
+    private init() {}
+
     func getInfo(completion: @escaping (Result<NaverUserInfo, AFError>) -> Void) {
         let isValidAccessToken = instance?.isValidAccessTokenExpireTimeNow()
         

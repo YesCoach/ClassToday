@@ -7,7 +7,6 @@
 
 import FirebaseStorage
 import UIKit
-import Alamofire
 
 enum StorageError: Error {
     case invalidData

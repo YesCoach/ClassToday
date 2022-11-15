@@ -12,7 +12,7 @@ final class FirebaseAuthManager {
     static let shared = FirebaseAuthManager()
     private init() {}
     private let auth = Auth.auth()
-    
+
     /// 회원가입 메서드
     ///
     /// FirebaseAuth에 회원가입이 완료되면 부여된 고유 아이디(UID)로 Firestore에 저장한다.

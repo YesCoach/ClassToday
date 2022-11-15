@@ -14,8 +14,8 @@ final class FirestoreManager {
     static let shared = FirestoreManager()
     private init() {}
 
-    // - MARK: CRUD Method
-
+    // MARK: - ClassItem 관련 CRUD
+    // MARK: - POST
     /// ClassItem을 업로드합니다.
     func upload(classItem: ClassItem, completion: @escaping () -> ()) {
         do {
@@ -32,6 +32,7 @@ final class FirestoreManager {
         }
     }
 
+    // MARK: - GET
     /// 모든 ClassItem을 패칭합니다.
     func fetch(completion: @escaping ([ClassItem]) -> ()) {
         var data: [ClassItem] = []
@@ -134,11 +135,13 @@ final class FirestoreManager {
         }
     }
 
+    // MARK: - PUT
     /// ClassItem을 업데이트 합니다.
     func update(classItem: ClassItem, completion: @escaping () -> ()) {
         upload(classItem: classItem, completion: completion)
     }
-    
+
+    // MARK: - DELETE
     /// ClassItem을 삭제합니다.
     func delete(classItem: ClassItem, completion: @escaping () -> ()) {
         FirestoreRoute.classItem.ref.document(classItem.id).delete { error in
@@ -262,7 +265,7 @@ final class FirestoreManager {
     }
 }
 
-// MARK: - User 관련 Firestore 메서드
+// MARK: - User 관련 CRUD
 extension FirestoreManager {
     /// 유저 정보를 저장하는 메서드
     ///
@@ -301,7 +304,7 @@ extension FirestoreManager {
     }
 }
 
-//MARK: - chat 관련 Firestore Method
+//MARK: - chat 관련 CRUD
 extension FirestoreManager {
     func uploadChannel(channel: Channel) {
         do {

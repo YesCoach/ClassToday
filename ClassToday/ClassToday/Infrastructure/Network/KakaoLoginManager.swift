@@ -16,9 +16,11 @@ enum KakaoLoginStatus {
     case signIn
 }
 
-class KakaoLoginManager {
+final class KakaoLoginManager {
     static let shared = KakaoLoginManager()
-    
+
+    private init() {}
+
     func login(_ completion: @escaping (Result<(KakaoLoginStatus, String), Error>) -> Void) {
         /// 토큰이 있을 경우
         if (AuthApi.hasToken()) {
@@ -37,7 +39,7 @@ class KakaoLoginManager {
                                 _ = oauthToken
                                 // 어세스토큰
                                 let accessToken = oauthToken?.accessToken
-                                
+
                                 // 로그인 성공 시
                                 self?.loginOrSignUp { result in
                                     completion(result)
