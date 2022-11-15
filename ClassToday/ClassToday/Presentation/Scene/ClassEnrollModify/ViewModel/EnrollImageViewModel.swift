@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class EnrollImageViewModel: ViewModel {
+public class EnrollImageViewModel {
     private let storageManager = StorageManager.shared
     private let limitImageCount: Int
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class StarViewModel: FetchingViewModel {
+public class StarViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let userDefaultsManager = UserDefaultsManager.shared

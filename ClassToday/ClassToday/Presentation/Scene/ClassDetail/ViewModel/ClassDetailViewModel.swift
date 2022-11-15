@@ -13,7 +13,7 @@ protocol ClassDetailViewModelDelegate: AnyObject {
     func pushViewÇontroller(vc: UIViewController)
 }
 
-public class ClassDetailViewModel: ViewModel {
+public class ClassDetailViewModel {
     private let storageManager = StorageManager.shared
     private let firestoreManager = FirestoreManager.shared
     private let firebaseAuthManager = FirebaseAuthManager.shared

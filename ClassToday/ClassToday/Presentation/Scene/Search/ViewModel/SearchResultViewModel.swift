@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class SearchResultViewModel: FetchingViewModel {
+public class SearchResultViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let provider = NaverMapAPIProvider()

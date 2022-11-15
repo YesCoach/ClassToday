@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class MapViewModel: LocationViewModel, FetchingViewModel {
+public class MapViewModel: LocationViewModel {
     private let userDefaultsManager = UserDefaultsManager.shared
     private let locationManager = LocationManager.shared
     private let firestoreManager = FirestoreManager.shared

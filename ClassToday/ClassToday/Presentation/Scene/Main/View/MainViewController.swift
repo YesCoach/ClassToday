@@ -86,7 +86,7 @@ class MainViewController: UIViewController {
     }()
 
     // - MVVM
-    private let viewModel = MainViewModel(fetchClassItemUseCase:
+    private let viewModel = DefaultMainViewModel(fetchClassItemUseCase:
                                             DefaultFetchClassItemUseCase(classItempRepository: DefaultClassItemRepository()))
 
     //MARK: - view lifecycle
@@ -101,7 +101,6 @@ class MainViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.configureLocation()
         viewModel.checkLocationAuthorization()
     }
     
@@ -193,8 +192,7 @@ private extension MainViewController {
 
     @objc func beginRefresh() {
         print("beginRefresh!")
-        viewModel.checkLocationAuthorization()
-        viewModel.fetchData()
+        viewModel.refreshClassItemList()
     }
 
     @objc func didTapStarButton() {

@@ -7,14 +7,6 @@
 
 import Foundation
 
-protocol ViewModel {
-    
-}
-
-protocol FetchingViewModel: ViewModel {
-    func fetchData()
-}
-
 public class LocationViewModel {
     private let locationManager = LocationManager.shared
     var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)

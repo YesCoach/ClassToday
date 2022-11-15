@@ -8,7 +8,7 @@
 import Foundation
 import NMapsMap
 
-class MapSelectionViewModel: ViewModel {
+class MapSelectionViewModel {
     private let moyaProvider = NaverMapAPIProvider()
     private let locationManager = LocationManager.shared
 

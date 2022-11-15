@@ -11,15 +11,28 @@ enum LocationError: Error {
     case NonSavedLocation
 }
 
-// for test, set ViewModel Public
-public class MainViewModel: LocationViewModel, FetchingViewModel {
+protocol MainViewModelInput {
+    func refreshClassItemList()
+}
+
+protocol MainViewModelOutput {
+    var isNowLocationFetching: Observable<Bool> { get }
+    var isNowDataFetching: Observable<Bool> { get }
+    var locationTitle: Observable<String?> { get }
+
+    var currentUser: Observable<User?> { get }
+    var data: Observable<[ClassItem]> { get }
+    var dataBuy: Observable<[ClassItem]> { get }
+    var dataSell: Observable<[ClassItem]> { get }
+}
+
+protocol MainViewModel: MainViewModelInput, MainViewModelOutput {}
+
+public class DefaultMainViewModel: LocationViewModel, MainViewModel {
 
     private let fetchClassItemUseCase: FetchClassItemUseCase
-    private let firestoreManager = FirestoreManager.shared
-    private let locationManager = LocationManager.shared
-    private let userDefaultsManager = UserDefaultsManager.shared
-    private let provider = NaverMapAPIProvider()
 
+    // MARK: - OUTPUT
     var isNowLocationFetching: Observable<Bool> = Observable(false)
     var isNowDataFetching: Observable<Bool> = Observable(false)
     let locationTitle: Observable<String?> = Observable(nil)
@@ -29,10 +42,12 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
 
+    // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
         super.init()
         checkLocationAuthorization()
+        configureLocation()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateUserData(_:)),
                                                name: NSNotification.Name("updateUserData"),
@@ -42,7 +57,7 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
     ///  - 출력 형태: "@@시 @@구의 수업"
-    func configureLocation() {
+    private func configureLocation() {
         isNowLocationFetching.value = true
         User.getCurrentUser { [weak self] result in
             guard let self = self else { return }
@@ -97,5 +112,13 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
     @objc func updateUserData(_ notification: Notification) {
         configureLocation()
+    }
+}
+
+// MARK: - INPUT
+extension DefaultMainViewModel {
+    func refreshClassItemList() {
+        checkLocationAuthorization()
+        fetchData()
     }
 }

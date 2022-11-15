@@ -8,7 +8,7 @@
 import UIKit
 
 // public for test
-public class ClassItemViewModel: ViewModel {
+public class ClassItemViewModel {
     private let classItem: ClassItem
 
     init(classItem: ClassItem) {

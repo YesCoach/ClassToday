@@ -12,7 +12,7 @@ protocol ClassEnrollModifyViewModelDelegate {
     func dismissViewController()
 }
 
-public class  ClassEnrollModifyViewModel: ViewModel {
+public class  ClassEnrollModifyViewModel {
     private let firestoreManager = FirestoreManager.shared
     private let storageManager = StorageManager.shared
     private let locationManager = LocationManager.shared

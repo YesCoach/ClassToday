@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class MapCategorySelectViewModel: ViewModel {
+public class MapCategorySelectViewModel {
     let selectedCategory: Observable<[CategoryItem]> = Observable([])
     let categoryType: CategoryType
 

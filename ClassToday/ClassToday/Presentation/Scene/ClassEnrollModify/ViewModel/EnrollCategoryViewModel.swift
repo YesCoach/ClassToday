@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class EnrollCategoryViewModel: ViewModel {
+public class EnrollCategoryViewModel {
     let categoryType: Observable<CategoryType?> = Observable(nil)
     let selectedCategory: Observable<[CategoryItem]> = Observable([])
 
