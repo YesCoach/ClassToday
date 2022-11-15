@@ -86,8 +86,8 @@ class MainViewController: UIViewController {
     }()
 
     // - MVVM
-    private let viewModel = MainViewModel(classItemUseCase:
-                                            DefaultClassItemUseCase(classItempRepository: DefaultClassItemRepository()))
+    private let viewModel = MainViewModel(fetchClassItemUseCase:
+                                            DefaultFetchClassItemUseCase(classItempRepository: DefaultClassItemRepository()))
 
     //MARK: - view lifecycle
     override func viewDidLoad() {

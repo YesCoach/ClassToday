@@ -17,48 +17,50 @@ final class DefaultClassItemRepository {
 }
 
 extension DefaultClassItemRepository: ClassItemRepository {
+    func create(param: ClassItemQuery.CreateItem, completion: @escaping () -> ()) {
+        switch param {
+        case .create(let item):
+            firestoreManager.upload(classItem: item, completion: completion)
+        }
+    }
 
-    func upload(classItem: ClassItem, completion: @escaping () -> ()) {
-        firestoreManager.upload(classItem: classItem, completion: completion)
+    func fetchItem(param: ClassItemQuery.FetchItem, completion: @escaping (ClassItem) -> ()) {
+        switch param {
+        case .fetchItem(let id):
+            firestoreManager.fetch(classItemId: id, completion: completion)
+        }
     }
     
-    func fetchClassItems(completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.fetch(completion: completion)
+    func fetchItems(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ()) {
+        switch param {
+        case .fetchItems:
+            firestoreManager.fetch(completion: completion)
+        case .fetchByLocation(let location):
+            firestoreManager.fetch(location: location, completion: completion)
+        case .fetchByKeyword(let keyword):
+            firestoreManager.fetch(keyword: keyword, completion: completion)
+        case .fetchByKeywordCategory(let keyword, let category):
+            firestoreManager.categorySort(keyword: keyword, category: category, completion: completion)
+        case .fetchByKeywordCategories(let keyword, let categories):
+            firestoreManager.categorySort(keyword: keyword, categories: categories, completion: completion)
+        case .fetchByCategories(let categories):
+            firestoreManager.categorySort(categories: categories, completion: completion)
+        case .fetchByStarlist(let starlist):
+            firestoreManager.starSort(starList: starlist, completion: completion)
+        }
     }
     
-    func fetchClassItems(location: Location?, completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.fetch(location, completion: completion)
+    func update(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ()) {
+        switch param {
+        case .update(let item):
+            firestoreManager.update(classItem: item, completion: completion)
+        }
     }
     
-    func fetchClassItems(keyword: String, completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.fetch(keyword: keyword, completion: completion)
-    }
-    
-    func fetchClassItem(id: String, completion: @escaping (ClassItem) -> ()) {
-        firestoreManager.fetch(classItemId: id, completion: completion)
-    }
-    
-    func fetchClassItems(categories: [String], completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.categorySort(categories: categories, completion: completion)
-    }
-    
-    func fetchClassItems(keyword: String, category: String, completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.categorySort(keyword: keyword, category: category, completion: completion)
-    }
-    
-    func fetchClassItems(keyword: String, categories: [String], completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.categorySort(keyword: keyword, categories: categories, completion: completion)
-    }
-    
-    func fetchClassItems(starList: [String]?, completion: @escaping ([ClassItem]) -> ()) {
-        firestoreManager.starSort(starList: starList, completion: completion)
-    }
-    
-    func update(classItem: ClassItem, completion: @escaping () -> ()) {
-        firestoreManager.update(classItem: classItem, completion: completion)
-    }
-    
-    func delete(classItem: ClassItem, completion: @escaping () -> ()) {
-        firestoreManager.delete(classItem: classItem, completion: completion)
+    func delete(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ()) {
+        switch param {
+        case .delete(let item):
+            firestoreManager.delete(classItem: item, completion: completion)
+        }
     }
 }

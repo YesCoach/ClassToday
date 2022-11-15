@@ -9,24 +9,16 @@ import Foundation
 
 protocol ClassItemRepository {
 
-    // MARK: - Create
-    func upload(classItem: ClassItem, completion: @escaping() -> ())
+    // MARK: - POST
+    func create(param: ClassItemQuery.CreateItem, completion: @escaping() -> ())
 
-    // MARK: - Read
-    func fetchClassItems(completion: @escaping ([ClassItem]) -> ())
-    func fetchClassItems(location: Location?, completion: @escaping ([ClassItem]) -> ())
-    func fetchClassItems(keyword: String, completion: @escaping ([ClassItem]) -> ())
-    func fetchClassItem(id: String, completion: @escaping (ClassItem) -> ())
+    // MARK: - GET
+    func fetchItem(param: ClassItemQuery.FetchItem, completion: @escaping (ClassItem) -> ())
+    func fetchItems(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ())
 
-    func fetchClassItems(categories: [String], completion: @escaping ([ClassItem]) -> ())
-    func fetchClassItems(keyword: String, category: String, completion: @escaping ([ClassItem]) -> ())
-    func fetchClassItems(keyword: String, categories: [String], completion: @escaping ([ClassItem]) -> ())
+    // MARK: - PUT
+    func update(param: ClassItemQuery.UpdateItem, completion: @escaping() -> ())
 
-    func fetchClassItems(starList: [String]?, completion: @escaping ([ClassItem]) -> ())
-
-    // MARK: - Update
-    func update(classItem: ClassItem, completion: @escaping() -> ())
-
-    // MARK: - Delete
-    func delete(classItem: ClassItem, completion: @escaping() -> ())
+    // MARK: - DELETE
+    func delete(param: ClassItemQuery.DeleteItem, completion: @escaping() -> ())
 }

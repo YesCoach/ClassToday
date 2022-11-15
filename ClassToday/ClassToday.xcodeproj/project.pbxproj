@@ -83,7 +83,7 @@
 		8941FF1F2830C97300A90AB0 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8941FF1E2830C97300A90AB0 /* Location.swift */; };
 		8941FF212830CDA200A90AB0 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8941FF202830CDA200A90AB0 /* Match.swift */; };
 		895209DA282A0D520009E97B /* UIApplication+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895209D9282A0D520009E97B /* UIApplication+.swift */; };
-		895A0574291E0F48009103CC /* ClassItemUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0573291E0F48009103CC /* ClassItemUseCase.swift */; };
+		895A0574291E0F48009103CC /* FetchClassItemUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */; };
 		895A0577291E0FA5009103CC /* UseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A0576291E0FA5009103CC /* UseCase.swift */; };
 		895A057B291E1AD0009103CC /* ClassItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A057A291E1AD0009103CC /* ClassItemRepository.swift */; };
 		895A057F291E1B3D009103CC /* DefaultClassItemRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */; };
@@ -272,7 +272,7 @@
 		8941FF1E2830C97300A90AB0 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		8941FF202830CDA200A90AB0 /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
 		895209D9282A0D520009E97B /* UIApplication+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+.swift"; sourceTree = "<group>"; };
-		895A0573291E0F48009103CC /* ClassItemUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemUseCase.swift; sourceTree = "<group>"; };
+		895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchClassItemUseCase.swift; sourceTree = "<group>"; };
 		895A0576291E0FA5009103CC /* UseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseCase.swift; sourceTree = "<group>"; };
 		895A057A291E1AD0009103CC /* ClassItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassItemRepository.swift; sourceTree = "<group>"; };
 		895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultClassItemRepository.swift; sourceTree = "<group>"; };
@@ -695,13 +695,13 @@
 			isa = PBXGroup;
 			children = (
 				6B7997BF27F33C5A00F37393 /* ClassItem.swift */,
+				895A0586291E41B9009103CC /* ClassItemQuery.swift */,
 				6B7997BC27F33C4C00F37393 /* User.swift */,
 				8941FF1E2830C97300A90AB0 /* Location.swift */,
 				FC8507D128202036008A8618 /* SearchHistory.swift */,
 				89DCD0802896C9FB00C1CCA3 /* NaverMapAddress.swift */,
 				6BC2B234288C4A710025817D /* NaverUserInfo.swift */,
 				8967E5D128CF9E9A00BA1F6F /* KoreaAdministrativeDistrict.swift */,
-				895A0586291E41B9009103CC /* ClassItemQuery.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -709,7 +709,7 @@
 		895A0572291B9140009103CC /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
-				895A0573291E0F48009103CC /* ClassItemUseCase.swift */,
+				895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */,
 				895A0575291E0F7E009103CC /* Protocol */,
 			);
 			path = UseCases;
@@ -803,8 +803,8 @@
 			isa = PBXGroup;
 			children = (
 				89EDC56928C62CC600F53A5A /* ClassToday.entitlements */,
-				895A0570291B8E74009103CC /* Domain */,
 				FCF850FD280E6A8700D5D3DC /* Presentation */,
+				895A0570291B8E74009103CC /* Domain */,
 				895A057C291E1B0B009103CC /* Data */,
 				895A0580291E1F01009103CC /* Infrastructure */,
 				892C1CCD28322AA800DE27D3 /* Enum */,
@@ -1352,7 +1352,7 @@
 				89675B3F2828101400933C48 /* DetailContentCategoryCollectionViewCell.swift in Sources */,
 				89A67347282A638B00951300 /* ClassItemTableViewCell.swift in Sources */,
 				89865EA4282A70EA00113242 /* CategoryListViewController.swift in Sources */,
-				895A0574291E0F48009103CC /* ClassItemUseCase.swift in Sources */,
+				895A0574291E0F48009103CC /* FetchClassItemUseCase.swift in Sources */,
 				89DCD0812896C9FC00C1CCA3 /* NaverMapAddress.swift in Sources */,
 				89865EA1282A70E300113242 /* SearchHistory.swift in Sources */,
 				89675B422828336C00933C48 /* DetailContentPlaceView.swift in Sources */,

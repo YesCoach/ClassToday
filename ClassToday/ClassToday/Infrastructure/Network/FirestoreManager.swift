@@ -59,7 +59,7 @@ final class FirestoreManager {
     ///
     /// - parameter location: 위치 좌표 값(Location)
     /// - parameter completion: 수업 아이템 패칭 결과 클로저
-    func fetch(_ location: Location?, completion: @escaping ([ClassItem]) -> ()) {
+    func fetch(location: Location?, completion: @escaping ([ClassItem]) -> ()) {
         var data: [ClassItem] = []
         let provider = NaverMapAPIProvider()
 

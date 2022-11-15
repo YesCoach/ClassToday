@@ -14,7 +14,7 @@ enum LocationError: Error {
 // for test, set ViewModel Public
 public class MainViewModel: LocationViewModel, FetchingViewModel {
 
-    private let classItemUseCase: ClassItemUseCase
+    private let fetchClassItemUseCase: FetchClassItemUseCase
     private let firestoreManager = FirestoreManager.shared
     private let locationManager = LocationManager.shared
     private let userDefaultsManager = UserDefaultsManager.shared
@@ -29,8 +29,8 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
 
-    init(classItemUseCase: ClassItemUseCase) {
-        self.classItemUseCase = classItemUseCase
+    init(fetchClassItemUseCase: FetchClassItemUseCase) {
+        self.fetchClassItemUseCase = fetchClassItemUseCase
         super.init()
         checkLocationAuthorization()
         NotificationCenter.default.addObserver(self,
@@ -85,7 +85,7 @@ public class MainViewModel: LocationViewModel, FetchingViewModel {
             isNowDataFetching.value = false
             return
         }
-        classItemUseCase.excute(param: .fetchByKeyword(keyword: keyword)) { [weak self] data in
+        fetchClassItemUseCase.excute(param: .fetchByKeyword(keyword: keyword)) { [weak self] data in
             self?.isNowDataFetching.value = false
             // 최신순 정렬
             self?.data.value = data.sorted { $0 > $1 }
