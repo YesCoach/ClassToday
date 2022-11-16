@@ -16,8 +16,8 @@ final class DefaultFetchClassItemUseCase: FetchClassItemUseCase {
 
     private let classItemRepository: ClassItemRepository
 
-    init(classItempRepository: ClassItemRepository) {
-        self.classItemRepository = classItempRepository
+    init(classItemRepository: ClassItemRepository) {
+        self.classItemRepository = classItemRepository
     }
 
     func excute(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ()) {

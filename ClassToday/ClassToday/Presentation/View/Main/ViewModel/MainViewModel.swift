@@ -13,11 +13,15 @@ enum LocationError: Error {
 
 protocol MainViewModelInput {
     func refreshClassItemList()
+    func viewWillAppear()
+    func fetchData()
+    func checkLocationAuthorization()
 }
 
 protocol MainViewModelOutput {
     var isNowLocationFetching: Observable<Bool> { get }
     var isNowDataFetching: Observable<Bool> { get }
+    var isLocationAuthorizationAllowed: Observable<Bool> { get }
     var locationTitle: Observable<String?> { get }
 
     var currentUser: Observable<User?> { get }
@@ -28,13 +32,15 @@ protocol MainViewModelOutput {
 
 protocol MainViewModel: MainViewModelInput, MainViewModelOutput {}
 
-public class DefaultMainViewModel: LocationViewModel, MainViewModel {
+final class DefaultMainViewModel: MainViewModel {
 
     private let fetchClassItemUseCase: FetchClassItemUseCase
+    private let locationManager = LocationManager.shared
 
     // MARK: - OUTPUT
     var isNowLocationFetching: Observable<Bool> = Observable(false)
     var isNowDataFetching: Observable<Bool> = Observable(false)
+    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
     let locationTitle: Observable<String?> = Observable(nil)
 
     let currentUser: Observable<User?> = Observable(nil)
@@ -45,7 +51,6 @@ public class DefaultMainViewModel: LocationViewModel, MainViewModel {
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
-        super.init()
         checkLocationAuthorization()
         configureLocation()
         NotificationCenter.default.addObserver(self,
@@ -80,6 +85,23 @@ public class DefaultMainViewModel: LocationViewModel, MainViewModel {
         }
     }
 
+    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
+    @objc func updateUserData(_ notification: Notification) {
+        configureLocation()
+    }
+}
+
+// MARK: - INPUT
+extension DefaultMainViewModel {
+    func refreshClassItemList() {
+        checkLocationAuthorization()
+        fetchData()
+    }
+
+    func viewWillAppear() {
+        checkLocationAuthorization()
+    }
+    
     /// 키워드 주소를 기준으로 수업 아이템을 패칭합니다.
     ///
     /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
@@ -109,16 +131,8 @@ public class DefaultMainViewModel: LocationViewModel, MainViewModel {
         }
     }
 
-    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
-    @objc func updateUserData(_ notification: Notification) {
-        configureLocation()
-    }
-}
-
-// MARK: - INPUT
-extension DefaultMainViewModel {
-    func refreshClassItemList() {
-        checkLocationAuthorization()
-        fetchData()
+    /// 위치정보 권한의 상태값을 체크합니다.
+    func checkLocationAuthorization() {
+        isLocationAuthorizationAllowed.value = LocationManager.shared.isLocationAuthorizationAllowed()
     }
 }

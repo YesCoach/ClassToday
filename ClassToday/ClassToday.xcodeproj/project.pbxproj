@@ -95,6 +95,7 @@
 		895D108227F32DCB009FB26F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 895D108027F32DCB009FB26F /* LaunchScreen.storyboard */; };
 		895D521628C8ADA500F8A464 /* LocationSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895D521528C8ADA500F8A464 /* LocationSettingViewController.swift */; };
 		8966A02529238F5A0070B10C /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A02429238F5A0070B10C /* DIContainer.swift */; };
+		8966A027292471330070B10C /* AppDIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A026292471330070B10C /* AppDIContainer.swift */; };
 		8966CF5B28100652001CBBDC /* FullImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5A28100652001CBBDC /* FullImagesViewController.swift */; };
 		8966CF5E2810787C001CBBDC /* ClassImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5D2810787C001CBBDC /* ClassImageView.swift */; };
 		89675B122826776100933C48 /* PriceUnitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89675B112826776100933C48 /* PriceUnitTableView.swift */; };
@@ -163,7 +164,6 @@
 		89CBB39E28FD9E1E005161EE /* SearchResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */; };
 		89CBB3A028FDD19A005161EE /* CategoryDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */; };
 		89CBB3A229070387005161EE /* StarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A129070387005161EE /* StarViewModel.swift */; };
-		89CBB3A42907BCCE005161EE /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A32907BCCD005161EE /* ViewModel.swift */; };
 		89CBB3A62908FDCE005161EE /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A52908FDCE005161EE /* MapViewModel.swift */; };
 		89CBB3AA290FD596005161EE /* MapCategorySelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */; };
 		89DCD06E28839AAA00C1CCA3 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DCD06D28839AA900C1CCA3 /* MapView.swift */; };
@@ -287,6 +287,7 @@
 		895D521528C8ADA500F8A464 /* LocationSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSettingViewController.swift; sourceTree = "<group>"; };
 		8966A0212923894B0070B10C /* ClassToday.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClassToday.entitlements; sourceTree = "<group>"; };
 		8966A02429238F5A0070B10C /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
+		8966A026292471330070B10C /* AppDIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDIContainer.swift; sourceTree = "<group>"; };
 		8966CF5A28100652001CBBDC /* FullImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImagesViewController.swift; sourceTree = "<group>"; };
 		8966CF5D2810787C001CBBDC /* ClassImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassImageView.swift; sourceTree = "<group>"; };
 		89675B112826776100933C48 /* PriceUnitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceUnitTableView.swift; sourceTree = "<group>"; };
@@ -338,7 +339,6 @@
 		89CBB39D28FD9E1E005161EE /* SearchResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultViewModel.swift; sourceTree = "<group>"; };
 		89CBB39F28FDD199005161EE /* CategoryDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDetailViewModel.swift; sourceTree = "<group>"; };
 		89CBB3A129070387005161EE /* StarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarViewModel.swift; sourceTree = "<group>"; };
-		89CBB3A32907BCCD005161EE /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		89CBB3A52908FDCE005161EE /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		89CBB3A9290FD596005161EE /* MapCategorySelectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCategorySelectViewModel.swift; sourceTree = "<group>"; };
 		89DCD06D28839AA900C1CCA3 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -844,6 +844,7 @@
 		8966A02329238E530070B10C /* DIContainer */ = {
 			isa = PBXGroup;
 			children = (
+				8966A026292471330070B10C /* AppDIContainer.swift */,
 				8966A02429238F5A0070B10C /* DIContainer.swift */,
 			);
 			path = DIContainer;
@@ -986,7 +987,6 @@
 				6B5E14C028131A59001AF21C /* Protocol */,
 				6B5E14BE28131A37001AF21C /* Extension */,
 				89CBB39428F7EA75005161EE /* Observable.swift */,
-				89CBB3A32907BCCD005161EE /* ViewModel.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1313,7 +1313,6 @@
 				FCD78A032872CC4500714EC7 /* ChatClassItemCell.swift in Sources */,
 				89675B172826782600933C48 /* PriceUnit.swift in Sources */,
 				89098E0D28203A04006EFD4E /* Category.swift in Sources */,
-				89CBB3A42907BCCE005161EE /* ViewModel.swift in Sources */,
 				895A0577291E0FA5009103CC /* UseCase.swift in Sources */,
 				89098E4D28245503006EFD4E /* DayWeek.swift in Sources */,
 				89846E2129137EE600121B40 /* EnrollCategoryViewModel.swift in Sources */,
@@ -1376,6 +1375,7 @@
 				8966CF5B28100652001CBBDC /* FullImagesViewController.swift in Sources */,
 				89865EA8282A70FD00113242 /* CustomBarButton.swift in Sources */,
 				89846E1D2912635300121B40 /* MapSelectionViewModel.swift in Sources */,
+				8966A027292471330070B10C /* AppDIContainer.swift in Sources */,
 				89675B3F2828101400933C48 /* DetailContentCategoryCollectionViewCell.swift in Sources */,
 				89A67347282A638B00951300 /* ClassItemTableViewCell.swift in Sources */,
 				89865EA4282A70EA00113242 /* CategoryListViewController.swift in Sources */,

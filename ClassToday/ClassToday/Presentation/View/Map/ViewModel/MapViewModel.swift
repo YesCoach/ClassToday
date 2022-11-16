@@ -7,21 +7,22 @@
 
 import Foundation
 
-public class MapViewModel: LocationViewModel {
+public class MapViewModel {
     private let userDefaultsManager = UserDefaultsManager.shared
     private let locationManager = LocationManager.shared
     private let firestoreManager = FirestoreManager.shared
     private let naverMapAPIProvider = NaverMapAPIProvider()
     
     private var currentUser: User?
+    let isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
     let currentKeyword: Observable<String?> = Observable(nil)
     let currentLocation: Observable<Location?> = Observable(nil)
     let categoryData: Observable<[CategoryItem]> = Observable([])
     let mapClassItemData: Observable<[ClassItem]> = Observable([])
     let listClassItemData: Observable<[ClassItem]> = Observable([])
     
-    override init() {
-        super.init()
+    init() {
+        checkLocationAuthorization()
         getUserData()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateUserData(_:)),
@@ -30,8 +31,8 @@ public class MapViewModel: LocationViewModel {
     }
 
     /// 위치정보권한 확인 및 허용 시 지역 패칭
-    override func checkLocationAuthorization() {
-        super.checkLocationAuthorization()
+    func checkLocationAuthorization() {
+        isLocationAuthorizationAllowed.value = locationManager.isLocationAuthorizationAllowed()
         if isLocationAuthorizationAllowed.value {
             getCurrentLocation()
         }

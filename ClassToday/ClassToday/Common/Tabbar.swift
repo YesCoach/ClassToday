@@ -13,11 +13,13 @@ enum Tabbar: CaseIterable {
     case upload
     case chat
     case profile
-    
+
+    static let diContainer = AppDIContainer().makeDIContainer()
+
     var viewController: UIViewController {
         switch self {
         case .main:
-            return UINavigationController(rootViewController: MainViewController())
+            return UINavigationController(rootViewController: Self.diContainer.makeMainViewController())
         case .map:
             return UINavigationController(rootViewController: MapViewController())
         case .upload:

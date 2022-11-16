@@ -86,9 +86,17 @@ class MainViewController: UIViewController {
     }()
 
     // - MVVM
-    private let viewModel = DefaultMainViewModel(fetchClassItemUseCase:
-                                            DefaultFetchClassItemUseCase(classItempRepository: DefaultClassItemRepository()))
+    private let viewModel: MainViewModel
 
+    init(viewModel: MainViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     //MARK: - view lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,7 +109,7 @@ class MainViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.checkLocationAuthorization()
+        viewModel.viewWillAppear()
     }
     
     //MARK: - Methods
