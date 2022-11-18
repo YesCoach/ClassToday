@@ -116,6 +116,41 @@ final class FirestoreManager {
             }
     }
 
+    /// 지역 내 ClassItem 중 검색어에 해당하는 ClassItem 리스트를 패칭합니다.
+    ///
+    /// - parameter keyword: 키워드 문자열(@@구)
+    /// - parameter searchKeyword: 검색어
+    /// - parameter completion: 수업 아이템 패칭 결과 클로저
+    func fetch(keyword: String, searchKeyword: String, completion: @escaping ([ClassItem]) -> ()) {
+        var data: [ClassItem] = []
+
+            FirestoreRoute.classItem.ref.whereField("keywordLocation", isEqualTo: keyword).getDocuments() { (snapshot, error) in
+                if let error = error {
+                    debugPrint("Error getting documents: \(error)")
+                    return
+                }
+                if let snapshot = snapshot {
+                    for document in snapshot.documents {
+                        do {
+                            let classItem = try document.data(as: ClassItem.self)
+                            data.append(classItem)
+                        } catch {
+                            debugPrint("Decoding is failed")
+                        }
+                    }
+                }
+                let searchedData = data.filter {
+                    $0.name.contains(searchKeyword) ||
+                    $0.description.contains(searchKeyword)
+                }
+                completion(searchedData)
+            }
+        // 최신순 정렬
+//        self.data.value = searchedData.sorted { $0 > $1 }
+//        self.dataBuy.value = searchedData.filter { $0.itemType == ClassItemType.buy }.sorted { $0 > $1 }
+//        self.dataSell.value = searchedData.filter { $0.itemType == ClassItemType.sell }.sorted { $0 > $1 }
+    }
+
     /// ClassItem을 직접 패칭합니다.
     func fetch(classItemId: String, completion: @escaping (ClassItem) -> ()) {
         FirestoreRoute.classItem.ref.document(classItemId).getDocument{ snapshot, error in

@@ -9,16 +9,13 @@ import UIKit
 import SnapKit
 
 class SearchResultViewController: UIViewController {
+
     //MARK: - NavigationBar Components
     private lazy var leftBarButton: UIBarButtonItem = {
         let leftBarButton = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBackButton))
         return leftBarButton
     }()
 
-    private func setNavigationBar() {
-        navigationItem.leftBarButtonItem = leftBarButton
-    }
-    
     //MARK: - Main View Components
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl()
@@ -29,7 +26,7 @@ class SearchResultViewController: UIViewController {
         segmentedControl.addTarget(self, action: #selector(didChangedSegmentControlValue(_:)), for: .valueChanged)
         return segmentedControl
     }()
-    
+
     private lazy var classItemTableView: UITableView = {
         let classItemTableView = UITableView()
         classItemTableView.refreshControl = refreshControl
@@ -39,7 +36,14 @@ class SearchResultViewController: UIViewController {
         classItemTableView.register(ClassItemTableViewCell.self, forCellReuseIdentifier: ClassItemTableViewCell.identifier)
         return classItemTableView
     }()
-    
+
+    private lazy var navigationTitle: UILabel = {
+        let navigationTitle = UILabel()
+        navigationTitle.font = .systemFont(ofSize: 18.0, weight: .semibold)
+        navigationTitle.textColor = .black
+        return navigationTitle
+    }()
+
     private lazy var nonAuthorizationAlertLabel: UILabel = {
         let label = UILabel()
         label.text = "위치정보 권한을 허용해주세요."
@@ -47,7 +51,7 @@ class SearchResultViewController: UIViewController {
         label.textColor = UIColor.systemGray
         return label
     }()
-    
+
     private lazy var nonDataAlertLabel: UILabel = {
         let label = UILabel()
         label.text = "현재 수업 아이템이 없어요"
@@ -55,7 +59,7 @@ class SearchResultViewController: UIViewController {
         label.textColor = UIColor.systemGray
         return label
     }()
-    
+
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(beginRefresh), for: .valueChanged)
@@ -66,10 +70,9 @@ class SearchResultViewController: UIViewController {
     // MARK: Properties
     private var viewModel: SearchResultViewModel
 
-    init(keyword: String) {
-        viewModel = SearchResultViewModel(keyword: keyword)
+    init(viewModel: SearchResultViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.navigationItem.title = keyword
     }
 
     required init?(coder: NSCoder) {
@@ -81,7 +84,11 @@ class SearchResultViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setNavigationBar()
-        layout()
+        setLayout()
+        bindingViewModel()
+    }
+
+    private func bindingViewModel() {
         viewModel.data.bind { [weak self] _ in
             self?.classItemTableView.reloadData()
         }
@@ -111,10 +118,17 @@ class SearchResultViewController: UIViewController {
                 self?.nonAuthorizationAlertLabel.isHidden = true
             }
         }
+        viewModel.selectedClassDetailViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
     }
-    
-    private func searchData() {
-        viewModel.fetchData()
+
+    private func setNavigationBar() {
+        navigationItem.leftBarButtonItem = leftBarButton
+        navigationTitle.text = viewModel.searchKeyword
+        navigationItem.titleView = navigationTitle
     }
 }
 
@@ -142,13 +156,13 @@ private extension SearchResultViewController {
 
     @objc func beginRefresh() {
         print("beginRefresh!")
-        searchData()
+        viewModel.refreshClassItemList()
     }
 }
 
 //MARK: - set autolayout
 private extension SearchResultViewController {
-    func layout() {
+    func setLayout() {
         [
             segmentedControl,
             classItemTableView
@@ -192,6 +206,7 @@ extension SearchResultViewController: UITableViewDataSource {
             nonDataAlertLabel.isHidden = true
             return count
         }
+
         if count == 0 {
             nonDataAlertLabel.isHidden = false
         } else {
@@ -228,15 +243,6 @@ extension SearchResultViewController: UITableViewDataSource {
 //MARK: - TableView Delegate
 extension SearchResultViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let classItem: ClassItem
-        switch segmentedControl.selectedSegmentIndex {
-            case 1:
-            classItem = viewModel.dataBuy.value[indexPath.row]
-            case 2:
-            classItem = viewModel.dataSell.value[indexPath.row]
-            default:
-            classItem = viewModel.data.value[indexPath.row]
-        }
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        viewModel.didSelectItem(segmentControlIndex: segmentedControl.selectedSegmentIndex, at: indexPath.row)
     }
 }

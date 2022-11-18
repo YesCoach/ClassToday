@@ -214,7 +214,7 @@ private extension MainViewController {
     }
 
     @objc func didTapSearchButton() {
-        let searchViewController = SearchViewController()
+        let searchViewController = AppDIContainer().makeDIContainer().makeSearchViewController()
         navigationController?.pushViewController(searchViewController, animated: true)
     }
 }

@@ -64,18 +64,36 @@ class SearchViewController: UIViewController {
         searchRecentTableView.register(SearchRecentTableViewCell.self, forCellReuseIdentifier: SearchRecentTableViewCell.identifier)
         return searchRecentTableView
     }()
-    
-    //MARK: - SearchViewModel
-    private let viewModel = SearchViewModel()
-    
-    //MARK: - view lifecycle
+
+    private let viewModel: SearchViewModel
+
+    // MARK: - Init
+    init(viewModel: SearchViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - view lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setNavigationBar()
         layout()
+        bindingViewModel()
+    }
+
+    private func bindingViewModel() {
         viewModel.searchHistoryList.bind { [weak self] searchHistory in
             self?.searchRecentTableView.reloadData()
+        }
+        viewModel.searchResultViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
         }
     }
 }
@@ -127,7 +145,7 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let text = searchBar.text else { return }
         viewModel.addSearchHistory(text: text)
-        navigationController?.pushViewController(viewModel.searchResultViewController(with: searchBar.text), animated: true)
+        viewModel.didSearchItem(with: text)
     }
 }
 
@@ -152,6 +170,6 @@ extension SearchViewController: UITableViewDataSource {
 //MARK: - tableview delegate
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigationController?.pushViewController(viewModel.searchResultViewController(at: indexPath.row), animated: true)
+        viewModel.didSelectItem(at: indexPath.row)
     }
 }

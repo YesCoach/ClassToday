@@ -45,7 +45,7 @@ class FullImagesViewController: UIViewController {
         self.images = images
         self.startIndex = startIndex
         super.init(nibName: nil, bundle: nil)
-        self.modalPresentationStyle = .fullScreen
+        self.modalPresentationStyle = .overFullScreen
     }
 
     required init?(coder: NSCoder) {
@@ -60,7 +60,6 @@ class FullImagesViewController: UIViewController {
 
     // MARK: - Method
     private func configureUI() {
-        self.modalPresentationStyle = .fullScreen
         self.modalTransitionStyle = .coverVertical
         view.backgroundColor = .black
         let width = view.frame.width
@@ -91,7 +90,7 @@ class FullImagesViewController: UIViewController {
 
     // MARK: - Actions
     @objc func dismiss(_ button: UIButton) {
-        presentingViewController?.dismiss(animated: true)
+        dismiss(animated: true)
     }
 }
 

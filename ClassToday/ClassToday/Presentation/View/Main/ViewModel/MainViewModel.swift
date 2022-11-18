@@ -38,9 +38,9 @@ final class DefaultMainViewModel: MainViewModel {
     private let locationManager = LocationManager.shared
 
     // MARK: - OUTPUT
-    var isNowLocationFetching: Observable<Bool> = Observable(false)
-    var isNowDataFetching: Observable<Bool> = Observable(false)
-    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
+    let isNowLocationFetching: Observable<Bool> = Observable(false)
+    let isNowDataFetching: Observable<Bool> = Observable(false)
+    let isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
     let locationTitle: Observable<String?> = Observable(nil)
 
     let currentUser: Observable<User?> = Observable(nil)

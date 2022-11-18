@@ -7,63 +7,78 @@
 
 import Foundation
 
-public class SearchViewModel {
-    
-    private let userDefaults = UserDefaults.standard
-    var searchHistoryList: Observable<[SearchHistory]> = Observable([])
-    
-    init() {
+protocol SearchViewModelInput {
+    func addSearchHistory(text: String)
+    func removeSearchHistory(at index: Int)
+    func clearSearchHistory()
+    func didSelectItem(at index: Int)
+    func didSearchItem(with text: String)
+}
+
+protocol SearchViewModelOutput {
+    var searchHistoryList: Observable<[SearchHistory]> { get }
+    var searchResultViewController: Observable<SearchResultViewController?> { get }
+}
+
+protocol SearchViewModel: SearchViewModelInput, SearchViewModelOutput { }
+
+public class DefaultSearchViewModel: SearchViewModel {
+
+    private let searchHistoryUseCase: SearchHistoryUseCase
+
+    // MARK: - OUTPUT
+    let searchHistoryList: Observable<[SearchHistory]> = Observable([])
+    let searchResultViewController: Observable<SearchResultViewController?> = Observable(nil)
+
+    // MARK: - Init
+    init(searchHistoryUseCase: SearchHistoryUseCase) {
+        self.searchHistoryUseCase = searchHistoryUseCase
         loadSearchHistory()
     }
-    
+
+    //MARK: - search history save/load
+    /// UserDefaults에 검색기록을 저장합니다.
+    private func saveSearchHistory() {
+        searchHistoryUseCase.saveSearchHistoryList(historyList: searchHistoryList.value)
+    }
+
+    /// UserDefaults로부터 검색기록을 불러옵니다.
+    private func loadSearchHistory() {
+        searchHistoryList.value = searchHistoryUseCase.loadSearchHistoryList()
+    }
+}
+
+// MARK: - INPUT
+extension DefaultSearchViewModel {
     /// 검색 기록을 추가합니다.
     func addSearchHistory(text: String) {
         let newSearchHistory = SearchHistory(text: text)
         searchHistoryList.value.insert(newSearchHistory, at: 0)
         saveSearchHistory()
     }
-    
+
     /// 검색 기록을 삭제합니다.
     func removeSearchHistory(at index: Int) {
         searchHistoryList.value.remove(at: index)
         saveSearchHistory()
     }
-    
+
     /// 검색 기록을 초기화합니다.
     func clearSearchHistory() {
         searchHistoryList.value.removeAll()
         saveSearchHistory()
     }
-    
-    //MARK: - search history save/load
-    /// UserDefaults에 검색기록을 저장합니다.
-    private func saveSearchHistory() {
-        let searchHistory = searchHistoryList.value.map {
-            [
-                "text": $0.text
-            ]
-        }
-        userDefaults.set(searchHistory, forKey: "searchHistoryList")
+
+    func didSelectItem(at index: Int) {
+        let searchKeyword = searchHistoryList.value[index].text
+        searchResultViewController.value = AppDIContainer()
+            .makeDIContainer()
+            .makeSearchResultViewController(searchKeyword: searchKeyword)
     }
-    
-    /// UserDefaults로부터 검색기록을 불러옵니다.
-    private func loadSearchHistory() {
-        guard let data = userDefaults.object(forKey: "searchHistoryList") as? [[String: Any]] else { return }
-        searchHistoryList.value = data.compactMap {
-            guard let text = $0["text"] as? String else { return nil }
-            return SearchHistory(text: text)
-        }
-    }
-    
-    /// 선택한 검색기록의 상세 View Controller를 반환합니다.
-    func searchResultViewController(at index: Int) -> SearchResultViewController {
-        let searchResultViewController = SearchResultViewController(keyword: searchHistoryList.value[index].text)
-        return searchResultViewController
-    }
-    
-    /// 검색한 텍스트의 상세 View Controller를 반환합니다.
-    func searchResultViewController(with text: String?) -> SearchResultViewController {
-        let searchResultViewController = SearchResultViewController(keyword: text ?? "")
-        return searchResultViewController
+
+    func didSearchItem(with text: String) {
+        searchResultViewController.value = AppDIContainer()
+            .makeDIContainer()
+            .makeSearchResultViewController(searchKeyword: text)
     }
 }

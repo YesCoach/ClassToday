@@ -101,7 +101,6 @@ class ClassDetailViewController: UIViewController {
         super.viewDidLoad()
         setUpUI()
         bindingViewModel()
-        self.setNeedsStatusBarAppearanceUpdate()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -109,6 +108,7 @@ class ClassDetailViewController: UIViewController {
         viewModel.checkIsChannelAlreadyMade()
         navigationController?.navigationBar.isHidden = true
         blackBackNavigationBar()
+        print(#function)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -116,6 +116,7 @@ class ClassDetailViewController: UIViewController {
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.barStyle = .default
+        print(#function)
     }
 
     // MARK: - Method
@@ -251,7 +252,7 @@ extension ClassDetailViewController: UITableViewDelegate {
 // MARK: - CellDelegate
 extension ClassDetailViewController: DetailImageCellDelegate {
     func present(_ viewController: UIViewController) {
-        present(viewController, animated: true, completion: nil)
+        present(viewController, animated: true)
     }
 
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {

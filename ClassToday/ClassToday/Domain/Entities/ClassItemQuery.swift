@@ -15,6 +15,7 @@ struct ClassItemQuery {
         case fetchItems
         case fetchByLocation(location: Location?)
         case fetchByKeyword(keyword: String)
+        case fetchByKeywordSearch(keyword: String, searchKeyword: String)
         case fetchByKeywordCategory(keyword: String, category: String)
         case fetchByKeywordCategories(keyword: String, categories: [String])
         case fetchByCategories(categories: [String])

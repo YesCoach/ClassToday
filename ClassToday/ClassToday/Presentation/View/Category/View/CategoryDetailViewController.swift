@@ -14,7 +14,7 @@ class CategoryDetailViewController: UIViewController {
         return leftBarItem
     }()
     
-    lazy var navigationTitle: UILabel = {
+    private lazy var navigationTitle: UILabel = {
         let navigationTitle = UILabel()
         navigationTitle.font = .systemFont(ofSize: 18.0, weight: .semibold)
         navigationTitle.textColor = .black

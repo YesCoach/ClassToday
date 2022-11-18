@@ -39,6 +39,8 @@ extension DefaultClassItemRepository: ClassItemRepository {
             firestoreManager.fetch(location: location, completion: completion)
         case .fetchByKeyword(let keyword):
             firestoreManager.fetch(keyword: keyword, completion: completion)
+        case .fetchByKeywordSearch(let keyword, let searchKeyword):
+            firestoreManager.fetch(keyword: keyword, searchKeyword: searchKeyword, completion: completion)
         case .fetchByKeywordCategory(let keyword, let category):
             firestoreManager.categorySort(keyword: keyword, category: category, completion: completion)
         case .fetchByKeywordCategories(let keyword, let categories):
