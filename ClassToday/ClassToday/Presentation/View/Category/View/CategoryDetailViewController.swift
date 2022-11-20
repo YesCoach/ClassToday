@@ -20,15 +20,8 @@ class CategoryDetailViewController: UIViewController {
         navigationTitle.textColor = .black
         return navigationTitle
     }()
-    
-    private func setNavigationBar() {
-        navigationItem.leftBarButtonItem = leftBarItem
-        navigationItem.titleView = navigationTitle
-        navigationTitle.text = viewModel.categoryItem.description
-    }
-    
+ 
     //MARK: - UI Components
-    
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl()
         segmentedControl.insertSegment(withTitle: "모두", at: 0, animated: true)
@@ -38,7 +31,7 @@ class CategoryDetailViewController: UIViewController {
         segmentedControl.addTarget(self, action: #selector(didChangedSegmentControlValue(_:)), for: .valueChanged)
         return segmentedControl
     }()
-    
+
     private lazy var classItemTableView: UITableView = {
         let classItemTableView = UITableView()
         classItemTableView.refreshControl = refreshControl
@@ -56,29 +49,27 @@ class CategoryDetailViewController: UIViewController {
         label.textColor = UIColor.systemGray
         return label
     }()
-    
+
     private lazy var nonDataAlertLabel: UILabel = {
         let label = UILabel()
         label.text = "현재 수업 아이템이 없어요"
         label.textColor = UIColor.systemGray
         return label
     }()
-    
+
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(beginRefresh), for: .valueChanged)
         refreshControl.tintColor = .mainColor
         return refreshControl
     }()
-    
-    // MARK: Properties
 
+    // MARK: - Properties
     private var viewModel: CategoryDetailViewModel
 
-    // MARK: Initialize
-
-    init(categoryItem: Subject) {
-        self.viewModel = CategoryDetailViewModel(category: categoryItem)
+    // MARK: - Initialize
+    init(viewModel: CategoryDetailViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -91,8 +82,17 @@ class CategoryDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setNavigationBar()
+        bindingViewModel()
         layout()
-        
+    }
+
+    private func setNavigationBar() {
+        navigationItem.leftBarButtonItem = leftBarItem
+        navigationItem.titleView = navigationTitle
+        navigationTitle.text = viewModel.categoryItem.description
+    }
+
+    private func bindingViewModel() {
         viewModel.data.bind { [weak self] data in
             self?.classItemTableView.reloadData()
             if data.isEmpty {
@@ -114,79 +114,26 @@ class CategoryDetailViewController: UIViewController {
                 self?.classItemTableView.refreshControl?.endRefreshing()
             }
         }
+        viewModel.selectedClassDetailViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
     }
-
-    //MARK: - Methods
-//    private func categorySort() {
-//        classItemTableView.refreshControl?.beginRefreshing()
-//        User.getCurrentUser { [weak self] result in
-//            guard let self = self else { return }
-//            switch result {
-//            case .success(let user):
-//                self.classItemTableView.refreshControl?.endRefreshing()
-//                guard let keywordLocation = user.keywordLocation else {
-//                    // 위치 설정 해야됨
-//                    return
-//                }
-//                self.firestoreManager.categorySort(keyword: keywordLocation, category: self.categoryItem?.rawValue ?? "") { [weak self] data in
-//                    guard let self = self else { return }
-//                    self.data = data
-//                    self.dataBuy = data.filter { $0.itemType == ClassItemType.buy }
-//                    self.dataSell = data.filter { $0.itemType == ClassItemType.sell }
-//                    DispatchQueue.main.async { [weak self] in
-//                        self?.classItemTableView.refreshControl?.endRefreshing()
-//                        self?.classItemTableView.reloadData()
-//                    }
-//                }
-//
-//            case .failure(let error):
-//                self.classItemTableView.refreshControl?.endRefreshing()
-//                print("ERROR \(error)🌔")
-//            }
-//        }
-//    }
-    
-//    /// 위치권한상태를 확인하고, 필요한 경우 얼럿을 호출합니다.
-//    ///
-//    /// - return 값: true - 권한요청, false - 권한허용
-//    private func requestLocationAuthorization() -> Bool {
-//        if !locationManager.isLocationAuthorizationAllowed() {
-//            nonAuthorizationAlertLabel.isHidden = false
-//            present(UIAlertController.locationAlert(), animated: true) {
-//                self.refreshControl.endRefreshing()
-//            }
-//            return true
-//        }
-//        nonAuthorizationAlertLabel.isHidden = true
-//        return false
-//    }
 }
 
 //MARK: - objc functions
 private extension CategoryDetailViewController {
     @objc func didChangedSegmentControlValue(_ sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            print("모두")
-            classItemTableView.reloadData()
-        case 1:
-            print("구매글")
-            classItemTableView.reloadData()
-        case 2:
-            print("판매글")
-            classItemTableView.reloadData()
-        default:
-            break
-        }
+        classItemTableView.reloadData()
     }
-    
+
     @objc func didTapBackButton() {
         navigationController?.popViewController(animated: true)
     }
-    
+
     @objc func beginRefresh() {
-        print("beginRefresh!")
-        viewModel.fetchData()
+        viewModel.refreshClassItemList()
     }
 }
 
@@ -274,15 +221,6 @@ extension CategoryDetailViewController: UITableViewDataSource {
 
 extension CategoryDetailViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let classItem: ClassItem
-        switch segmentedControl.selectedSegmentIndex {
-            case 1:
-            classItem = viewModel.dataBuy.value[indexPath.row]
-            case 2:
-            classItem = viewModel.dataSell.value[indexPath.row]
-            default:
-            classItem = viewModel.data.value[indexPath.row]
-        }
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        viewModel.didSelectItem(segmentControlIndex: segmentedControl.selectedSegmentIndex, at: indexPath.row)
     }
 }

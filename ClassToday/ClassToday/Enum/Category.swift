@@ -5,7 +5,6 @@
 //  Created by 박태현 on 2022/05/03.
 //
 
-import Foundation
 import UIKit
 
 enum CategoryType: CaseIterable {
@@ -34,6 +33,7 @@ enum CategoryType: CaseIterable {
 public protocol CategoryItem: Codable {
     static var count: Int { get }
     var description: String { get }
+    var rawValue: String { get }
 }
 
 enum Subject: String, CategoryItem, CaseIterable {

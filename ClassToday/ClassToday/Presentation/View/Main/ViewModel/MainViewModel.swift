@@ -16,6 +16,8 @@ protocol MainViewModelInput {
     func viewWillAppear()
     func fetchData()
     func checkLocationAuthorization()
+    func didTapCategoryButton()
+    func didSelectItem(segmentControlIndex: Int, at index: Int)
 }
 
 protocol MainViewModelOutput {
@@ -28,6 +30,9 @@ protocol MainViewModelOutput {
     var data: Observable<[ClassItem]> { get }
     var dataBuy: Observable<[ClassItem]> { get }
     var dataSell: Observable<[ClassItem]> { get }
+    
+    var classDetailViewController: Observable<ClassDetailViewController?> {get }
+    var categoryListViewController: Observable<CategoryListViewController?> { get }
 }
 
 protocol MainViewModel: MainViewModelInput, MainViewModelOutput {}
@@ -47,6 +52,9 @@ final class DefaultMainViewModel: MainViewModel {
     let data: Observable<[ClassItem]> = Observable([])
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
+
+    let classDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
+    let categoryListViewController: Observable<CategoryListViewController?> = Observable(nil)
 
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
@@ -101,7 +109,7 @@ extension DefaultMainViewModel {
     func viewWillAppear() {
         checkLocationAuthorization()
     }
-    
+
     /// 키워드 주소를 기준으로 수업 아이템을 패칭합니다.
     ///
     /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
@@ -134,5 +142,24 @@ extension DefaultMainViewModel {
     /// 위치정보 권한의 상태값을 체크합니다.
     func checkLocationAuthorization() {
         isLocationAuthorizationAllowed.value = LocationManager.shared.isLocationAuthorizationAllowed()
+    }
+
+    func didTapCategoryButton() {
+        categoryListViewController.value =  AppDIContainer()
+            .makeDIContainer()
+            .makeCategoryListViewController(categoryType: .subject)
+    }
+
+    func didSelectItem(segmentControlIndex: Int, at index: Int) {
+        let classItem: ClassItem
+        switch segmentControlIndex {
+            case 1:
+            classItem = dataBuy.value[index]
+            case 2:
+            classItem = dataSell.value[index]
+            default:
+            classItem = data.value[index]
+        }
+        classDetailViewController.value = ClassDetailViewController(classItem: classItem)
     }
 }

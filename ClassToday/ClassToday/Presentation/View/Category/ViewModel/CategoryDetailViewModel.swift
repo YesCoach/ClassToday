@@ -7,28 +7,48 @@
 
 import Foundation
 
-public class CategoryDetailViewModel {
-    private let firestoreManager = FirestoreManager.shared
-    private let locationManager = LocationManager.shared
-    private let provider = NaverMapAPIProvider()
-    
+protocol CategoryDetailViewModelInput {
+    func refreshClassItemList()
+    func didSelectItem(segmentControlIndex: Int, at index: Int)
+}
+
+protocol CategoryDetailViewModelOutput {
+    var isLocationAuthorizationAllowed: Observable<Bool> { get }
+    var isNowLocationFetching: Observable<Bool> { get }
+    var isNowDataFetching: Observable<Bool> { get }
+    var categoryItem: CategoryItem { get }
+
+    var data: Observable<[ClassItem]> { get }
+    var dataBuy: Observable<[ClassItem]> { get }
+    var dataSell: Observable<[ClassItem]> { get }
+    var selectedClassDetailViewController: Observable<ClassDetailViewController?> { get }
+}
+
+protocol CategoryDetailViewModel: CategoryDetailViewModelInput, CategoryDetailViewModelOutput { }
+
+public class DefaultCategoryDetailViewModel: CategoryDetailViewModel {
     private var currentUser: User?
-    private var group = DispatchGroup()
-    
+
+    // MARK: - OUTPUT
     var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
     var isNowLocationFetching: Observable<Bool> = Observable(false)
     var isNowDataFetching: Observable<Bool> = Observable(false)
-    
+
     let data: Observable<[ClassItem]> = Observable([])
     let dataBuy: Observable<[ClassItem]> = Observable([])
     let dataSell: Observable<[ClassItem]> = Observable([])
-    let categoryItem: Subject
-    
-    init(category: Subject) {
-        self.categoryItem = category
+    let selectedClassDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
+
+    private let fetchClassItemUseCase: FetchClassItemUseCase
+    let categoryItem: CategoryItem
+
+    // MARK: - Init
+    init(fetchClassItemUseCase: FetchClassItemUseCase, categoryItem: CategoryItem) {
+        self.fetchClassItemUseCase = fetchClassItemUseCase
+        self.categoryItem = categoryItem
         configureLocation()
     }
-    
+
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     private func configureLocation() {
         isNowLocationFetching.value = true
@@ -43,14 +63,13 @@ public class CategoryDetailViewModel {
                     return
                 }
                 self.fetchData()
-                
             case .failure(let error):
                 self.isNowLocationFetching.value = false
                 print("ERROR \(error)🌔")
             }
         }
     }
-    
+
     func fetchData() {
         isNowDataFetching.value = true
         guard let currentUser = currentUser else {
@@ -63,14 +82,32 @@ public class CategoryDetailViewModel {
             isNowDataFetching.value = false
             return
         }
-        firestoreManager.categorySort(
-            keyword: keyword,
-            category: categoryItem.rawValue ?? "")
-        { [weak self] data in
+        fetchClassItemUseCase.excute(param:
+                .fetchByKeywordCategory(keyword: keyword,
+                                        category: categoryItem.rawValue)) { [weak self] data in
             self?.data.value = data
             self?.dataBuy.value = data.filter { $0.itemType == ClassItemType.buy }
             self?.dataSell.value = data.filter { $0.itemType == ClassItemType.sell }
             self?.isNowDataFetching.value = false
         }
+    }
+}
+
+extension DefaultCategoryDetailViewModel {
+    func refreshClassItemList() {
+        fetchData()
+    }
+
+    func didSelectItem(segmentControlIndex: Int, at index: Int) {
+        let classItem: ClassItem
+        switch segmentControlIndex {
+            case 1:
+            classItem = dataBuy.value[index]
+            case 2:
+            classItem = dataSell.value[index]
+            default:
+            classItem = data.value[index]
+        }
+        selectedClassDetailViewController.value = ClassDetailViewController(classItem: classItem)
     }
 }

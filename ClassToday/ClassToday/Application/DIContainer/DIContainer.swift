@@ -57,14 +57,32 @@ final class DIContainer {
     func makeSearchViewModel() -> SearchViewModel {
         return DefaultSearchViewModel(searchHistoryUseCase: makeSearchHistoryUseCase())
     }
-    
+
     // MARK: - Search Result View
     func makeSearchResultViewController(searchKeyword: String) -> SearchResultViewController {
         return SearchResultViewController(viewModel: makeSearchResultViewModel(searchKeyword: searchKeyword))
     }
-    
+
     func makeSearchResultViewModel(searchKeyword: String) -> SearchResultViewModel {
         return DefaultSearchResultViewModel(fetchClassItemUseCase: makeFetchClassItemUseCase(),
                                             searchKeyword: searchKeyword)
+    }
+
+    // MARK: - Category List View
+    func makeCategoryListViewController(categoryType: CategoryType) -> CategoryListViewController {
+        return CategoryListViewController(viewModel: makeCategoryListViewModel(categoryType: categoryType))
+    }
+
+    func makeCategoryListViewModel(categoryType: CategoryType) -> CategoryListViewModel {
+        return DefaultCategoryListViewModel(categoryType: categoryType)
+    }
+
+    // MARK: - Category View
+    func makeCategoryDetailViewController(categoryItem: CategoryItem) -> CategoryDetailViewController {
+        return CategoryDetailViewController(viewModel: makeCategoryDetailViewModel(categoryItem: categoryItem))
+    }
+
+    func makeCategoryDetailViewModel(categoryItem: CategoryItem) -> CategoryDetailViewModel {
+        return DefaultCategoryDetailViewModel(fetchClassItemUseCase: makeFetchClassItemUseCase(), categoryItem: categoryItem)
     }
 }

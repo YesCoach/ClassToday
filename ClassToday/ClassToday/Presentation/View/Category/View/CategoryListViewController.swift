@@ -14,7 +14,7 @@ class CategoryListViewController: UIViewController {
         let leftBarItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBackButton))
         return leftBarItem
     }()
-    
+
     private lazy var navigationTitle: UILabel = {
         let navigationTitle = UILabel()
         navigationTitle.text = "카테고리"
@@ -22,12 +22,7 @@ class CategoryListViewController: UIViewController {
         navigationTitle.font = .systemFont(ofSize: 18.0, weight: .semibold)
         return navigationTitle
     }()
-    
-    private func setNavigationBar() {
-        navigationItem.leftBarButtonItem = leftBarItem
-        navigationItem.titleView = navigationTitle
-    }
-    
+
     //MARK: - CollectionView
     private lazy var collectionViewLayout: UICollectionViewLayout = {
         let collectionViewLayout = UICollectionViewFlowLayout()
@@ -47,18 +42,39 @@ class CategoryListViewController: UIViewController {
         )
         return categoryCollectionView
     }()
-    
-    //MARK: - category titles
-    private let titles: [String] = Subject.allCases.map {
-        return $0.description
+
+    private var viewModel: CategoryListViewModel
+
+    // MARK: - Init
+    init(viewModel: CategoryListViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
     }
-    
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     //MARK: - view lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setNavigationBar()
         layout()
+        bindingViewModel()
+    }
+
+    private func setNavigationBar() {
+        navigationItem.leftBarButtonItem = leftBarItem
+        navigationItem.titleView = navigationTitle
+    }
+
+    private func bindingViewModel() {
+        viewModel.categoryDetailViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
     }
 }
 
@@ -91,13 +107,15 @@ extension CategoryListViewController: UICollectionViewDelegateFlowLayout {
 //MARK: - collectionview datasource
 extension CategoryListViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Subject.count
+        return viewModel.categoryListCount
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryListCollectionViewCell.identifier, for: indexPath)
-                as? CategoryListCollectionViewCell else { return UICollectionViewCell() }
-        cell.configureWith(categoryItem: Subject.allCases[indexPath.row])
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CategoryListCollectionViewCell.identifier,
+            for: indexPath
+        ) as? CategoryListCollectionViewCell else { return UICollectionViewCell() }
+        cell.configureWith(categoryItem: viewModel.categoryList[indexPath.row])
         return cell
     }
 }
@@ -105,8 +123,7 @@ extension CategoryListViewController: UICollectionViewDataSource {
 //MARK: - collectionview delegate
 extension CategoryListViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let categoryDetailViewController = CategoryDetailViewController(categoryItem: Subject.allCases[indexPath.row])
-        navigationController?.pushViewController(categoryDetailViewController, animated: true)
+        viewModel.didSelectItemAt(index: indexPath.row)
     }
 }
 

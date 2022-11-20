@@ -106,12 +106,12 @@ class MainViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.viewWillAppear()
     }
-    
+
     //MARK: - Methods
     private func bindViewModel() {
         /// 유저 정보 바인딩
@@ -120,6 +120,7 @@ class MainViewController: UIViewController {
                 self?.viewModel.fetchData()
             }
         }
+
         /// 지역명 패칭 진행중인지 바인딩
         viewModel.isNowLocationFetching.bind { [weak self] isFetching in
             if isFetching {
@@ -128,6 +129,7 @@ class MainViewController: UIViewController {
                 self?.classItemTableView.refreshControl?.endRefreshing()
             }
         }
+
         /// 수업 아이템 패칭중인지 바인딩
         viewModel.isNowDataFetching.bind { [weak self] isFetching in
             if isFetching {
@@ -137,6 +139,7 @@ class MainViewController: UIViewController {
                 self?.classItemTableView.refreshControl?.endRefreshing()
             }
         }
+
         /// 위치정보권한 유무 바인딩
         viewModel.isLocationAuthorizationAllowed.bind { [weak self] isAllowed in
             if !isAllowed {
@@ -149,6 +152,7 @@ class MainViewController: UIViewController {
                 self?.nonAuthorizationAlertLabel.isHidden = true
             }
         }
+
         /// 지역명 바인딩
         viewModel.locationTitle.bind { [weak self] locationTitle in
             if let locationTitle = locationTitle {
@@ -158,12 +162,25 @@ class MainViewController: UIViewController {
                 }
             }
         }
+
         /// 수업아이템 바인딩
         viewModel.data.bind { [weak self] classItems in
             if classItems.isEmpty {
                 self?.nonDataAlertLabel.isHidden = false
             }
             self?.classItemTableView.reloadData()
+        }
+
+        viewModel.classDetailViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
+
+        viewModel.categoryListViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
         }
     }
 }
@@ -209,8 +226,7 @@ private extension MainViewController {
     }
 
     @objc func didTapCategoryButton() {
-        let categoryListViewController = CategoryListViewController()
-        navigationController?.pushViewController(categoryListViewController, animated: true)
+        viewModel.didTapCategoryButton()
     }
 
     @objc func didTapSearchButton() {
@@ -306,15 +322,6 @@ extension MainViewController: UITableViewDataSource {
 //MARK: - TableView Delegate
 extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let classItem: ClassItem
-        switch segmentedControl.selectedSegmentIndex {
-            case 1:
-            classItem = viewModel.dataBuy.value[indexPath.row]
-            case 2:
-            classItem = viewModel.dataSell.value[indexPath.row]
-            default:
-            classItem = viewModel.data.value[indexPath.row]
-        }
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        viewModel.didSelectItem(segmentControlIndex: segmentedControl.selectedSegmentIndex, at: indexPath.row)
     }
 }
