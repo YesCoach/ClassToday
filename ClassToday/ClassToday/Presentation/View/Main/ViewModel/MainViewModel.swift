@@ -17,6 +17,7 @@ protocol MainViewModelInput {
     func fetchData()
     func checkLocationAuthorization()
     func didTapCategoryButton()
+    func didTapStarButton()
     func didSelectItem(segmentControlIndex: Int, at index: Int)
 }
 
@@ -31,8 +32,9 @@ protocol MainViewModelOutput {
     var dataBuy: Observable<[ClassItem]> { get }
     var dataSell: Observable<[ClassItem]> { get }
     
-    var classDetailViewController: Observable<ClassDetailViewController?> {get }
+    var classDetailViewController: Observable<ClassDetailViewController?> { get }
     var categoryListViewController: Observable<CategoryListViewController?> { get }
+    var starViewController: Observable<StarViewController?> { get }
 }
 
 protocol MainViewModel: MainViewModelInput, MainViewModelOutput {}
@@ -55,6 +57,7 @@ final class DefaultMainViewModel: MainViewModel {
 
     let classDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
     let categoryListViewController: Observable<CategoryListViewController?> = Observable(nil)
+    let starViewController: Observable<StarViewController?> = Observable(nil)
 
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
@@ -148,6 +151,10 @@ extension DefaultMainViewModel {
         categoryListViewController.value =  AppDIContainer()
             .makeDIContainer()
             .makeCategoryListViewController(categoryType: .subject)
+    }
+
+    func didTapStarButton() {
+        starViewController.value = AppDIContainer().makeDIContainer().makeStarViewController()
     }
 
     func didSelectItem(segmentControlIndex: Int, at index: Int) {

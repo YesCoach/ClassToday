@@ -85,4 +85,13 @@ final class DIContainer {
     func makeCategoryDetailViewModel(categoryItem: CategoryItem) -> CategoryDetailViewModel {
         return DefaultCategoryDetailViewModel(fetchClassItemUseCase: makeFetchClassItemUseCase(), categoryItem: categoryItem)
     }
+
+    // MARK: - Star View
+    func makeStarViewController() -> StarViewController {
+        return StarViewController(viewModel: makeStarViewModel())
+    }
+
+    func makeStarViewModel() -> StarViewModel {
+        return DefaultStarViewModel(fetchUseCase: makeFetchClassItemUseCase())
+    }
 }

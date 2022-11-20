@@ -42,7 +42,6 @@ public class DefaultCategoryDetailViewModel: CategoryDetailViewModel {
     private let fetchClassItemUseCase: FetchClassItemUseCase
     let categoryItem: CategoryItem
 
-    // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase, categoryItem: CategoryItem) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
         self.categoryItem = categoryItem

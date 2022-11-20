@@ -182,6 +182,12 @@ class MainViewController: UIViewController {
                 self?.navigationController?.pushViewController(viewController, animated: true)
             }
         }
+
+        viewModel.starViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
     }
 }
 
@@ -221,8 +227,7 @@ private extension MainViewController {
     }
 
     @objc func didTapStarButton() {
-        let starViewController = StarViewController()
-        navigationController?.pushViewController(starViewController, animated: true)
+        viewModel.didTapStarButton()
     }
 
     @objc func didTapCategoryButton() {

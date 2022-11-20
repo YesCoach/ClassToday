@@ -7,18 +7,33 @@
 
 import Foundation
 
-public class StarViewModel {
-    private let firestoreManager = FirestoreManager.shared
-    private let locationManager = LocationManager.shared
-    private let userDefaultsManager = UserDefaultsManager.shared
-    private let provider = NaverMapAPIProvider()
-    private let group = DispatchGroup()
+protocol StarViewModelInput {
+    func refreshClassItemList()
+    func fetchData()
+    func didSelectItem(at index: Int)
+}
 
+protocol StarViewModelOutput {
+    var isNowDataFetching: Observable<Bool> { get }
+    var data: Observable<[ClassItem]> { get }
+    var currentUser: Observable<User?> { get }
+    var classDetailViewController: Observable<ClassDetailViewController?> { get }
+}
+
+protocol StarViewModel: StarViewModelInput, StarViewModelOutput { }
+
+public class DefaultStarViewModel: StarViewModel {
+
+    private let fetchUseCase: FetchClassItemUseCase
+
+    // MARK: - OUTPUT
     let isNowDataFetching: Observable<Bool> = Observable(false)
     let data: Observable<[ClassItem]> = Observable([])
     let currentUser: Observable<User?> = Observable(nil)
+    let classDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
 
-    init() {
+    init(fetchUseCase: FetchClassItemUseCase) {
+        self.fetchUseCase = fetchUseCase
         configureLocation()
         fetchData()
         NotificationCenter.default.addObserver(self,
@@ -28,7 +43,7 @@ public class StarViewModel {
     }
 
     /// 유저의 키워드 주소에 따른 기준 지역 구성
-    func configureLocation() {
+    private func configureLocation() {
         User.getCurrentUser { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -42,9 +57,12 @@ public class StarViewModel {
 
     /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
     @objc func updateUserData(_ notification: Notification) {
-            configureLocation()
+        configureLocation()
     }
+}
 
+// MARK: - INPUT
+extension DefaultStarViewModel {
     /// 즐겨찾기 수업 정보를 패칭하는 메서드
     func fetchData() {
         isNowDataFetching.value = true
@@ -53,9 +71,17 @@ public class StarViewModel {
             isNowDataFetching.value = false
             return
         }
-        firestoreManager.starSort(starList: currentUser.stars) { [weak self] data in
+        fetchUseCase.excute(param: .fetchByStarlist(starlist: currentUser.stars)) { [weak self] data in
             self?.isNowDataFetching.value = false
             self?.data.value = data
         }
+    }
+
+    func refreshClassItemList() {
+        fetchData()
+    }
+
+    func didSelectItem(at index: Int) {
+        classDetailViewController.value = ClassDetailViewController(classItem: data.value[index])
     }
 }

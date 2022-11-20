@@ -54,7 +54,16 @@ class StarViewController: UIViewController {
     }()
 
     // MARK: Properties
-    private let viewModel = StarViewModel()
+    private let viewModel: StarViewModel
+
+    init(viewModel: StarViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: Life Cycle
     override func viewDidLoad() {
@@ -86,6 +95,11 @@ class StarViewController: UIViewController {
                 self?.refreshControl.endRefreshing()
             }
         }
+        viewModel.classDetailViewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.navigationController?.pushViewController(viewController, animated: true)
+            }
+        }
     }
 }
 
@@ -96,7 +110,6 @@ private extension StarViewController {
     }
     
     @objc func beginRefresh() {
-        print("beginRefresh!")
         viewModel.fetchData()
     }
 }
@@ -142,7 +155,6 @@ extension StarViewController: UITableViewDataSource {
 
 extension StarViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let classItem = viewModel.data.value[indexPath.row]
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        viewModel.didSelectItem(at: indexPath.row)
     }
 }
