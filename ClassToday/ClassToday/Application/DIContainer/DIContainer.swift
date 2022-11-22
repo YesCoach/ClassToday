@@ -147,6 +147,10 @@ final class DIContainer {
                                                  addressTransferUseCase: makeAddressTransferUseCase(),
                                                  classItem: classItem)
     }
+
+    func makeEnrollImageViewModel(limitImageCount: Int) -> EnrollImageViewModel {
+        return DefaultEnrollImageViewModel(imageUseCase: makeImageUseCase(), limitImageCount: limitImageCount)
+    }
     
     // MARK: - Map Selection View
     func makeMapSelectionViewController() -> MapSelectionViewController {

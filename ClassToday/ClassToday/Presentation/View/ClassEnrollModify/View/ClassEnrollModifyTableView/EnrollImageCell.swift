@@ -33,8 +33,11 @@ class EnrollImageCell: UITableViewCell {
 
     // MARK: - Properties
     static var identifier = "EnrollImageCell"
+
     weak var delegate: EnrollImageCellDelegate?
-    private var viewModel: EnrollImageViewModel = EnrollImageViewModel(limitImageCount: 8)
+    private var viewModel: EnrollImageViewModel = AppDIContainer()
+        .makeDIContainer()
+        .makeEnrollImageViewModel(limitImageCount: 8)
 
     // MARK: - Initialize
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -50,7 +53,7 @@ class EnrollImageCell: UITableViewCell {
 
     // MARK: - Method
     func configureWith(imagesURL: [String]?) {
-        viewModel.setImages(imagesURL: imagesURL)
+        viewModel.configureWith(imagesURL: imagesURL)
     }
 
     private func configureUI() {
@@ -67,8 +70,21 @@ class EnrollImageCell: UITableViewCell {
                 self?.imageEnrollCollectionView.reloadData()
             }
         }
+
         viewModel.imagesURL.bind { [weak self] data in
             self?.delegate?.passData(imagesURL: data)
+        }
+
+        viewModel.alertController.bind { [weak self] alert in
+            if let alert = alert {
+                self?.delegate?.presentFromImageCell(alert)
+            }
+        }
+
+        viewModel.viewController.bind { [weak self] viewController in
+            if let viewController = viewController {
+                self?.delegate?.presentFromImageCell(viewController)
+            }
         }
     }
 }
@@ -113,24 +129,7 @@ extension EnrollImageCell: UICollectionViewDelegateFlowLayout {
 // MARK: - CollectionViewDelegate
 extension EnrollImageCell: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let availableImageCount = viewModel.getAvailableImageCount()
-        if indexPath.row == 0 {
-            if availableImageCount == 0 {
-                let alert = UIAlertController(title: "이미지 등록", message: "이미지 등록은 최대 8개 까지 가능합니다", preferredStyle: .alert)
-                let action = UIAlertAction(title: "확인", style: .default)
-                alert.addAction(action)
-                delegate?.presentFromImageCell(alert)
-                return
-            }
-            let picker = PHPickerViewController.makeImagePicker(selectLimit: availableImageCount)
-            picker.delegate = self
-            picker.modalPresentationStyle = .fullScreen
-            delegate?.presentFromImageCell(picker)
-        } else {
-            let selectedIndex = indexPath.row - 1
-            let fullImageViewController = FullImagesViewController(images: viewModel.images.value, startIndex: selectedIndex)
-            delegate?.presentFromImageCell(fullImageViewController)
-        }
+        viewModel.didSelectItem(at: indexPath.row)
     }
 }
 
@@ -138,21 +137,5 @@ extension EnrollImageCell: UICollectionViewDelegate {
 extension EnrollImageCell: ClassImageCellDelegate {
     func deleteImageCell(indexPath: IndexPath) {
         viewModel.removeImages(index: indexPath.row - 1)
-    }
-}
-
-// MARK: - PHPickerViewControllerDelegate
-extension EnrollImageCell: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
-        for result in results {
-            let itemProvider = result.itemProvider
-            if itemProvider.canLoadObject(ofClass: UIImage.self) {
-                itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (image, _) in
-                    guard let self = self, let image = image as? UIImage else { return }
-                    self.viewModel.appendImages(image: image)
-                }
-            }
-        }
     }
 }
