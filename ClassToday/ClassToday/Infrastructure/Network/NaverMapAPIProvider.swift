@@ -16,12 +16,36 @@ enum NaverMapAPIError: Error {
 }
 
 final class NaverMapAPIProvider {
+
     private let provider: MoyaProvider<NaverMapAPI>
-    
+
     init(provider: MoyaProvider<NaverMapAPI> = .init()) {
         self.provider = provider
     }
-    
+
+    func locationToAddress(location: Location,
+                           completion: @escaping (Result<AddrAPIResult, Error>) -> Void) {
+        provider.request(.reverseGeocoding(location.lat, location.lon)) { result in
+            switch result {
+            case .success(let response):
+                guard let data = try? response.map(NaverMapAddress.self) else {
+                    completion(.failure(NaverMapAPIError.responseDecodingFailed))
+                    return
+                }
+                guard let results = data.results.first else {
+                    completion(.failure(NaverMapAPIError.emptyResult))
+                    return
+                }
+                completion(.success(results))
+            case .failure(let error):
+                debugPrint(error)
+                completion(.failure(NaverMapAPIError.requestError))
+            }
+        }
+    }
+}
+
+extension NaverMapAPIProvider {
     /// 도로명주소를 반환합니다.
     func locationToDetailAddress(location: Location, completion: @escaping (Result<String, NaverMapAPIError>) -> Void) {
         provider.request(.reverseGeocoding(location.lat, location.lon)) { result in

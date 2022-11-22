@@ -81,7 +81,7 @@ private extension ProfileModifyViewController {
                 dispatchGroup.leave()
             }
             if let oldImage = user.profileImage {
-                StorageManager.shared.deleteImage(urlString: oldImage)
+                StorageManager.shared.deleteImage(urlString: oldImage) {}
             }
         } else {
             imageURL = user.profileImage

@@ -8,7 +8,6 @@
 import Foundation
 
 struct NaverMapAddress: Codable {
-//    let status: Status
     let results: [AddrAPIResult]
 }
 
@@ -29,7 +28,7 @@ struct AddrAPIResult: Codable {
         let type: String
         let mappingId: String
     }
-    
+
     struct Region: Codable {
         let area1: Area
         let area2: Area

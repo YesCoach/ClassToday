@@ -9,7 +9,6 @@ import UIKit
 
 protocol EnrollPriceCellDelegate: AnyObject {
     func passData(price: String?)
-    func passData(priceUnit: PriceUnit)
     func showPopover(button: UIButton)
 }
 

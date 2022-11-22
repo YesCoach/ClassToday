@@ -77,14 +77,13 @@ class ClassEnrollViewController: UIViewController {
 
     // MARK: - Properties
     weak var delegate: ClassItemCellUpdateDelegate?
-    private var viewModel:  ClassEnrollModifyViewModel
+    private var viewModel: ClassEnrollModifyViewModel
 
     // MARK: - Initialize
-    init(classItemType: ClassItemType) {
-        viewModel =  ClassEnrollModifyViewModel(classItemType: classItemType)
+    init(viewModel: ClassEnrollModifyViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .fullScreen
-        viewModel.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -163,7 +162,9 @@ class ClassEnrollViewController: UIViewController {
     /// 수업 등록 메서드
     @objc func didTapEnrollButton(_ button: UIBarButtonItem) {
         view.endEditing(true)
-        viewModel.enrollClassItem()
+        viewModel.enrollClassItem() { [weak self] in
+            self?.dismiss(animated: true)
+        }
     }
 }
 
@@ -283,9 +284,11 @@ extension ClassEnrollViewController: EnrollImageCellDelegate {
     func passData(imagesURL: [String]) {
         return
     }
+
     func passData(images: [UIImage]) {
-        viewModel.classImages = images.isEmpty ? nil : images
+        viewModel.inputImages(images: images)
     }
+
     func presentFromImageCell(_ viewController: UIViewController) {
         present(viewController, animated: true, completion: nil)
     }
@@ -294,16 +297,17 @@ extension ClassEnrollViewController: EnrollImageCellDelegate {
 // MARK: - EnrollNameCellDelegate
 extension ClassEnrollViewController: EnrollNameCellDelegate {
     func passData(name: String?) {
-        viewModel.className = name
+        viewModel.inputClassName(name: name)
     }
 }
 
 // MARK: - EnrollTimeCellDelegate
 extension ClassEnrollViewController: EnrollTimeCellDelegate {
     func passData(time: String?) {
-        viewModel.classTime = time
+        viewModel.inputTime(time: time)
         view.endEditing(true)
     }
+
     func getClassItemType() -> ClassItemType {
         return viewModel.classItemType
     }
@@ -312,8 +316,9 @@ extension ClassEnrollViewController: EnrollTimeCellDelegate {
 // MARK: - EnrollDateCellDelegate
 extension ClassEnrollViewController: EnrollDateCellDelegate {
     func passData(date: Set<DayWeek>) {
-        viewModel.classDate = date
+        viewModel.inputDate(date: date)
     }
+
     func presentFromDateCell(_ viewController: UIViewController) {
         view.endEditing(true)
         self.present(viewController, animated: true, completion: nil)
@@ -323,10 +328,9 @@ extension ClassEnrollViewController: EnrollDateCellDelegate {
 // MARK: - EnrollPlaceCellDelegate
 extension ClassEnrollViewController: EnrollPlaceCellDelegate {
     func passData(place: String?, location: Location?) {
-        viewModel.classPlace = place
-        viewModel.classLocation = location
+        viewModel.inputPlace(place: place, location: location)
     }
-    
+
     func presentFromPlaceCell(viewController: UIViewController) {
         present(viewController, animated: true)
     }
@@ -344,38 +348,30 @@ extension ClassEnrollViewController: EnrollPriceCellDelegate {
         view.delegate = self
         popover.show(view, point: point)
     }
+
     func passData(price: String?) {
-        viewModel.classPrice = price
-    }
-    func passData(priceUnit: PriceUnit) {
-        viewModel.classPriceUnit = priceUnit
+        viewModel.inputPrice(price: price)
     }
 }
 
 // MARK: - EnrollDescriptionCellDelegate
 extension ClassEnrollViewController: EnrollDescriptionCellDelegate {
     func passData(description: String?) {
-        viewModel.classDescription = description
+        viewModel.inputDescription(description: description)
     }
 }
 
 // MARK: - EnrollCategoryCellDelegate
 extension ClassEnrollViewController: EnrollCategoryCellDelegate {
     func passData(categoryType: CategoryType, categoryItems: [CategoryItem]) {
-        /// 중복체크를 위한 Set 처리
-        switch categoryType {
-        case .subject:
-            viewModel.classSubject = Set(categoryItems.compactMap{$0 as? Subject})
-        case .target:
-            viewModel.classTarget = Set(categoryItems.compactMap{$0 as? Target})
-        }
+        viewModel.inputCategory(categoryType: categoryType, categoryItems: categoryItems)
     }
 }
 
 // MARK: - PriceUnitTableViewDelegate
 extension ClassEnrollViewController: PriceUnitTableViewDelegate {
     func selectedPriceUnit(priceUnit: PriceUnit) {
-        viewModel.classPriceUnit = priceUnit
+        viewModel.inputPriceUnit(priceUnit: priceUnit)
         delegate?.updatePriceUnit(with: priceUnit)
         popover.dismiss()
     }
@@ -386,6 +382,7 @@ extension ClassEnrollViewController: ClassEnrollModifyViewModelDelegate {
     func presentAlert() {
         present(alert, animated: true)
     }
+
     func dismissViewController() {
         dismiss(animated: true)
     }

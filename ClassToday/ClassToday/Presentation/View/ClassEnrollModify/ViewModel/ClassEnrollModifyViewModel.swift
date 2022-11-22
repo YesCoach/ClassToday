@@ -7,21 +7,46 @@
 
 import UIKit
 
+protocol ClassEnrollModifyViewModelInput {
+    func inputImages(images: [UIImage])
+    func inputImagesURL(imagesURL: [String])
+    func inputClassName(name: String?)
+    func inputTime(time: String?)
+    func inputDate(date: Set<DayWeek>)
+    func inputPlace(place: String?, location: Location?)
+    func inputPrice(price: String?)
+    func inputPriceUnit(priceUnit: PriceUnit)
+    func inputDescription(description: String?)
+    func inputCategory(categoryType: CategoryType, categoryItems: [CategoryItem])
+    func enrollClassItem(completion: @escaping ()->())
+    func modifyClassItem(completion: @escaping (ClassItem)->())
+}
+
+protocol ClassEnrollModifyViewModelOutput {
+    var isNowDataUploading: Observable<Bool> { get }
+    var classItemType: ClassItemType { get }
+    var classItem: ClassItem? { get }
+}
+
+protocol ClassEnrollModifyViewModel: ClassEnrollModifyViewModelInput, ClassEnrollModifyViewModelOutput { }
+
 protocol ClassEnrollModifyViewModelDelegate {
     func presentAlert()
     func dismissViewController()
 }
 
-public class  ClassEnrollModifyViewModel {
-    private let firestoreManager = FirestoreManager.shared
-    private let storageManager = StorageManager.shared
-    private let locationManager = LocationManager.shared
-    private let userDefaultsManager = UserDefaultsManager.shared
-    private let provider = NaverMapAPIProvider()
+public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
-    let classItemType: ClassItemType
+    private let uploadClassItemUseCase: UploadClassItemUseCase
+    private let imageUseCase: ImageUseCase
+    private let locationUseCase: LocationUseCase
+    private let addressTransferUseCase: AddressTransferUseCase
+
     var delegate: ClassEnrollModifyViewModelDelegate?
-    var isNowDataUploading: Observable<Bool> = Observable(false)
+    let isNowDataUploading: Observable<Bool> = Observable(false)
+
+    // MARK: - ClassItem Contents
+    let classItemType: ClassItemType
     var classImages: [UIImage]?
     var classImagesURL: [String]?
     var className: String?
@@ -41,13 +66,29 @@ public class  ClassEnrollModifyViewModel {
     var classItem: ClassItem?
 
     /// 수업 등록시 ViewModel 생성자
-    init(classItemType: ClassItemType = .buy) {
+    init(uploadClassItemUseCase: UploadClassItemUseCase,
+         imageUseCase: ImageUseCase,
+         locationUseCase: LocationUseCase,
+         addressTransferUseCase: AddressTransferUseCase,
+         classItemType: ClassItemType) {
+        self.uploadClassItemUseCase = uploadClassItemUseCase
+        self.imageUseCase = imageUseCase
+        self.locationUseCase = locationUseCase
+        self.addressTransferUseCase = addressTransferUseCase
         self.classItemType = classItemType
     }
-    
+
     /// 수업 수정시 ViewModel 생성자
-    convenience init(classItem: ClassItem) {
-        self.init(classItemType: classItem.itemType)
+    convenience init(uploadClassItemUseCase: UploadClassItemUseCase,
+                     imageUseCase: ImageUseCase,
+                     locationUseCase: LocationUseCase,
+                     addressTransferUseCase: AddressTransferUseCase,
+                     classItem: ClassItem) {
+        self.init(uploadClassItemUseCase: uploadClassItemUseCase,
+                  imageUseCase: imageUseCase,
+                  locationUseCase: locationUseCase,
+                  addressTransferUseCase: addressTransferUseCase,
+                  classItemType: classItem.itemType)
         self.classItem = classItem
         className = classItem.name
         classTime = classItem.time
@@ -64,7 +105,7 @@ public class  ClassEnrollModifyViewModel {
         classImagesURL = classItem.images
     }
 
-    func enrollClassItem() {
+    func enrollClassItem(completion: @escaping ()->()) {
         classImagesURL = []
         let group = DispatchGroup()
 
@@ -80,19 +121,10 @@ public class  ClassEnrollModifyViewModel {
             return
         }
 
-        if let classDate = classDate, classDate.isEmpty {
-            self.classDate = nil
-        }
-        if let classSubject = classSubject, classSubject.isEmpty {
-            self.classSubject = nil
-        }
-        if let classTarget = classTarget, classTarget.isEmpty {
-            self.classTarget = nil
-        }
         if let classImages = classImages {
             for image in classImages {
                 group.enter()
-                storageManager.upload(image: image) { [weak self] result in
+                imageUseCase.upload(image: image) { [weak self] result in
                     switch result {
                     case .success(let url):
                         self?.classImagesURL?.append(url)
@@ -103,55 +135,56 @@ public class  ClassEnrollModifyViewModel {
                 }
             }
         }
+
         /// location 추가
         if classLocation == nil {
-            self.classLocation = locationManager.getCurrentLocation()
+            self.classLocation = locationUseCase.getCurrentLocation()
         }
+
+        guard let classLocation = classLocation else {
+            // TODO: Location 없을 경우 얼럿 호출(위치정보권한 필요)
+            return
+        }
+
         /// place (도로명주소) 추가
         if classPlace == nil {
-            if let location = classLocation {
-                group.enter()
-                provider.locationToDetailAddress(location: location) { [weak self] result in
-                    guard let self = self else { return }
-                    switch result {
-                    case .success(let address):
-                        self.classPlace = address
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
+            group.enter()
+            addressTransferUseCase.excute(location: classLocation, param: .detailAddress) { [weak self] result in
+                switch result {
+                case .success(let address):
+                    self?.classPlace = address
+                case .failure(let error):
+                    debugPrint(error)
                 }
-            } else {
-                print("Enroll ClassItem but, No Location")
+                group.leave()
             }
         }
+
         /// keyword 주소 추가 (@@구)
         group.enter()
-        provider.locationToKeyword(location: classLocation) { [weak self] result in
-            guard let self = self else { return }
+        addressTransferUseCase.excute(location: classLocation, param: .keywordAddress) { [weak self] result in
             switch result {
-            case .success(let keyword):
-                self.classKeywordLocation = keyword
-            case .failure(let error):
-                debugPrint(error)
+                case .success(let keyword):
+                    self?.classKeywordLocation = keyword
+                case .failure(let error):
+                    debugPrint(error)
             }
             group.leave()
         }
 
         /// semiKeyword 주소 추가 (@@동)
         group.enter()
-        provider.locationToSemiKeyword(location: classLocation) { [weak self] result in
-            guard let self = self else { return }
+        addressTransferUseCase.excute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
             switch result {
             case .success(let semiKeyword):
-                self.classSemiKeywordLocation = semiKeyword
+                self?.classSemiKeywordLocation = semiKeyword
             case .failure(let error):
                 debugPrint(error)
             }
             group.leave()
         }
 
-        group.notify(queue: DispatchQueue.global()) { [weak self] in
+        group.notify(queue: .global()) { [weak self] in
             guard let self = self else { return }
             self.isNowDataUploading.value = true
             let classItem = ClassItem(name: className,
@@ -173,20 +206,18 @@ public class  ClassEnrollModifyViewModel {
                                       createdTime: Date(),
                                       modifiedTime: nil
             )
-            self.firestoreManager.upload(classItem: classItem) { [weak self] in
-                guard let self = self else { return }
+
+            self.uploadClassItemUseCase.excute(param: .create(item: classItem)) { [weak self] in
                 debugPrint("\(classItem) 등록")
-                self.isNowDataUploading.value = false
-                self.delegate?.dismissViewController()
+                self?.isNowDataUploading.value = false
+                completion()
             }
         }
     }
-    
+
     func modifyClassItem(completion: @escaping (ClassItem)->()) {
         let group = DispatchGroup()
-        guard let classItem = classItem else {
-            return
-        }
+        guard let classItem = classItem else { return }
         /// 수업 등록시 필수 항목 체크
         guard let className = className, let classDescription = classDescription else {
             delegate?.presentAlert()
@@ -197,29 +228,21 @@ public class  ClassEnrollModifyViewModel {
             delegate?.presentAlert()
             return
         }
-        if let classDate = classDate, classDate.isEmpty {
-            self.classDate = nil
-        }
-        if let classSubject = classSubject, classSubject.isEmpty {
-            self.classSubject = nil
-        }
-        if let classTarget = classTarget, classTarget.isEmpty {
-            self.classTarget = nil
-        }
+
         /// 1. 삭제한 사진 Storage에서 삭제
         /// 2. 삭제하지 않은 사진 파악 -> Storage에 올리지 않기
         var existingImagesCount = 0
-        classItem.images?.forEach({ url in
+        classItem.images?.forEach { url in
             if classImagesURL?.contains(url) == false {
-                storageManager.deleteImage(urlString: url)
+                imageUseCase.deleteImage(urlString: url) {}
             } else {
                 existingImagesCount += 1
             }
-        })
+        }
         if let classImages = classImages {
             for index in existingImagesCount ..< classImages.count {
                 group.enter()
-                storageManager.upload(image: classImages[index]) { [weak self] result in
+                imageUseCase.upload(image: classImages[index]) { [weak self] result in
                     switch result {
                     case .success(let url):
                         self?.classImagesURL?.append(url)
@@ -230,11 +253,17 @@ public class  ClassEnrollModifyViewModel {
                 }
             }
         }
+
         if classLocation == nil {
-            self.classLocation = locationManager.getCurrentLocation()
-            if let location = classLocation {
+            classLocation = locationUseCase.getCurrentLocation()
+        }
+        guard let classLocation = classLocation else {
+            return
+        }
+        if classLocation != classItem.location {
+            if classPlace == nil {
                 group.enter()
-                provider.locationToDetailAddress(location: location) { [weak self] result in
+                addressTransferUseCase.excute(location: classLocation, param: .detailAddress) { [weak self] result in
                     switch result {
                     case .success(let address):
                         self?.classPlace = address
@@ -244,11 +273,8 @@ public class  ClassEnrollModifyViewModel {
                     group.leave()
                 }
             }
-        }
-        if classLocation != classItem.location {
-            /// keyword 주소 추가 (@@구)
             group.enter()
-            provider.locationToKeyword(location: classLocation) { [weak self] result in
+            addressTransferUseCase.excute(location: classLocation, param: .keywordAddress) { [weak self] result in
                 switch result {
                 case .success(let keyword):
                     self?.classKeywordLocation = keyword
@@ -257,9 +283,7 @@ public class  ClassEnrollModifyViewModel {
                 }
                 group.leave()
             }
-            /// semiKeyword 주소 추가 (@@동)
-            group.enter()
-            provider.locationToSemiKeyword(location: classLocation) { [weak self] result in
+            addressTransferUseCase.excute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
                 switch result {
                 case .success(let semiKeyword):
                     self?.classSemiKeywordLocation = semiKeyword
@@ -269,6 +293,7 @@ public class  ClassEnrollModifyViewModel {
                 group.leave()
             }
         }
+
         group.notify(queue: DispatchQueue.main) { [weak self] in
             guard let self = self else { return }
             self.isNowDataUploading.value = true
@@ -291,13 +316,63 @@ public class  ClassEnrollModifyViewModel {
                                               writer: UserDefaultsManager.shared.isLogin()!,
                                               createdTime: Date(),
                                               modifiedTime: nil)
-            self.firestoreManager.update(classItem: modifiedClassItem) { [weak self] in
-                guard let self = self else { return }
-                self.isNowDataUploading.value = false
-                self.delegate?.dismissViewController()
+            self.uploadClassItemUseCase.excute(param: .update(item: modifiedClassItem)) { [weak self] in
+                self?.isNowDataUploading.value = false
+                self?.delegate?.dismissViewController()
                 debugPrint("\(modifiedClassItem) 수정")
                 completion(modifiedClassItem)
             }
+        }
+    }
+}
+
+// MARK: - INPUT
+extension DefaultClassEnrollModifyViewModel {
+    func inputImages(images: [UIImage]) {
+        classImages = images.isEmpty ? nil : images
+    }
+
+    func inputImagesURL(imagesURL: [String]) {
+        classImagesURL = imagesURL.isEmpty ? nil : imagesURL
+    }
+
+    func inputClassName(name: String?) {
+        className = name
+    }
+
+    func inputTime(time: String?) {
+        classTime = time
+    }
+
+    func inputDate(date: Set<DayWeek>) {
+        classDate = date.isEmpty ? nil : date
+    }
+
+    func inputPlace(place: String?, location: Location?) {
+        classPlace = place
+        classLocation = location
+    }
+
+    func inputPrice(price: String?) {
+        classPrice = price
+    }
+
+    func inputPriceUnit(priceUnit: PriceUnit) {
+        classPriceUnit = priceUnit
+    }
+
+    func inputDescription(description: String?) {
+        classDescription = description
+    }
+
+    func inputCategory(categoryType: CategoryType, categoryItems: [CategoryItem]) {
+        switch categoryType {
+        case .subject:
+            let categoryList = Set(categoryItems.compactMap{$0 as? Subject})
+            classSubject = categoryList.isEmpty ? nil : categoryList
+        case .target:
+            let categoryList = Set(categoryItems.compactMap{$0 as? Target})
+            classTarget = categoryList.isEmpty ? nil : categoryList
         }
     }
 }

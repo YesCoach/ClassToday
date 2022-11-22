@@ -62,7 +62,7 @@ final class StorageManager {
     }
 
     /// FireStorage에서 이미지를 삭제합니다.
-    func deleteImage(urlString: String) {
+    func deleteImage(urlString: String, completion: @escaping () -> ()) {
         let storageReference = Storage.storage().reference(forURL: urlString)
         storageReference.delete { error in
             if let error = error {
@@ -70,6 +70,7 @@ final class StorageManager {
             } else {
                 debugPrint("Image \(urlString) deleted")
             }
+            completion()
         }
     }
 }

@@ -11,6 +11,7 @@ final class DIContainer {
     
     struct Dependencies {
         let apiDataTransferService: FirestoreManager
+        let imageDataTransferService: StorageManager
     }
 
     private let dependencies: Dependencies
@@ -18,6 +19,9 @@ final class DIContainer {
     // MARK: - Persistent Storage
     lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory(userDefaults: .standard)
 
+    // MARK: - Framework Manager
+    lazy var locationManager: LocationManager = LocationManager.shared
+    
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
@@ -25,6 +29,22 @@ final class DIContainer {
     // MARK: - Use Cases
     func makeFetchClassItemUseCase() -> FetchClassItemUseCase {
         return DefaultFetchClassItemUseCase(classItemRepository: makeClassItemRepository())
+    }
+
+    func makeUploadClassItemUseCase() -> UploadClassItemUseCase {
+        return DefaultUploadClassItemUseCase(classItemRepository: makeClassItemRepository())
+    }
+
+    func makeLocationUseCase() -> LocationUseCase {
+        return DefaultLocationUseCase(locationManager: locationManager)
+    }
+
+    func makeImageUseCase() -> ImageUseCase {
+        return DefaultImageUseCase(imageRepository: makeImageRepository())
+    }
+
+    func makeAddressTransferUseCase() -> AddressTransferUseCase {
+        return DefaultAddressTransferUseCase(addressTransferRepository: makeAddressTransferRepository())
     }
 
     func makeSearchHistoryUseCase() -> SearchHistoryUseCase {
@@ -38,6 +58,14 @@ final class DIContainer {
 
     func makeSearchHistoryRepository() -> SearchHistoryRepository {
         return DefaultSearchHistoryRepository(searchHistoryPersistentStorage: searchHistoryStorage)
+    }
+
+    func makeImageRepository() -> ImageRepository {
+        return DefaultImageRepository(storageManager: dependencies.imageDataTransferService)
+    }
+
+    func makeAddressTransferRepository() -> AddressTransferRepository {
+        return DefaultAddressTransferRepository(naverMapAPIProvider: NaverMapAPIProvider())
     }
 
     // MARK: - Main
@@ -93,5 +121,30 @@ final class DIContainer {
 
     func makeStarViewModel() -> StarViewModel {
         return DefaultStarViewModel(fetchUseCase: makeFetchClassItemUseCase())
+    }
+    
+    // MARK: - Class Enroll Modify View
+    func makeClassEnrollViewController(classItempType: ClassItemType) -> ClassEnrollViewController {
+        return ClassEnrollViewController(viewModel: makeClassEnrollModifyViewModel(classItemType: classItempType))
+    }
+
+    func makeClassModifyViewController(classItem: ClassItem) -> ClassModifyViewController {
+        return ClassModifyViewController(viewModel: makeClassEnrollModifyViewModel(classItem: classItem))
+    }
+
+    func makeClassEnrollModifyViewModel(classItemType: ClassItemType) -> ClassEnrollModifyViewModel {
+        return DefaultClassEnrollModifyViewModel(uploadClassItemUseCase: makeUploadClassItemUseCase(),
+                                                 imageUseCase: makeImageUseCase(),
+                                                 locationUseCase: makeLocationUseCase(),
+                                                 addressTransferUseCase: makeAddressTransferUseCase(),
+                                                 classItemType: classItemType)
+    }
+
+    func makeClassEnrollModifyViewModel(classItem: ClassItem) -> ClassEnrollModifyViewModel {
+        return DefaultClassEnrollModifyViewModel(uploadClassItemUseCase: makeUploadClassItemUseCase(),
+                                                 imageUseCase: makeImageUseCase(),
+                                                 locationUseCase: makeLocationUseCase(),
+                                                 addressTransferUseCase: makeAddressTransferUseCase(),
+                                                 classItem: classItem)
     }
 }

@@ -8,7 +8,6 @@
 import Foundation
 
 protocol ClassItemRepository {
-
     // MARK: - POST
     func create(param: ClassItemQuery.CreateItem, completion: @escaping() -> ())
 

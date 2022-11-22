@@ -102,7 +102,7 @@ class ChatClassItemCell: UIView {
     
     private func configure(classItem: ClassItem, completion: @escaping (UIImage)->()) {
         titleLabel.text = classItem.name
-        
+
         provider.locationToSemiKeyword(location: classItem.location) { [weak self] result in
             guard let self = self else { return }
             switch result {

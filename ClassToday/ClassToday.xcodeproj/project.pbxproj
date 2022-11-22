@@ -102,6 +102,14 @@
 		8966A035292496870070B10C /* SearchHistoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A034292496870070B10C /* SearchHistoryRepository.swift */; };
 		8966A037292497220070B10C /* DefaultSearchHistoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A036292497220070B10C /* DefaultSearchHistoryRepository.swift */; };
 		8966A03D29276F650070B10C /* CategoryListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A03C29276F650070B10C /* CategoryListViewModel.swift */; };
+		8966A03F292B14E10070B10C /* UploadClassItemUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A03E292B14E10070B10C /* UploadClassItemUseCase.swift */; };
+		8966A041292B18640070B10C /* DefaultImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A040292B18640070B10C /* DefaultImageRepository.swift */; };
+		8966A043292B18A20070B10C /* ImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A042292B18A20070B10C /* ImageRepository.swift */; };
+		8966A045292B1FD00070B10C /* ImageUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A044292B1FD00070B10C /* ImageUseCase.swift */; };
+		8966A047292B411C0070B10C /* LocationUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A046292B411B0070B10C /* LocationUseCase.swift */; };
+		8966A049292B4E980070B10C /* AddressTransferUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A048292B4E970070B10C /* AddressTransferUseCase.swift */; };
+		8966A04B292B4EEF0070B10C /* AddressTransferRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A04A292B4EEF0070B10C /* AddressTransferRepository.swift */; };
+		8966A04F292C66110070B10C /* DefaultAddressTransferRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966A04E292C66110070B10C /* DefaultAddressTransferRepository.swift */; };
 		8966CF5B28100652001CBBDC /* FullImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5A28100652001CBBDC /* FullImagesViewController.swift */; };
 		8966CF5E2810787C001CBBDC /* ClassImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8966CF5D2810787C001CBBDC /* ClassImageView.swift */; };
 		89675B122826776100933C48 /* PriceUnitTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89675B112826776100933C48 /* PriceUnitTableView.swift */; };
@@ -300,6 +308,14 @@
 		8966A034292496870070B10C /* SearchHistoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchHistoryRepository.swift; sourceTree = "<group>"; };
 		8966A036292497220070B10C /* DefaultSearchHistoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSearchHistoryRepository.swift; sourceTree = "<group>"; };
 		8966A03C29276F650070B10C /* CategoryListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewModel.swift; sourceTree = "<group>"; };
+		8966A03E292B14E10070B10C /* UploadClassItemUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadClassItemUseCase.swift; sourceTree = "<group>"; };
+		8966A040292B18640070B10C /* DefaultImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultImageRepository.swift; sourceTree = "<group>"; };
+		8966A042292B18A20070B10C /* ImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
+		8966A044292B1FD00070B10C /* ImageUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUseCase.swift; sourceTree = "<group>"; };
+		8966A046292B411B0070B10C /* LocationUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationUseCase.swift; sourceTree = "<group>"; };
+		8966A048292B4E970070B10C /* AddressTransferUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressTransferUseCase.swift; sourceTree = "<group>"; };
+		8966A04A292B4EEF0070B10C /* AddressTransferRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressTransferRepository.swift; sourceTree = "<group>"; };
+		8966A04E292C66110070B10C /* DefaultAddressTransferRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAddressTransferRepository.swift; sourceTree = "<group>"; };
 		8966CF5A28100652001CBBDC /* FullImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullImagesViewController.swift; sourceTree = "<group>"; };
 		8966CF5D2810787C001CBBDC /* ClassImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassImageView.swift; sourceTree = "<group>"; };
 		89675B112826776100933C48 /* PriceUnitTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceUnitTableView.swift; sourceTree = "<group>"; };
@@ -726,6 +742,10 @@
 			children = (
 				895A0575291E0F7E009103CC /* Protocol */,
 				895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */,
+				8966A03E292B14E10070B10C /* UploadClassItemUseCase.swift */,
+				8966A046292B411B0070B10C /* LocationUseCase.swift */,
+				8966A044292B1FD00070B10C /* ImageUseCase.swift */,
+				8966A048292B4E970070B10C /* AddressTransferUseCase.swift */,
 				8966A028292487A60070B10C /* SearchHistoryUseCase.swift */,
 			);
 			path = UseCases;
@@ -752,6 +772,8 @@
 			children = (
 				895A057A291E1AD0009103CC /* ClassItemRepository.swift */,
 				8966A034292496870070B10C /* SearchHistoryRepository.swift */,
+				8966A042292B18A20070B10C /* ImageRepository.swift */,
+				8966A04A292B4EEF0070B10C /* AddressTransferRepository.swift */,
 				895A0584291E317D009103CC /* UserRepository.swift */,
 			);
 			path = Repositories;
@@ -770,7 +792,9 @@
 			isa = PBXGroup;
 			children = (
 				895A057E291E1B3D009103CC /* DefaultClassItemRepository.swift */,
+				8966A040292B18640070B10C /* DefaultImageRepository.swift */,
 				8966A036292497220070B10C /* DefaultSearchHistoryRepository.swift */,
+				8966A04E292C66110070B10C /* DefaultAddressTransferRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -1301,6 +1325,7 @@
 				6B5E149B2813130F001AF21C /* ClassHistoryViewController.swift in Sources */,
 				89CBB39828F7EE33005161EE /* MainViewModel.swift in Sources */,
 				895A0587291E41B9009103CC /* ClassItemQuery.swift in Sources */,
+				8966A043292B18A20070B10C /* ImageRepository.swift in Sources */,
 				FCD624D828951FDC002F443A /* MatchConfirmViewController.swift in Sources */,
 				6B5E14AF28131446001AF21C /* SellUserInfoTableViewCell.swift in Sources */,
 				6BA8E00E2820CA5100B0CC8C /* UILabel+.swift in Sources */,
@@ -1311,6 +1336,7 @@
 				89846E232918F7E200121B40 /* ClassDetailViewModel.swift in Sources */,
 				6BB1480D28220C1C00DB94B1 /* ReviewDetailViewController.swift in Sources */,
 				6B5E14B52813149C001AF21C /* ProfileModifyViewController.swift in Sources */,
+				8966A047292B411C0070B10C /* LocationUseCase.swift in Sources */,
 				6B5E14AD28131437001AF21C /* BuyUserInfoTableViewCell.swift in Sources */,
 				6B5E14AB28131423001AF21C /* SubjectCollectionViewCell.swift in Sources */,
 				6B5E149128131262001AF21C /* ProfileDetailViewController.swift in Sources */,
@@ -1326,6 +1352,7 @@
 				895D107A27F32DCA009FB26F /* (null) in Sources */,
 				FC25F8B92865E04900B2BBEB /* Sender.swift in Sources */,
 				6B5E148B281311D5001AF21C /* ProfileUserInfoTableViewCell.swift in Sources */,
+				8966A03F292B14E10070B10C /* UploadClassItemUseCase.swift in Sources */,
 				6B5E14B7281314AF001AF21C /* ModifyProfileUserInfoView.swift in Sources */,
 				6B7695F028267052009B7847 /* GradeStarView.swift in Sources */,
 				6B5E14B9281314C0001AF21C /* SubjectPickerView.swift in Sources */,
@@ -1366,10 +1393,12 @@
 				89A3143C286D9DA300A7F6ED /* MapCategoryView.swift in Sources */,
 				89098E372820FE5C006EFD4E /* EnrollCategoryCell.swift in Sources */,
 				89846E1B2910E6E200121B40 /* ClassEnrollModifyViewModel.swift in Sources */,
+				8966A049292B4E980070B10C /* AddressTransferUseCase.swift in Sources */,
 				6B59562928475490004821F1 /* LaunchSignInViewController.swift in Sources */,
 				89098E3D28227293006EFD4E /* MockData.swift in Sources */,
 				89098E2B2820F124006EFD4E /* EnrollDateCell.swift in Sources */,
 				6B560C20284DD77100261C35 /* LaunchSignInViewControllerDelegate.swift in Sources */,
+				8966A045292B1FD00070B10C /* ImageUseCase.swift in Sources */,
 				89675B15282677B900933C48 /* PriceUnitTableViewCell.swift in Sources */,
 				8996175A28D1B18100BCCB0D /* KakaoLoginManager.swift in Sources */,
 				899D3F002834E5E8009061CD /* DetailContentCategoryCollectionFlowLayout.swift in Sources */,
@@ -1384,6 +1413,7 @@
 				6B42D941284BBE6000384480 /* FirebaseAuthManager.swift in Sources */,
 				895A0583291E1FB2009103CC /* DataTransferService.swift in Sources */,
 				8971F21C283A1A4200D4AAD0 /* ImageCacheManager.swift in Sources */,
+				8966A041292B18640070B10C /* DefaultImageRepository.swift in Sources */,
 				6B4942FD28AA693A0047CA0B /* OptionalUserInfoInputViewController.swift in Sources */,
 				892C1CCF28322AD600DE27D3 /* ClassItemType.swift in Sources */,
 				89CBB39528F7EA75005161EE /* Observable.swift in Sources */,
@@ -1413,6 +1443,7 @@
 				89846E1F2912C10C00121B40 /* EnrollImageViewModel.swift in Sources */,
 				89865E9F282A70DE00113242 /* SearchViewController.swift in Sources */,
 				89A0CD3C280D441A006FDF89 /* ClassImageCell.swift in Sources */,
+				8966A04B292B4EEF0070B10C /* AddressTransferRepository.swift in Sources */,
 				89098E342820FB4F006EFD4E /* EnrollDescriptionCell.swift in Sources */,
 				6BC2B235288C4A710025817D /* NaverUserInfo.swift in Sources */,
 				89C26A912811EE1300648206 /* PHPickerViewController+.swift in Sources */,
@@ -1449,6 +1480,7 @@
 				FC25F8AF2865DF2F00B2BBEB /* ChatChannelTableViewCell.swift in Sources */,
 				8966CF5E2810787C001CBBDC /* ClassImageView.swift in Sources */,
 				FC870F192899478900DACDA6 /* ChatStorageManager.swift in Sources */,
+				8966A04F292C66110070B10C /* DefaultAddressTransferRepository.swift in Sources */,
 				8941FF212830CDA200A90AB0 /* Match.swift in Sources */,
 				89865E9E282A70DC00113242 /* SearchRecentTableViewCell.swift in Sources */,
 				892C1CD32832DABF00DE27D3 /* StorageManager.swift in Sources */,

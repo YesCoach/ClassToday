@@ -18,12 +18,12 @@ class TabbarController: UITabBarController {
         alertController.view.tintColor = UIColor.mainColor
 
         let buyUploadAction = UIAlertAction(title: "구매글 작성", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.present(ClassEnrollViewController(classItemType: .buy), animated: true, completion: nil)
+            let viewController = AppDIContainer().makeDIContainer().makeClassEnrollViewController(classItempType: .buy)
+            self?.present(viewController, animated: true, completion: nil)
         }
         let sellUploadAction = UIAlertAction(title: "판매글 작성", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.present(ClassEnrollViewController(classItemType: .sell), animated: true, completion: nil)
+            let viewController = AppDIContainer().makeDIContainer().makeClassEnrollViewController(classItempType: .sell)
+            self?.present(viewController, animated: true, completion: nil)
         }
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
         

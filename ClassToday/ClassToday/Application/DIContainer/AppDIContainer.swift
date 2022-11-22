@@ -11,7 +11,8 @@ final class AppDIContainer {
 
     // MARK: - DIContainers
     func makeDIContainer() -> DIContainer {
-        let dependencies = DIContainer.Dependencies(apiDataTransferService: FirestoreManager.shared)
+        let dependencies = DIContainer.Dependencies(apiDataTransferService: .shared,
+                                                    imageDataTransferService: .shared)
         return DIContainer(dependencies: dependencies)
     }
 }

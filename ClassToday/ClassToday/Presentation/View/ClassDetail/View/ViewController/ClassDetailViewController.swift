@@ -267,7 +267,9 @@ extension ClassDetailViewController: DetailCustomNavigationBarDelegate {
     }
  
     func pushEditPage() {
-        let modifyViewController = ClassModifyViewController(classItem: viewModel.classItem)
+        let modifyViewController = AppDIContainer()
+            .makeDIContainer()
+            .makeClassModifyViewController(classItem: viewModel.classItem)
         modifyViewController.classUpdateDelegate = self
         present(modifyViewController, animated: true, completion: nil)
     }
