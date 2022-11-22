@@ -7,9 +7,30 @@
 
 import Foundation
 
-public class EnrollCategoryViewModel {
+protocol EnrollCategoryViewModelInput {
+    func setCategoryType(with categoryType: CategoryType)
+    func setSelectedCategory(with selectedCategory: [CategoryItem]?)
+    func appendCategoryItem(with categoryItem: CategoryItem)
+    func removeCategoryItem(with categoryItem: CategoryItem)
+    func getCategoryItem(at index: Int) -> CategoryItem?
+    func isCategorySelected(categoryItem: CategoryItem) -> Bool
+}
+
+protocol EnrollCategoryViewModelOutput {
+    var categoryType: Observable<CategoryType?> { get }
+    var selectedCategory: Observable<[CategoryItem]> { get }
+}
+
+protocol EnrollCategoryViewModel: EnrollCategoryViewModelInput, EnrollCategoryViewModelOutput { }
+
+public class DefaultEnrollCategoryViewModel: EnrollCategoryViewModel {
+    // MARK: - OUTPUT
     let categoryType: Observable<CategoryType?> = Observable(nil)
     let selectedCategory: Observable<[CategoryItem]> = Observable([])
+}
+
+// MARK: - INPUT
+extension DefaultEnrollCategoryViewModel {
 
     /// CategoryType을 설정합니다.
     func setCategoryType(with categoryType: CategoryType) {

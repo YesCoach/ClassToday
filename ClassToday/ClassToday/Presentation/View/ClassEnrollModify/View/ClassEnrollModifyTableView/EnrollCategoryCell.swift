@@ -39,7 +39,7 @@ class EnrollCategoryCell: UITableViewCell {
     // MARK: - Properties
     weak var delegate: EnrollCategoryCellDelegate?
     static let identifier = "EnrollCategoryCell"
-    private var viewModel: EnrollCategoryViewModel = EnrollCategoryViewModel()
+    private var viewModel: EnrollCategoryViewModel = DefaultEnrollCategoryViewModel()
 
     // MARK: - Initialize
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
