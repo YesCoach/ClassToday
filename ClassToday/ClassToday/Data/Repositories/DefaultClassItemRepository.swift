@@ -30,7 +30,7 @@ extension DefaultClassItemRepository: ClassItemRepository {
             firestoreManager.fetch(classItemId: id, completion: completion)
         }
     }
-    
+
     func fetchItems(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ()) {
         switch param {
         case .fetchItems:
@@ -51,14 +51,14 @@ extension DefaultClassItemRepository: ClassItemRepository {
             firestoreManager.starSort(starList: starlist, completion: completion)
         }
     }
-    
+
     func update(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ()) {
         switch param {
         case .update(let item):
             firestoreManager.update(classItem: item, completion: completion)
         }
     }
-    
+
     func delete(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ()) {
         switch param {
         case .delete(let item):

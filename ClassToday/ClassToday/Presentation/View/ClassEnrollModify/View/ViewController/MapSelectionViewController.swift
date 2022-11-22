@@ -10,7 +10,7 @@ import NMapsMap
 import Moya
 
 protocol MapSelectionViewControllerDelegate: AnyObject {
-    func isLocationSelected(location: Location?, place: String?)
+    func didSelectLocation(location: Location?, place: String?)
 }
 
 class MapSelectionViewController: UIViewController {
@@ -22,7 +22,7 @@ class MapSelectionViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 22, weight: .bold)
         return label
     }()
-    
+
     private lazy var mapView: NMFNaverMapView = {
         let naverMapView = NMFNaverMapView()
         let mapView = naverMapView.mapView
@@ -37,7 +37,7 @@ class MapSelectionViewController: UIViewController {
         mapView.layer.masksToBounds = true
         return naverMapView
     }()
-    
+
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = """
@@ -47,7 +47,7 @@ class MapSelectionViewController: UIViewController {
         label.textColor = UIColor.lightGray
         return label
     }()
-    
+
     private lazy var locationLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18, weight: .bold)
@@ -55,21 +55,21 @@ class MapSelectionViewController: UIViewController {
         label.text = "선택한 수업의 위치"
         return label
     }()
-    
+
     private lazy var locationDescriptionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .bold)
         return label
     }()
-    
+
     private lazy var currentLocationButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("현재 위치로 설정하기", for: .normal)
         button.setTitleColor(UIColor.mainColor, for: .normal)
-        button.addTarget(self, action: #selector(isCurrentLocationButtonTouched(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapCurrentLocationButton(_:)), for: .touchUpInside)
         return button
     }()
-    
+
     private lazy var submitButton: UIButton = {
         let button = UIButton()
         button.setTitle("설정하기", for: .normal)
@@ -80,10 +80,10 @@ class MapSelectionViewController: UIViewController {
         button.isEnabled = false
         button.setBackgroundColor(UIColor.mainColor, for: .normal)
         button.setBackgroundColor(UIColor.gray, for: .disabled)
-        button.addTarget(self, action: #selector(isSubmitButtonTouched(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapSubmitButton(_:)), for: .touchUpInside)
         return button
     }()
-    
+
     private lazy var marker: NMFMarker = {
         let marker = NMFMarker()
         marker.iconImage = NMF_MARKER_IMAGE_BLACK
@@ -96,20 +96,29 @@ class MapSelectionViewController: UIViewController {
 
     // MARK: - Properties
     weak var delegate: MapSelectionViewControllerDelegate?
-    private let viewModel = MapSelectionViewModel()
+    private let viewModel: MapSelectionViewModel
+
+    init(viewModel: MapSelectionViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpLayout()
         bindingViewModel()
-        viewModel.setUserPosition()
+        viewModel.viewDidLoad()
         modalPresentationStyle = .pageSheet
     }
 
     // MARK: - Methods
     func configure(location: Location? = nil) {
-        viewModel.setPosition(with: location)
+        viewModel.configure(location: location)
     }
 
     private func setUpLayout() {
@@ -158,6 +167,7 @@ class MapSelectionViewController: UIViewController {
             }
             self?.mapView.mapView.moveCamera(NMFCameraUpdate(scrollTo: position))
         }
+
         viewModel.selectedPosition.bind { [weak self] position in
             guard let position = position else {
                 self?.marker.mapView = nil
@@ -166,12 +176,13 @@ class MapSelectionViewController: UIViewController {
             }
             self?.marker.position = position
             self?.marker.mapView = self?.mapView.mapView
-            let location = Location(lat: position.lat, lon: position.lng)
-            self?.viewModel.setPlaceName(with: location)
+            self?.viewModel.setPlaceName(with: position)
         }
+
         viewModel.placeName.bind { [weak self] name in
             self?.locationDescriptionLabel.text = name
         }
+
         viewModel.isSubmitButtonOn.bind { [weak self] isTrue in
             if isTrue {
                 self?.submitButton.isEnabled = true
@@ -182,19 +193,19 @@ class MapSelectionViewController: UIViewController {
     }
 
     // MARK: - objc function
-    @objc func isSubmitButtonTouched(_ sender: UIButton) {
-        delegate?.isLocationSelected(location: viewModel.getSelectedLocation(), place: viewModel.placeName.value)
+    @objc func didTapSubmitButton(_ sender: UIButton) {
+        delegate?.didSelectLocation(location: viewModel.selectedPositionToLocation, place: viewModel.placeName.value)
         dismiss(animated: true)
     }
 
-    @objc func isCurrentLocationButtonTouched(_ sender: UIButton) {
-        viewModel.setPositionToCurrent()
+    @objc func didTapCurrentLocationButton(_ sender: UIButton) {
+        viewModel.didTapCurrentLocationButton()
     }
 }
 
 // MARK: - NMFMapViewTouchDelegate
 extension MapSelectionViewController: NMFMapViewTouchDelegate {
     func mapView(_ mapView: NMFMapView, didTapMap latlng: NMGLatLng, point: CGPoint) {
-        viewModel.setPosition(with: latlng)
+        viewModel.didTapMapView(with: latlng)
     }
 }

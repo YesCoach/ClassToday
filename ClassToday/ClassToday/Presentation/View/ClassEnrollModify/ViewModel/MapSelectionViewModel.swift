@@ -8,40 +8,82 @@
 import Foundation
 import NMapsMap
 
-class MapSelectionViewModel {
-    private let moyaProvider = NaverMapAPIProvider()
-    private let locationManager = LocationManager.shared
+protocol MapSelectionViewModelInput {
+    func viewDidLoad()
+    func configure(location: Location?)
+    func setPlaceName(with position: NMGLatLng?)
+    func didTapCurrentLocationButton()
+    func didTapMapView(with latlng: NMGLatLng)
+}
 
+protocol MapSelectionViewModelOutput {
+    var isSubmitButtonOn: Observable<Bool> { get }
+    var placeName: Observable<String?> { get }
+    var userPosition: Observable<NMGLatLng?> { get }
+    var selectedPosition: Observable<NMGLatLng?> { get }
+    var selectedPositionToLocation: Location? { get }
+}
+
+protocol MapSelectionViewModel: MapSelectionViewModelInput, MapSelectionViewModelOutput { }
+
+final class DefaultMapSelectionViewModel: MapSelectionViewModel {
+
+    private let addressTransferUseCase: AddressTransferUseCase
+    private let locationUseCase: LocationUseCase
+
+    // MARK: - OUTPUT
     let isSubmitButtonOn: Observable<Bool> = Observable(false)
     let placeName: Observable<String?> = Observable(nil)
     let selectedPosition: Observable<NMGLatLng?> = Observable(nil)
     let userPosition: Observable<NMGLatLng?> = Observable(nil)
-    
-    /// 현재 유저의 위치를 설정합니다.
-    func setUserPosition() {
-        guard let currentLocation = locationManager.getCurrentLocation() else { return }
-        userPosition.value = NMGLatLng(lat: currentLocation.lat, lng: currentLocation.lon)
+    var selectedPositionToLocation: Location? {
+        get {
+            guard let position = selectedPosition.value else { return nil }
+            return Location(lat: position.lat, lon: position.lng)
+        }
     }
 
-    /// MapView의 선택 위치를 초기화합니다.
-    func setPosition(with location: Location?) {
+    // MARK: - Init
+    init(addressTransferUseCase: AddressTransferUseCase,
+         locationUseCase: LocationUseCase) {
+        self.addressTransferUseCase = addressTransferUseCase
+        self.locationUseCase = locationUseCase
+    }
+
+    /// 현재 유저의 위치를 맵뷰에 반영합니다.
+    private func setUserPosition() {
+        guard let currentLocation = locationUseCase.getCurrentLocation() else { return }
+        userPosition.value = NMGLatLng(lat: currentLocation.lat, lng: currentLocation.lon)
+    }
+}
+
+// MARK: - Input
+extension DefaultMapSelectionViewModel {
+    func viewDidLoad() {
+        setUserPosition()
+    }
+
+    /// 맵의 선택 위치를 현재 위치로 설정합니다.
+    func didTapCurrentLocationButton() {
+        guard let currentLocation = locationUseCase.getCurrentLocation() else { return }
+        selectedPosition.value = NMGLatLng(lat: currentLocation.lat, lng: currentLocation.lon)
+    }
+
+    /// 수업 위치가 이미 있다면, 맵의 위치에 반영합니다.
+    func configure(location: Location?) {
         guard let location = location else { return }
         selectedPosition.value = NMGLatLng(lat: location.lat, lng: location.lon)
     }
-    
-    /// MapView의 선택 위치를 초기화합니다.
-    func setPosition(with nmgLatLng: NMGLatLng) {
-        selectedPosition.value = nmgLatLng
-    }
 
     /// MapView의 선택 위치 주소명을 저장합니다.
-    func setPlaceName(with location: Location?) {
-        guard let location = location else {
+    func setPlaceName(with position: NMGLatLng?) {
+        guard let position = position else {
             placeName.value = nil
             isSubmitButtonOn.value = false
             return
         }
-        moyaProvider.locationToDetailAddress(location: location) { [weak self] result in
+        let location = Location(lat: position.lat, lon: position.lng)
+        addressTransferUseCase.excute(location: location, param: .detailAddress) { [weak self] result in
             switch result {
             case .success(let address):
                 self?.placeName.value = address
@@ -53,15 +95,8 @@ class MapSelectionViewModel {
         }
     }
 
-    /// 맵의 선택 위치를 현재 위치로 설정합니다.
-    func setPositionToCurrent() {
-        guard let currentLocation = locationManager.getCurrentLocation() else { return }
-        selectedPosition.value = NMGLatLng(lat: currentLocation.lat, lng: currentLocation.lon)
-    }
-
-    /// 맵의 선택 위치를 Location 타입으로 변환합니다.
-    func getSelectedLocation() -> Location? {
-        guard let position = selectedPosition.value else { return nil }
-        return Location(lat: position.lat, lon: position.lng)
+    /// 선택한 좌표 값을 맵뷰에 반영합니다.
+    func didTapMapView(with latlng: NMGLatLng) {
+        selectedPosition.value = latlng
     }
 }

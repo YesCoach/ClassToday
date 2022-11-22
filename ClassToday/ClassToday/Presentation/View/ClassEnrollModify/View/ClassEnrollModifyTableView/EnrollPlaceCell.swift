@@ -89,7 +89,7 @@ class EnrollPlaceCell: UITableViewCell {
 
     // MARK: - Actions
     @objc func selectPlace(_ button: UIButton) {
-        let mapSelectionViewController = MapSelectionViewController()
+        let mapSelectionViewController = AppDIContainer().makeDIContainer().makeMapSelectionViewController()
         mapSelectionViewController.configure(location: location)
         mapSelectionViewController.delegate = self
         delegate?.presentFromPlaceCell(viewController: mapSelectionViewController)
@@ -114,7 +114,7 @@ extension EnrollPlaceCell: UITextFieldDelegate {
 }
 
 extension EnrollPlaceCell: MapSelectionViewControllerDelegate {
-    func isLocationSelected(location: Location?, place: String?) {
+    func didSelectLocation(location: Location?, place: String?) {
         self.placeTextField.text = place ?? nil
         guard let location = location else {
             self.location = LocationManager.shared.getCurrentLocation()

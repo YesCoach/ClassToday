@@ -560,6 +560,7 @@
 			children = (
 				89B891D0284735A8008B27DD /* LocationManager.swift */,
 				6B4FA9DC28917E3B0048B60F /* UserDefaultsManager.swift */,
+				8971F21B283A1A4200D4AAD0 /* ImageCacheManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -814,7 +815,6 @@
 				892C1CC8283211B300DE27D3 /* FirestoreManager.swift */,
 				6B42D940284BBE6000384480 /* FirebaseAuthManager.swift */,
 				892C1CD22832DABF00DE27D3 /* StorageManager.swift */,
-				8971F21B283A1A4200D4AAD0 /* ImageCacheManager.swift */,
 				89DCD07C2896C9C900C1CCA3 /* NaverMapAPI.swift */,
 				89DCD07D2896C9CA00C1CCA3 /* NaverMapAPIProvider.swift */,
 				6BC2B236288C4D8F0025817D /* NaverLoginManager.swift */,

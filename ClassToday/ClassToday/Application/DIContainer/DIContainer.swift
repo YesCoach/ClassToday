@@ -147,4 +147,14 @@ final class DIContainer {
                                                  addressTransferUseCase: makeAddressTransferUseCase(),
                                                  classItem: classItem)
     }
+    
+    // MARK: - Map Selection View
+    func makeMapSelectionViewController() -> MapSelectionViewController {
+        return MapSelectionViewController(viewModel: makeMapSelectionViewModel())
+    }
+
+    func makeMapSelectionViewModel() -> MapSelectionViewModel {
+        return DefaultMapSelectionViewModel(addressTransferUseCase: makeAddressTransferUseCase(),
+                                            locationUseCase: makeLocationUseCase())
+    }
 }

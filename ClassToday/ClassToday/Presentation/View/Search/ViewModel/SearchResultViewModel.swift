@@ -42,6 +42,7 @@ public class DefaultSearchResultViewModel: SearchResultViewModel {
     let selectedClassDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
     let searchKeyword: String
 
+    // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase, searchKeyword: String) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
         self.searchKeyword = searchKeyword

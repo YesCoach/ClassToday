@@ -440,7 +440,7 @@ extension MatchInputViewController {
     }
     
     @objc func selectPlace(_ button: UIButton) {
-        let mapSelectionViewController = MapSelectionViewController()
+        let mapSelectionViewController = AppDIContainer().makeDIContainer().makeMapSelectionViewController()
         mapSelectionViewController.configure(location: classLocation)
         mapSelectionViewController.delegate = self
         present(mapSelectionViewController, animated: true)
@@ -538,7 +538,7 @@ extension MatchInputViewController {
 }
 
 extension MatchInputViewController: MapSelectionViewControllerDelegate {
-    func isLocationSelected(location: Location?, place: String?) {
+    func didSelectLocation(location: Location?, place: String?) {
         self.classLocation = location
         self.placeTextField.text = place
     }
