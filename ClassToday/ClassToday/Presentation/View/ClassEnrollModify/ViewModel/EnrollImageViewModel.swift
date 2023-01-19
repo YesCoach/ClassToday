@@ -15,11 +15,11 @@ protocol EnrollImageViewModelInput {
 }
 
 protocol EnrollImageViewModelOutput {
-    var imagesURL: Observable<[String]> { get }
-    var images: Observable<[UIImage]> { get }
+    var imagesURL: CustomObservable<[String]> { get }
+    var images: CustomObservable<[UIImage]> { get }
     var availableImageCount: Int { get }
-    var alertController: Observable<UIAlertController?> { get }
-    var viewController: Observable<UIViewController?> { get }
+    var alertController: CustomObservable<UIAlertController?> { get }
+    var viewController: CustomObservable<UIViewController?> { get }
 }
 
 protocol EnrollImageViewModel: EnrollImageViewModelInput, EnrollImageViewModelOutput { }
@@ -30,14 +30,14 @@ final class DefaultEnrollImageViewModel: EnrollImageViewModel {
     private let limitImageCount: Int
 
     // MARK: - OUTPUT
-    let imagesURL: Observable<[String]> = Observable([])
-    let images: Observable<[UIImage]> = Observable([])
+    let imagesURL: CustomObservable<[String]> = CustomObservable([])
+    let images: CustomObservable<[UIImage]> = CustomObservable([])
     var availableImageCount: Int {
         return limitImageCount - images.value.count
     }
 
-    let alertController: Observable<UIAlertController?> = Observable(nil)
-    let viewController: Observable<UIViewController?> = Observable(nil)
+    let alertController: CustomObservable<UIAlertController?> = CustomObservable(nil)
+    let viewController: CustomObservable<UIViewController?> = CustomObservable(nil)
 
     // MARK: - Init
     init(imageUseCase: ImageUseCase, limitImageCount: Int = 8) {

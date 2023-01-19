@@ -14,7 +14,7 @@ protocol CategoryListViewModelInput {
 protocol CategoryListViewModelOutput {
     var categoryList: [CategoryItem] { get }
     var categoryListCount: Int { get }
-    var categoryDetailViewController: Observable<CategoryDetailViewController?> { get }
+    var categoryDetailViewController: CustomObservable<CategoryDetailViewController?> { get }
 }
 
 protocol CategoryListViewModel: CategoryListViewModelInput, CategoryListViewModelOutput {}
@@ -26,7 +26,7 @@ public class DefaultCategoryListViewModel: CategoryListViewModel {
     // MARK: - OUTPUT
     let categoryList: [CategoryItem]
     let categoryListCount: Int
-    let categoryDetailViewController: Observable<CategoryDetailViewController?> = Observable(nil)
+    let categoryDetailViewController: CustomObservable<CategoryDetailViewController?> = CustomObservable(nil)
 
     init(categoryType: CategoryType) {
         self.categoryType = categoryType

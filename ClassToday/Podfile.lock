@@ -19,6 +19,12 @@ PODS:
   - naveridlogin-sdk-ios (4.1.3)
   - NMapsMap (3.15.0)
   - Popover (1.3.0)
+  - RxCocoa (6.5.0):
+    - RxRelay (= 6.5.0)
+    - RxSwift (= 6.5.0)
+  - RxRelay (6.5.0):
+    - RxSwift (= 6.5.0)
+  - RxSwift (6.5.0)
   - SwiftLint (0.45.1)
 
 DEPENDENCIES:
@@ -30,6 +36,8 @@ DEPENDENCIES:
   - naveridlogin-sdk-ios
   - NMapsMap
   - Popover
+  - RxCocoa
+  - RxSwift
   - SwiftLint
 
 SPEC REPOS:
@@ -43,6 +51,9 @@ SPEC REPOS:
     - naveridlogin-sdk-ios
     - NMapsMap
     - Popover
+    - RxCocoa
+    - RxRelay
+    - RxSwift
     - SwiftLint
 
 SPEC CHECKSUMS:
@@ -55,8 +66,11 @@ SPEC CHECKSUMS:
   naveridlogin-sdk-ios: b9d7c20677981177ed994ecb1c8c2b49f223277d
   NMapsMap: f151761c088d6516064c59da03ab6503769486e6
   Popover: 10e1d9528f81d9504df984b7b3f491292bc1822d
+  RxCocoa: 94f817b71c07517321eb4f9ad299112ca8af743b
+  RxRelay: 1de1523e604c72b6c68feadedd1af3b1b4d0ecbd
+  RxSwift: 5710a9e6b17f3c3d6e40d6e559b9fa1e813b2ef8
   SwiftLint: 06ac37e4d38c7068e0935bb30cda95f093bec761
 
-PODFILE CHECKSUM: b7c789f1ffbc1b82e8e1d1b386c8d4d9d41b983f
+PODFILE CHECKSUM: 0ca9ebf0913ad358b1a14916cbd036819221e75d
 
 COCOAPODS: 1.11.3

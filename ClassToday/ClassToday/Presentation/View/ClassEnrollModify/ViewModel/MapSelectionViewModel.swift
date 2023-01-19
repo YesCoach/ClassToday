@@ -17,10 +17,10 @@ protocol MapSelectionViewModelInput {
 }
 
 protocol MapSelectionViewModelOutput {
-    var isSubmitButtonOn: Observable<Bool> { get }
-    var placeName: Observable<String?> { get }
-    var userPosition: Observable<NMGLatLng?> { get }
-    var selectedPosition: Observable<NMGLatLng?> { get }
+    var isSubmitButtonOn: CustomObservable<Bool> { get }
+    var placeName: CustomObservable<String?> { get }
+    var userPosition: CustomObservable<NMGLatLng?> { get }
+    var selectedPosition: CustomObservable<NMGLatLng?> { get }
     var selectedPositionToLocation: Location? { get }
 }
 
@@ -32,10 +32,10 @@ final class DefaultMapSelectionViewModel: MapSelectionViewModel {
     private let locationUseCase: LocationUseCase
 
     // MARK: - OUTPUT
-    let isSubmitButtonOn: Observable<Bool> = Observable(false)
-    let placeName: Observable<String?> = Observable(nil)
-    let selectedPosition: Observable<NMGLatLng?> = Observable(nil)
-    let userPosition: Observable<NMGLatLng?> = Observable(nil)
+    let isSubmitButtonOn: CustomObservable<Bool> = CustomObservable(false)
+    let placeName: CustomObservable<String?> = CustomObservable(nil)
+    let selectedPosition: CustomObservable<NMGLatLng?> = CustomObservable(nil)
+    let userPosition: CustomObservable<NMGLatLng?> = CustomObservable(nil)
     var selectedPositionToLocation: Location? {
         get {
             guard let position = selectedPosition.value else { return nil }

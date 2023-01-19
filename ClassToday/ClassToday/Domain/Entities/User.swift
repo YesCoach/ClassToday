@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 enum LoginError: Error {
     case notLoggedIn
@@ -49,6 +50,23 @@ struct User: Codable, Equatable {
 
     static func == (lhs: User, rhs: User) -> Bool {
         return lhs.id == rhs.id
+    }
+    
+    /// Rx 적용한 getCurrentUser 메서드
+    /// 성공시 onNext로 user 값 전달
+    /// 실패시 onError로 error 전달, onCompleted 필요 x
+    /// 마지막에 Disposables 생성해서 반환
+    static func getCurrentUserRx() -> Observable<User> {
+        return Observable.create() { emitter in
+            guard let user = UserDefaultsManager.shared.getUserData() else {
+                emitter.onError(LoginError.notLoggedIn)
+                return Disposables.create()
+            }
+            emitter.onNext(user)
+            emitter.onCompleted()
+
+            return Disposables.create()
+        }
     }
     
     static func getCurrentUser(completion: @escaping (Result<User, Error>) -> Void) {

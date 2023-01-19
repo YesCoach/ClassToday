@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 enum LocationError: Error {
     case NonSavedLocation
@@ -18,47 +20,52 @@ protocol MainViewModelInput {
     func checkLocationAuthorization()
     func didTapCategoryButton()
     func didTapStarButton()
-    func didSelectItem(segmentControlIndex: Int, at index: Int)
+    func didSelectItem(at index: Int)
+    func didSelectSegmentControl(segmentControlIndex: Int)
 }
 
 protocol MainViewModelOutput {
-    var isNowLocationFetching: Observable<Bool> { get }
-    var isNowDataFetching: Observable<Bool> { get }
-    var isLocationAuthorizationAllowed: Observable<Bool> { get }
-    var locationTitle: Observable<String?> { get }
-
-    var currentUser: Observable<User?> { get }
-    var data: Observable<[ClassItem]> { get }
-    var dataBuy: Observable<[ClassItem]> { get }
-    var dataSell: Observable<[ClassItem]> { get }
+    var isNowLocationFetching: BehaviorRelay<Bool> { get }
+    var isNowDataFetching: BehaviorRelay<Bool> { get }
+    var isLocationAuthorizationAllowed: BehaviorRelay<Bool> { get }
+    var locationTitle: BehaviorSubject<String?> { get }
     
-    var classDetailViewController: Observable<ClassDetailViewController?> { get }
-    var categoryListViewController: Observable<CategoryListViewController?> { get }
-    var starViewController: Observable<StarViewController?> { get }
+    var currentUser: BehaviorSubject<User?> { get }
+    var data: BehaviorSubject<[ClassItem]> { get }
+    var dataBuy: BehaviorSubject<[ClassItem]> { get }
+    var dataSell: BehaviorSubject<[ClassItem]> { get }
+    
+    var classDetailViewController: BehaviorSubject<ClassDetailViewController?> { get }
+    var categoryListViewController: BehaviorSubject<CategoryListViewController?> { get }
+    var starViewController: BehaviorSubject<StarViewController?> { get }
 }
 
 protocol MainViewModel: MainViewModelInput, MainViewModelOutput {}
 
 final class DefaultMainViewModel: MainViewModel {
-
+    
     private let fetchClassItemUseCase: FetchClassItemUseCase
     private let locationManager = LocationManager.shared
-
+    private let disposeBag = DisposeBag()
+    
     // MARK: - OUTPUT
-    let isNowLocationFetching: Observable<Bool> = Observable(false)
-    let isNowDataFetching: Observable<Bool> = Observable(false)
-    let isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
-    let locationTitle: Observable<String?> = Observable(nil)
-
-    let currentUser: Observable<User?> = Observable(nil)
-    let data: Observable<[ClassItem]> = Observable([])
-    let dataBuy: Observable<[ClassItem]> = Observable([])
-    let dataSell: Observable<[ClassItem]> = Observable([])
-
-    let classDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
-    let categoryListViewController: Observable<CategoryListViewController?> = Observable(nil)
-    let starViewController: Observable<StarViewController?> = Observable(nil)
-
+    let isNowLocationFetching: BehaviorRelay<Bool> = BehaviorRelay<Bool>(value: false)
+    let isNowDataFetching: BehaviorRelay<Bool> = BehaviorRelay<Bool>(value: false)
+    let isLocationAuthorizationAllowed: BehaviorRelay<Bool> = BehaviorRelay<Bool>(value: false)
+    let locationTitle: BehaviorSubject<String?> = BehaviorSubject<String?>(value: nil)
+    
+    let currentUser: BehaviorSubject<User?> = BehaviorSubject<User?>(value: nil)
+    let data: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+    let dataBuy: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+    let dataSell: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+    
+    let classDetailViewController: BehaviorSubject<ClassDetailViewController?> = BehaviorSubject<ClassDetailViewController?>(value: nil)
+    let categoryListViewController: BehaviorSubject<CategoryListViewController?> = BehaviorSubject<CategoryListViewController?>(value: nil)
+    let starViewController: BehaviorSubject<StarViewController?> = BehaviorSubject<StarViewController?>(value: nil)
+    
+    let data1: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+    var currentSegmentControlIndex: Int = 0
+    
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
@@ -69,33 +76,33 @@ final class DefaultMainViewModel: MainViewModel {
                                                name: NSNotification.Name("updateUserData"),
                                                object: nil)
     }
-
+    
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
     ///  - 출력 형태: "@@시 @@구의 수업"
     private func configureLocation() {
-        isNowLocationFetching.value = true
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser.value = user
-                self.isNowLocationFetching.value = false
-                guard let location = user.detailLocation else {
-                    // TODO: 위치 설정 얼럿 호출 해야됨
-                    self.locationTitle.value = nil
-                    return
+        isNowLocationFetching.accept(true)
+        _ = User.getCurrentUserRx()
+            .subscribe(
+                onNext: { user in
+                    self.currentUser.onNext(user)
+                    self.isNowLocationFetching.accept(false)
+                    guard let location = user.detailLocation else {
+                        // TODO: 위치 설정 얼럿 호출 해야됨
+                        self.locationTitle.onNext(nil)
+                        return
+                    }
+                    self.locationTitle.onNext("\(location)의 수업")
+                },
+                onError: { error in
+                    self.isNowLocationFetching.accept(false)
+                    self.locationTitle.onNext(nil)
+                    print("ERROR \(error)🌔")
                 }
-                self.locationTitle.value = "\(location)의 수업"
-
-            case .failure(let error):
-                self.isNowLocationFetching.value = false
-                self.locationTitle.value = nil
-                print("ERROR \(error)🌔")
-            }
-        }
+            )
+            .disposed(by: disposeBag)
     }
-
+    
     /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
     @objc func updateUserData(_ notification: Notification) {
         configureLocation()
@@ -108,65 +115,90 @@ extension DefaultMainViewModel {
         checkLocationAuthorization()
         fetchData()
     }
-
+    
     func viewWillAppear() {
         checkLocationAuthorization()
     }
-
+    
     /// 키워드 주소를 기준으로 수업 아이템을 패칭합니다.
     ///
     /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
     func fetchData() {
-        isNowDataFetching.value = true
-        guard let currentUser = self.currentUser.value else {
+        isNowDataFetching.accept(true)
+        guard let currentUser = try? currentUser.value() else {
             debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
-            isNowDataFetching.value = false
+            isNowDataFetching.accept(false)
             return
         }
         guard let keyword = currentUser.keywordLocation else {
             debugPrint("유저의 키워드 주소 설정 값이 없습니다. 주소 설정 먼저 해주세요😭")
-            isNowDataFetching.value = false
+            isNowDataFetching.accept(false)
             return
         }
         guard isLocationAuthorizationAllowed.value else {
             debugPrint("위치정보권한이 허용되지 않았습니다. 권한을 허용해주세요😭")
-            isNowDataFetching.value = false
+            isNowDataFetching.accept(false)
             return
         }
-        fetchClassItemUseCase.excute(param: .fetchByKeyword(keyword: keyword)) { [weak self] data in
-            self?.isNowDataFetching.value = false
-            // 최신순 정렬
-            self?.data.value = data.sorted { $0 > $1 }
-            self?.dataBuy.value = data.filter { $0.itemType == ClassItemType.buy }.sorted { $0 > $1 }
-            self?.dataSell.value = data.filter { $0.itemType == ClassItemType.sell }.sorted { $0 > $1 }
-        }
+        fetchClassItemUseCase.excuteRx(param: .fetchByKeyword(keyword: keyword))
+            .map { (classItems) -> [ClassItem] in
+                classItems.sorted { $0 > $1 }
+            }
+            .subscribe( onNext: { [weak self] classItems in
+                self?.isNowDataFetching.accept(false)
+                self?.data1.onNext(classItems)
+                switch self?.currentSegmentControlIndex {
+                case 1:
+                    self?.data.onNext(classItems.filter { $0.itemType == ClassItemType.buy })
+                case 2:
+                    self?.data.onNext(classItems.filter { $0.itemType == ClassItemType.sell })
+                default:
+                    self?.data.onNext(classItems)
+                }
+            })
+            .disposed(by: disposeBag)
     }
-
+    
     /// 위치정보 권한의 상태값을 체크합니다.
     func checkLocationAuthorization() {
-        isLocationAuthorizationAllowed.value = LocationManager.shared.isLocationAuthorizationAllowed()
+        isLocationAuthorizationAllowed.accept(locationManager.isLocationAuthorizationAllowed())
     }
-
+    
     func didTapCategoryButton() {
-        categoryListViewController.value =  AppDIContainer()
+        categoryListViewController.onNext(AppDIContainer()
             .makeDIContainer()
             .makeCategoryListViewController(categoryType: .subject)
+        )
     }
-
+    
     func didTapStarButton() {
-        starViewController.value = AppDIContainer().makeDIContainer().makeStarViewController()
+        starViewController.onNext(AppDIContainer()
+            .makeDIContainer()
+            .makeStarViewController()
+        )
     }
 
-    func didSelectItem(segmentControlIndex: Int, at index: Int) {
-        let classItem: ClassItem
-        switch segmentControlIndex {
-            case 1:
-            classItem = dataBuy.value[index]
-            case 2:
-            classItem = dataSell.value[index]
-            default:
-            classItem = data.value[index]
+    /// cell select 시 호출하는 item 반환 메서드
+    func didSelectItem(at index: Int) {
+        if let classItem = try? data.value()[index] {
+            classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
         }
-        classDetailViewController.value = ClassDetailViewController(classItem: classItem)
+    }
+
+    func didSelectSegmentControl(segmentControlIndex: Int) {
+        self.currentSegmentControlIndex = segmentControlIndex
+        guard let datas = try? data1.value() else {
+            data.onNext([])
+            return
+        }
+
+        switch segmentControlIndex {
+        case 1:
+            data.onNext(datas.filter { $0.itemType == .buy })
+        case 2:
+            data.onNext(datas.filter { $0.itemType == .sell })
+        default:
+            data.onNext(datas)
+        }
     }
 }

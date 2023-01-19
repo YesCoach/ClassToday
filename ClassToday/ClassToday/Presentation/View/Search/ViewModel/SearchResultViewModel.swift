@@ -13,14 +13,14 @@ protocol SearchResultViewModelInput {
 }
 
 protocol SearchResultViewModelOutput {
-    var isLocationAuthorizationAllowed: Observable<Bool> { get }
-    var isNowLocationFetching: Observable<Bool> { get }
-    var isNowDataFetching: Observable<Bool> { get }
+    var isLocationAuthorizationAllowed: CustomObservable<Bool> { get }
+    var isNowLocationFetching: CustomObservable<Bool> { get }
+    var isNowDataFetching: CustomObservable<Bool> { get }
     
-    var data: Observable<[ClassItem]> { get }
-    var dataBuy: Observable<[ClassItem]> { get }
-    var dataSell: Observable<[ClassItem]> { get }
-    var selectedClassDetailViewController: Observable<ClassDetailViewController?> { get }
+    var data: CustomObservable<[ClassItem]> { get }
+    var dataBuy: CustomObservable<[ClassItem]> { get }
+    var dataSell: CustomObservable<[ClassItem]> { get }
+    var selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> { get }
     var searchKeyword: String { get }
 }
 
@@ -32,14 +32,14 @@ public class DefaultSearchResultViewModel: SearchResultViewModel {
     private var currentUser: User?
 
     // MARK: - OUTPUT
-    let isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
-    let isNowLocationFetching: Observable<Bool> = Observable(false)
-    let isNowDataFetching: Observable<Bool> = Observable(false)
+    let isLocationAuthorizationAllowed: CustomObservable<Bool> = CustomObservable(true)
+    let isNowLocationFetching: CustomObservable<Bool> = CustomObservable(false)
+    let isNowDataFetching: CustomObservable<Bool> = CustomObservable(false)
 
-    let data: Observable<[ClassItem]> = Observable([])
-    let dataBuy: Observable<[ClassItem]> = Observable([])
-    let dataSell: Observable<[ClassItem]> = Observable([])
-    let selectedClassDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
+    let data: CustomObservable<[ClassItem]> = CustomObservable([])
+    let dataBuy: CustomObservable<[ClassItem]> = CustomObservable([])
+    let dataSell: CustomObservable<[ClassItem]> = CustomObservable([])
+    let selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> = CustomObservable(nil)
     let searchKeyword: String
 
     // MARK: - Init

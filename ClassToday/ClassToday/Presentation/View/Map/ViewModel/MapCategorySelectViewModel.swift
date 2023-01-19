@@ -8,7 +8,7 @@
 import Foundation
 
 public class MapCategorySelectViewModel {
-    let selectedCategory: Observable<[CategoryItem]> = Observable([])
+    let selectedCategory: CustomObservable<[CategoryItem]> = CustomObservable([])
     let categoryType: CategoryType
 
     init(categoryType: CategoryType = .subject) {

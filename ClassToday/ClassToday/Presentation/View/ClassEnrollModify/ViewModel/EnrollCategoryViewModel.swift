@@ -17,16 +17,16 @@ protocol EnrollCategoryViewModelInput {
 }
 
 protocol EnrollCategoryViewModelOutput {
-    var categoryType: Observable<CategoryType?> { get }
-    var selectedCategory: Observable<[CategoryItem]> { get }
+    var categoryType: CustomObservable<CategoryType?> { get }
+    var selectedCategory: CustomObservable<[CategoryItem]> { get }
 }
 
 protocol EnrollCategoryViewModel: EnrollCategoryViewModelInput, EnrollCategoryViewModelOutput { }
 
 public class DefaultEnrollCategoryViewModel: EnrollCategoryViewModel {
     // MARK: - OUTPUT
-    let categoryType: Observable<CategoryType?> = Observable(nil)
-    let selectedCategory: Observable<[CategoryItem]> = Observable([])
+    let categoryType: CustomObservable<CategoryType?> = CustomObservable(nil)
+    let selectedCategory: CustomObservable<[CategoryItem]> = CustomObservable([])
 }
 
 // MARK: - INPUT

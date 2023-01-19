@@ -23,7 +23,7 @@ protocol ClassEnrollModifyViewModelInput {
 }
 
 protocol ClassEnrollModifyViewModelOutput {
-    var isNowDataUploading: Observable<Bool> { get }
+    var isNowDataUploading: CustomObservable<Bool> { get }
     var classItemType: ClassItemType { get }
     var classItem: ClassItem? { get }
 }
@@ -43,7 +43,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
     private let addressTransferUseCase: AddressTransferUseCase
 
     var delegate: ClassEnrollModifyViewModelDelegate?
-    let isNowDataUploading: Observable<Bool> = Observable(false)
+    let isNowDataUploading: CustomObservable<Bool> = CustomObservable(false)
 
     // MARK: - ClassItem Contents
     let classItemType: ClassItemType

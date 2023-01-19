@@ -16,8 +16,8 @@ protocol SearchViewModelInput {
 }
 
 protocol SearchViewModelOutput {
-    var searchHistoryList: Observable<[SearchHistory]> { get }
-    var searchResultViewController: Observable<SearchResultViewController?> { get }
+    var searchHistoryList: CustomObservable<[SearchHistory]> { get }
+    var searchResultViewController: CustomObservable<SearchResultViewController?> { get }
 }
 
 protocol SearchViewModel: SearchViewModelInput, SearchViewModelOutput { }
@@ -27,8 +27,8 @@ public class DefaultSearchViewModel: SearchViewModel {
     private let searchHistoryUseCase: SearchHistoryUseCase
 
     // MARK: - OUTPUT
-    let searchHistoryList: Observable<[SearchHistory]> = Observable([])
-    let searchResultViewController: Observable<SearchResultViewController?> = Observable(nil)
+    let searchHistoryList: CustomObservable<[SearchHistory]> = CustomObservable([])
+    let searchResultViewController: CustomObservable<SearchResultViewController?> = CustomObservable(nil)
 
     // MARK: - Init
     init(searchHistoryUseCase: SearchHistoryUseCase) {

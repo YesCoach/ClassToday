@@ -14,10 +14,10 @@ protocol StarViewModelInput {
 }
 
 protocol StarViewModelOutput {
-    var isNowDataFetching: Observable<Bool> { get }
-    var data: Observable<[ClassItem]> { get }
-    var currentUser: Observable<User?> { get }
-    var classDetailViewController: Observable<ClassDetailViewController?> { get }
+    var isNowDataFetching: CustomObservable<Bool> { get }
+    var data: CustomObservable<[ClassItem]> { get }
+    var currentUser: CustomObservable<User?> { get }
+    var classDetailViewController: CustomObservable<ClassDetailViewController?> { get }
 }
 
 protocol StarViewModel: StarViewModelInput, StarViewModelOutput { }
@@ -27,10 +27,10 @@ public class DefaultStarViewModel: StarViewModel {
     private let fetchUseCase: FetchClassItemUseCase
 
     // MARK: - OUTPUT
-    let isNowDataFetching: Observable<Bool> = Observable(false)
-    let data: Observable<[ClassItem]> = Observable([])
-    let currentUser: Observable<User?> = Observable(nil)
-    let classDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
+    let isNowDataFetching: CustomObservable<Bool> = CustomObservable(false)
+    let data: CustomObservable<[ClassItem]> = CustomObservable([])
+    let currentUser: CustomObservable<User?> = CustomObservable(nil)
+    let classDetailViewController: CustomObservable<ClassDetailViewController?> = CustomObservable(nil)
 
     init(fetchUseCase: FetchClassItemUseCase) {
         self.fetchUseCase = fetchUseCase

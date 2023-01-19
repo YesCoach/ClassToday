@@ -24,11 +24,11 @@ public class ClassDetailViewModel {
     private var currentUser: User?
     weak var delegate: ClassDetailViewModelDelegate?
 
-    let isStarButtonSelected: Observable<Bool> = Observable(false)
-    let isClassItemOnSale: Observable<Bool> = Observable(true)
-    let isNowFetchingImages: Observable<Bool> = Observable(true)
-    let classItemImages: Observable<[UIImage]> = Observable([])
-    let writer: Observable<User?> = Observable(nil)
+    let isStarButtonSelected: CustomObservable<Bool> = CustomObservable(false)
+    let isClassItemOnSale: CustomObservable<Bool> = CustomObservable(true)
+    let isNowFetchingImages: CustomObservable<Bool> = CustomObservable(true)
+    let classItemImages: CustomObservable<[UIImage]> = CustomObservable([])
+    let writer: CustomObservable<User?> = CustomObservable(nil)
     var isMyClassItem: Bool {
         return classItem.writer == currentUser?.id
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class Observable<T> {
+final class CustomObservable<T> {
     // 클로저
     typealias Listner = (T) -> Void
     var listener: Listner?

@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class MainViewController: UIViewController {
     //MARK: - NavigationBar Components
@@ -18,29 +20,29 @@ class MainViewController: UIViewController {
         leftTitle.addTarget(self, action: #selector(didTapTitleLabel(_:)), for: .touchUpInside)
         return leftTitle
     }()
-
+    
     private lazy var starItem: UIBarButtonItem = {
         let starItem = UIBarButtonItem.menuButton(self, action: #selector(didTapStarButton), image: Icon.star.image)
         return starItem
     }()
-
+    
     private lazy var categoryItem: UIBarButtonItem = {
         let categoryItem = UIBarButtonItem.menuButton(self, action: #selector(didTapCategoryButton), image: Icon.category.image)
         return categoryItem
     }()
-
+    
     private lazy var searchItem: UIBarButtonItem = {
         let searchItem = UIBarButtonItem.menuButton(self, action: #selector(didTapSearchButton), image: Icon.search.image)
         return searchItem
     }()
-
+    
     private func setupNavigationBar() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: leftTitle)
         navigationItem.rightBarButtonItems = [starItem, searchItem, categoryItem]
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
     }
-
+    
     //MARK: - Main View의 UI Components
     private lazy var segmentedControl: UISegmentedControl = {
         let segmentedControl = UISegmentedControl()
@@ -84,15 +86,16 @@ class MainViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(beginRefresh), for: .valueChanged)
         return refreshControl
     }()
-
+    
     // - MVVM
     private let viewModel: MainViewModel
-
+    private let disposeBag = DisposeBag()
+    
     init(viewModel: MainViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -106,88 +109,113 @@ class MainViewController: UIViewController {
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.viewWillAppear()
     }
-
+    
     //MARK: - Methods
     private func bindViewModel() {
         /// 유저 정보 바인딩
-        viewModel.currentUser.bind { [weak self] currentUser in
-            if let _ = currentUser {
-                self?.viewModel.fetchData()
-            }
-        }
-
+        viewModel.currentUser
+            .asObservable()
+            .subscribe(
+                onNext: { [weak self] currentUser in
+                    if let _ = currentUser {
+                        self?.viewModel.fetchData()
+                    }
+                })
+            .disposed(by: disposeBag)
+        
         /// 지역명 패칭 진행중인지 바인딩
-        viewModel.isNowLocationFetching.bind { [weak self] isFetching in
-            if isFetching {
-                self?.classItemTableView.refreshControl?.beginRefreshing()
-            } else {
+        viewModel.isNowLocationFetching
+            .asDriver()
+            .drive { [weak self] isFetching in
+                isFetching ?
+                self?.classItemTableView.refreshControl?.beginRefreshing() :
                 self?.classItemTableView.refreshControl?.endRefreshing()
             }
-        }
-
+            .disposed(by: disposeBag)
+        
         /// 수업 아이템 패칭중인지 바인딩
-        viewModel.isNowDataFetching.bind { [weak self] isFetching in
-            if isFetching {
-                self?.classItemTableView.refreshControl?.beginRefreshing()
-                self?.nonDataAlertLabel.isHidden = true
-            } else {
-                self?.classItemTableView.refreshControl?.endRefreshing()
+        viewModel.isNowDataFetching
+            .asDriver()
+            .drive { [weak self] isFetching in
+                if isFetching {
+                    self?.classItemTableView.refreshControl?.beginRefreshing()
+                    self?.nonDataAlertLabel.isHidden = true
+                } else {
+                    self?.classItemTableView.refreshControl?.endRefreshing()
+                }
             }
-        }
-
+            .disposed(by: disposeBag)
+        
         /// 위치정보권한 유무 바인딩
-        viewModel.isLocationAuthorizationAllowed.bind { [weak self] isAllowed in
-            if !isAllowed {
-                self?.nonAuthorizationAlertLabel.isHidden = false
-                self?.present(UIAlertController.locationAlert(), animated: true) {
-                    self?.refreshControl.endRefreshing()
-                    self?.viewModel.checkLocationAuthorization()
+        viewModel.isLocationAuthorizationAllowed
+            .asDriver()
+            .drive { [weak self] isAllowed in
+                if !isAllowed {
+                    self?.nonDataAlertLabel.isHidden = true
+                    self?.nonAuthorizationAlertLabel.isHidden = false
+                    self?.present(UIAlertController.locationAlert(), animated: true) {
+                        self?.refreshControl.endRefreshing()
+                        self?.viewModel.checkLocationAuthorization()
+                    }
+                } else {
+                    self?.nonAuthorizationAlertLabel.isHidden = true
                 }
-            } else {
-                self?.nonAuthorizationAlertLabel.isHidden = true
             }
-        }
-
+            .disposed(by: disposeBag)
+        
         /// 지역명 바인딩
-        viewModel.locationTitle.bind { [weak self] locationTitle in
-            if let locationTitle = locationTitle {
-                DispatchQueue.main.async {
-                    self?.leftTitle.setTitle(locationTitle, for: .normal)
-                    self?.leftTitle.frame.size = self?.leftTitle.titleLabel?.intrinsicContentSize ?? CGSize(width: 0, height: 0)
+        viewModel.locationTitle
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] locationTitle in
+                self?.leftTitle.setTitle(locationTitle, for: .normal)
+                self?.leftTitle.frame.size = self?.leftTitle.titleLabel?.intrinsicContentSize ?? CGSize(width: 0, height: 0)
+            }
+            .disposed(by: disposeBag)
+        
+        /// 수업아이템 바인딩
+        viewModel.data
+            .asObservable()
+            .bind { [weak self] classItems in
+                if classItems.isEmpty {
+                    self?.nonDataAlertLabel.isHidden = false
+                } else {
+                    self?.nonDataAlertLabel.isHidden = true
+                }
+                self?.classItemTableView.reloadData()
+            }
+            .disposed(by: disposeBag)
+        
+        viewModel.classDetailViewController
+            .asObservable()
+            .bind { [weak self] viewController in
+                if let viewController = viewController {
+                    self?.navigationController?.pushViewController(viewController, animated: true)
                 }
             }
-        }
-
-        /// 수업아이템 바인딩
-        viewModel.data.bind { [weak self] classItems in
-            if classItems.isEmpty {
-                self?.nonDataAlertLabel.isHidden = false
+            .disposed(by: disposeBag)
+        
+        viewModel.categoryListViewController
+            .asObservable()
+            .bind { [weak self] viewController in
+                if let viewController = viewController {
+                    self?.navigationController?.pushViewController(viewController, animated: true)
+                }
             }
-            self?.classItemTableView.reloadData()
-        }
-
-        viewModel.classDetailViewController.bind { [weak self] viewController in
-            if let viewController = viewController {
-                self?.navigationController?.pushViewController(viewController, animated: true)
+            .disposed(by: disposeBag)
+        
+        viewModel.starViewController
+            .asObservable()
+            .bind { [weak self] viewController in
+                if let viewController = viewController {
+                    self?.navigationController?.pushViewController(viewController, animated: true)
+                }
             }
-        }
-
-        viewModel.categoryListViewController.bind { [weak self] viewController in
-            if let viewController = viewController {
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            }
-        }
-
-        viewModel.starViewController.bind { [weak self] viewController in
-            if let viewController = viewController {
-                self?.navigationController?.pushViewController(viewController, animated: true)
-            }
-        }
+            .disposed(by: disposeBag)
     }
 }
 
@@ -206,34 +234,22 @@ private extension MainViewController {
     }
 
     @objc func didChangedSegmentControlValue(_ sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            print("모두")
-            classItemTableView.reloadData()
-        case 1:
-            print("구매글")
-            classItemTableView.reloadData()
-        case 2:
-            print("판매글")
-            classItemTableView.reloadData()
-        default:
-            break
-        }
+        viewModel.didSelectSegmentControl(segmentControlIndex: sender.selectedSegmentIndex)
     }
-
+    
     @objc func beginRefresh() {
         print("beginRefresh!")
         viewModel.refreshClassItemList()
     }
-
+    
     @objc func didTapStarButton() {
         viewModel.didTapStarButton()
     }
-
+    
     @objc func didTapCategoryButton() {
         viewModel.didTapCategoryButton()
     }
-
+    
     @objc func didTapSearchButton() {
         let searchViewController = AppDIContainer().makeDIContainer().makeSearchViewController()
         navigationController?.pushViewController(searchViewController, animated: true)
@@ -251,7 +267,7 @@ private extension MainViewController {
             nonAuthorizationAlertLabel,
             nonDataAlertLabel
         ].forEach { classItemTableView.addSubview($0) }
-
+        
         segmentedControl.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(16.0)
             $0.top.equalTo(view.safeAreaLayoutGuide)
@@ -275,24 +291,8 @@ private extension MainViewController {
 //MARK: - TableView datasource
 extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var count = 0
-        switch segmentedControl.selectedSegmentIndex {
-            case 1:
-            count = viewModel.dataBuy.value.count
-            case 2:
-            count = viewModel.dataSell.value.count
-            default:
-            count = viewModel.data.value.count
-        }
-        
-        guard nonAuthorizationAlertLabel.isHidden else {
-            nonDataAlertLabel.isHidden = true
-            return count
-        }
-        if count == 0 {
-            nonDataAlertLabel.isHidden = false
-        } else {
-            nonDataAlertLabel.isHidden = true
+        guard let count = try? viewModel.data.value().count else {
+            return 0
         }
         return count
     }
@@ -301,16 +301,10 @@ extension MainViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ClassItemTableViewCell.identifier,
             for: indexPath
-        ) as? ClassItemTableViewCell else { return UITableViewCell() }
-        let classItem: ClassItem
-        switch segmentedControl.selectedSegmentIndex {
-            case 1:
-            classItem = viewModel.dataBuy.value[indexPath.row]
-            case 2:
-            classItem = viewModel.dataSell.value[indexPath.row]
-            default:
-            classItem = viewModel.data.value[indexPath.row]
-        }
+        ) as? ClassItemTableViewCell,
+              let classItem = try? viewModel.data.value()[indexPath.row]
+        else { return UITableViewCell() }
+
         cell.configureWith(viewModel: ClassItemViewModel(classItem: classItem)) { image in
             if let image = image {
                 DispatchQueue.main.async {
@@ -320,6 +314,7 @@ extension MainViewController: UITableViewDataSource {
                 }
             }
         }
+
         return cell
     }
 }
@@ -327,6 +322,6 @@ extension MainViewController: UITableViewDataSource {
 //MARK: - TableView Delegate
 extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didSelectItem(segmentControlIndex: segmentedControl.selectedSegmentIndex, at: indexPath.row)
+        viewModel.didSelectItem(at: indexPath.row)
     }
 }

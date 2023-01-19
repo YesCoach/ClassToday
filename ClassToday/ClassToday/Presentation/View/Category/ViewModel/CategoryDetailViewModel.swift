@@ -13,15 +13,15 @@ protocol CategoryDetailViewModelInput {
 }
 
 protocol CategoryDetailViewModelOutput {
-    var isLocationAuthorizationAllowed: Observable<Bool> { get }
-    var isNowLocationFetching: Observable<Bool> { get }
-    var isNowDataFetching: Observable<Bool> { get }
+    var isLocationAuthorizationAllowed: CustomObservable<Bool> { get }
+    var isNowLocationFetching: CustomObservable<Bool> { get }
+    var isNowDataFetching: CustomObservable<Bool> { get }
     var categoryItem: CategoryItem { get }
 
-    var data: Observable<[ClassItem]> { get }
-    var dataBuy: Observable<[ClassItem]> { get }
-    var dataSell: Observable<[ClassItem]> { get }
-    var selectedClassDetailViewController: Observable<ClassDetailViewController?> { get }
+    var data: CustomObservable<[ClassItem]> { get }
+    var dataBuy: CustomObservable<[ClassItem]> { get }
+    var dataSell: CustomObservable<[ClassItem]> { get }
+    var selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> { get }
 }
 
 protocol CategoryDetailViewModel: CategoryDetailViewModelInput, CategoryDetailViewModelOutput { }
@@ -30,14 +30,14 @@ public class DefaultCategoryDetailViewModel: CategoryDetailViewModel {
     private var currentUser: User?
 
     // MARK: - OUTPUT
-    var isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
-    var isNowLocationFetching: Observable<Bool> = Observable(false)
-    var isNowDataFetching: Observable<Bool> = Observable(false)
+    var isLocationAuthorizationAllowed: CustomObservable<Bool> = CustomObservable(true)
+    var isNowLocationFetching: CustomObservable<Bool> = CustomObservable(false)
+    var isNowDataFetching: CustomObservable<Bool> = CustomObservable(false)
 
-    let data: Observable<[ClassItem]> = Observable([])
-    let dataBuy: Observable<[ClassItem]> = Observable([])
-    let dataSell: Observable<[ClassItem]> = Observable([])
-    let selectedClassDetailViewController: Observable<ClassDetailViewController?> = Observable(nil)
+    let data: CustomObservable<[ClassItem]> = CustomObservable([])
+    let dataBuy: CustomObservable<[ClassItem]> = CustomObservable([])
+    let dataSell: CustomObservable<[ClassItem]> = CustomObservable([])
+    let selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> = CustomObservable(nil)
 
     private let fetchClassItemUseCase: FetchClassItemUseCase
     let categoryItem: CategoryItem

@@ -14,12 +14,12 @@ public class MapViewModel {
     private let naverMapAPIProvider = NaverMapAPIProvider()
     
     private var currentUser: User?
-    let isLocationAuthorizationAllowed: Observable<Bool> = Observable(true)
-    let currentKeyword: Observable<String?> = Observable(nil)
-    let currentLocation: Observable<Location?> = Observable(nil)
-    let categoryData: Observable<[CategoryItem]> = Observable([])
-    let mapClassItemData: Observable<[ClassItem]> = Observable([])
-    let listClassItemData: Observable<[ClassItem]> = Observable([])
+    let isLocationAuthorizationAllowed: CustomObservable<Bool> = CustomObservable(true)
+    let currentKeyword: CustomObservable<String?> = CustomObservable(nil)
+    let currentLocation: CustomObservable<Location?> = CustomObservable(nil)
+    let categoryData: CustomObservable<[CategoryItem]> = CustomObservable([])
+    let mapClassItemData: CustomObservable<[ClassItem]> = CustomObservable([])
+    let listClassItemData: CustomObservable<[ClassItem]> = CustomObservable([])
     
     init() {
         checkLocationAuthorization()
