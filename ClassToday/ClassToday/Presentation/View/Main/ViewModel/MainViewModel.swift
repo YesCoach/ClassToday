@@ -29,12 +29,10 @@ protocol MainViewModelOutput {
     var isNowDataFetching: BehaviorRelay<Bool> { get }
     var isLocationAuthorizationAllowed: BehaviorRelay<Bool> { get }
     var locationTitle: BehaviorSubject<String?> { get }
-    
+
     var currentUser: BehaviorSubject<User?> { get }
-    var data: BehaviorSubject<[ClassItem]> { get }
-    var dataBuy: BehaviorSubject<[ClassItem]> { get }
-    var dataSell: BehaviorSubject<[ClassItem]> { get }
-    
+    var outPutData: BehaviorSubject<[ClassItem]> { get }
+
     var classDetailViewController: BehaviorSubject<ClassDetailViewController?> { get }
     var categoryListViewController: BehaviorSubject<CategoryListViewController?> { get }
     var starViewController: BehaviorSubject<StarViewController?> { get }
@@ -55,16 +53,14 @@ final class DefaultMainViewModel: MainViewModel {
     let locationTitle: BehaviorSubject<String?> = BehaviorSubject<String?>(value: nil)
     
     let currentUser: BehaviorSubject<User?> = BehaviorSubject<User?>(value: nil)
-    let data: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
-    let dataBuy: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
-    let dataSell: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
-    
+    let outPutData: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+
     let classDetailViewController: BehaviorSubject<ClassDetailViewController?> = BehaviorSubject<ClassDetailViewController?>(value: nil)
     let categoryListViewController: BehaviorSubject<CategoryListViewController?> = BehaviorSubject<CategoryListViewController?>(value: nil)
     let starViewController: BehaviorSubject<StarViewController?> = BehaviorSubject<StarViewController?>(value: nil)
-    
-    let data1: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
-    var currentSegmentControlIndex: Int = 0
+
+    private let viewModelData: BehaviorSubject<[ClassItem]> = BehaviorSubject<[ClassItem]>(value: [])
+    private var currentSegmentControlIndex: Int = 0
     
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase) {
@@ -146,14 +142,14 @@ extension DefaultMainViewModel {
             }
             .subscribe( onNext: { [weak self] classItems in
                 self?.isNowDataFetching.accept(false)
-                self?.data1.onNext(classItems)
+                self?.viewModelData.onNext(classItems)
                 switch self?.currentSegmentControlIndex {
                 case 1:
-                    self?.data.onNext(classItems.filter { $0.itemType == ClassItemType.buy })
+                    self?.outPutData.onNext(classItems.filter { $0.itemType == ClassItemType.buy })
                 case 2:
-                    self?.data.onNext(classItems.filter { $0.itemType == ClassItemType.sell })
+                    self?.outPutData.onNext(classItems.filter { $0.itemType == ClassItemType.sell })
                 default:
-                    self?.data.onNext(classItems)
+                    self?.outPutData.onNext(classItems)
                 }
             })
             .disposed(by: disposeBag)
@@ -180,25 +176,26 @@ extension DefaultMainViewModel {
 
     /// cell select 시 호출하는 item 반환 메서드
     func didSelectItem(at index: Int) {
-        if let classItem = try? data.value()[index] {
+        if let classItem = try? outPutData.value()[index] {
             classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
         }
     }
 
     func didSelectSegmentControl(segmentControlIndex: Int) {
         self.currentSegmentControlIndex = segmentControlIndex
-        guard let datas = try? data1.value() else {
-            data.onNext([])
+
+        guard let datas = try? viewModelData.value() else {
+            outPutData.onNext([])
             return
         }
 
         switch segmentControlIndex {
         case 1:
-            data.onNext(datas.filter { $0.itemType == .buy })
+            outPutData.onNext(datas.filter { $0.itemType == .buy })
         case 2:
-            data.onNext(datas.filter { $0.itemType == .sell })
+            outPutData.onNext(datas.filter { $0.itemType == .sell })
         default:
-            data.onNext(datas)
+            outPutData.onNext(datas)
         }
     }
 }

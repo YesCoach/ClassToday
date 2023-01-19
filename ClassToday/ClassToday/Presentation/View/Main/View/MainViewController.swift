@@ -119,7 +119,6 @@ class MainViewController: UIViewController {
     private func bindViewModel() {
         /// 유저 정보 바인딩
         viewModel.currentUser
-            .asObservable()
             .subscribe(
                 onNext: { [weak self] currentUser in
                     if let _ = currentUser {
@@ -178,8 +177,7 @@ class MainViewController: UIViewController {
             .disposed(by: disposeBag)
         
         /// 수업아이템 바인딩
-        viewModel.data
-            .asObservable()
+        viewModel.outPutData
             .bind { [weak self] classItems in
                 if classItems.isEmpty {
                     self?.nonDataAlertLabel.isHidden = false
@@ -191,7 +189,6 @@ class MainViewController: UIViewController {
             .disposed(by: disposeBag)
         
         viewModel.classDetailViewController
-            .asObservable()
             .bind { [weak self] viewController in
                 if let viewController = viewController {
                     self?.navigationController?.pushViewController(viewController, animated: true)
@@ -200,7 +197,6 @@ class MainViewController: UIViewController {
             .disposed(by: disposeBag)
         
         viewModel.categoryListViewController
-            .asObservable()
             .bind { [weak self] viewController in
                 if let viewController = viewController {
                     self?.navigationController?.pushViewController(viewController, animated: true)
@@ -209,7 +205,6 @@ class MainViewController: UIViewController {
             .disposed(by: disposeBag)
         
         viewModel.starViewController
-            .asObservable()
             .bind { [weak self] viewController in
                 if let viewController = viewController {
                     self?.navigationController?.pushViewController(viewController, animated: true)
@@ -291,7 +286,7 @@ private extension MainViewController {
 //MARK: - TableView datasource
 extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let count = try? viewModel.data.value().count else {
+        guard let count = try? viewModel.outPutData.value().count else {
             return 0
         }
         return count
@@ -302,7 +297,7 @@ extension MainViewController: UITableViewDataSource {
             withIdentifier: ClassItemTableViewCell.identifier,
             for: indexPath
         ) as? ClassItemTableViewCell,
-              let classItem = try? viewModel.data.value()[indexPath.row]
+              let classItem = try? viewModel.outPutData.value()[indexPath.row]
         else { return UITableViewCell() }
 
         cell.configureWith(viewModel: ClassItemViewModel(classItem: classItem)) { image in
