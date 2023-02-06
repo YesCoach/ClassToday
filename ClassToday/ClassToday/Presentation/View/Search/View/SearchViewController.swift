@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class SearchViewController: UIViewController {
     //MARK: - NavigationBar Components
@@ -65,7 +66,9 @@ class SearchViewController: UIViewController {
         return searchRecentTableView
     }()
 
+    // MARK: - Properties
     private let viewModel: SearchViewModel
+    private let disposeBag = DisposeBag()
 
     // MARK: - Init
     init(viewModel: SearchViewModel) {
@@ -83,18 +86,25 @@ class SearchViewController: UIViewController {
         view.backgroundColor = .white
         setNavigationBar()
         layout()
-        bindingViewModel()
+        bindViewModel()
     }
 
-    private func bindingViewModel() {
-        viewModel.searchHistoryList.bind { [weak self] searchHistory in
-            self?.searchRecentTableView.reloadData()
-        }
-        viewModel.searchResultViewController.bind { [weak self] viewController in
-            if let viewController = viewController {
-                self?.navigationController?.pushViewController(viewController, animated: true)
+    private func bindViewModel() {
+        // subscribe event handler; 이벤트를 구독, element는 이벤트에 감싸진 형태
+        viewModel.searchHistoryList
+            .subscribe { [weak self] _ in
+                self?.searchRecentTableView.reloadData()
             }
-        }
+            .disposed(by: disposeBag)
+
+        // subscribe element handler, error handler, etc; 이벤트에 감싸진 값을 가져옴(element, error 등)
+        viewModel.searchResultViewController
+            .subscribe(onNext: { [weak self] viewController in
+                if let viewController = viewController {
+                    self?.navigationController?.pushViewController(viewController, animated: true)
+                }
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -143,7 +153,10 @@ private extension SearchViewController {
 //MARK: - SearchBar delegate
 extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let text = searchBar.text else { return }
+        guard let text = searchBar.text else {
+            return
+        }
+
         viewModel.addSearchHistory(text: text)
         viewModel.didSearchItem(with: text)
     }
@@ -152,13 +165,27 @@ extension SearchViewController: UISearchBarDelegate {
 //MARK: - tableview datasource
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.searchHistoryList.value.count
+        guard let count = try? viewModel.searchHistoryList.value().count else {
+            return 0
+        }
+
+        return count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchRecentTableViewCell.identifier, for: indexPath) as? SearchRecentTableViewCell else { return UITableViewCell() }
-        let searchHistory = viewModel.searchHistoryList.value[indexPath.row]
-        cell.configure(with: searchHistory.text)
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: SearchRecentTableViewCell.identifier,
+            for: indexPath
+        ) as? SearchRecentTableViewCell
+        else {
+            return UITableViewCell()
+        }
+
+        guard let searchHistory = try? viewModel.searchHistoryList.value() else {
+            return cell
+        }
+
+        cell.configure(with: searchHistory[indexPath.row].text)
         return cell
     }
     

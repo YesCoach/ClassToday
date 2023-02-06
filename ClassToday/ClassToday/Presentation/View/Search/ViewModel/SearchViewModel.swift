@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol SearchViewModelInput {
     func addSearchHistory(text: String)
@@ -16,8 +17,8 @@ protocol SearchViewModelInput {
 }
 
 protocol SearchViewModelOutput {
-    var searchHistoryList: CustomObservable<[SearchHistory]> { get }
-    var searchResultViewController: CustomObservable<SearchResultViewController?> { get }
+    var searchHistoryList: BehaviorSubject<[SearchHistory]> { get }
+    var searchResultViewController: BehaviorSubject<SearchResultViewController?> { get }
 }
 
 protocol SearchViewModel: SearchViewModelInput, SearchViewModelOutput { }
@@ -27,8 +28,10 @@ public class DefaultSearchViewModel: SearchViewModel {
     private let searchHistoryUseCase: SearchHistoryUseCase
 
     // MARK: - OUTPUT
-    let searchHistoryList: CustomObservable<[SearchHistory]> = CustomObservable([])
-    let searchResultViewController: CustomObservable<SearchResultViewController?> = CustomObservable(nil)
+    let searchHistoryList: BehaviorSubject<[SearchHistory]> = BehaviorSubject(value: [])
+    let searchResultViewController: BehaviorSubject<SearchResultViewController?> = BehaviorSubject(value: nil)
+
+    let disposeBag = DisposeBag()
 
     // MARK: - Init
     init(searchHistoryUseCase: SearchHistoryUseCase) {
@@ -39,12 +42,13 @@ public class DefaultSearchViewModel: SearchViewModel {
     //MARK: - search history save/load
     /// UserDefaults에 검색기록을 저장합니다.
     private func saveSearchHistory() {
-        searchHistoryUseCase.saveSearchHistoryList(historyList: searchHistoryList.value)
+        guard let searchHistoryListValue = try? searchHistoryList.value() else { return }
+        searchHistoryUseCase.saveSearchHistoryList(historyList: searchHistoryListValue)
     }
 
     /// UserDefaults로부터 검색기록을 불러옵니다.
     private func loadSearchHistory() {
-        searchHistoryList.value = searchHistoryUseCase.loadSearchHistoryList()
+        searchHistoryList.onNext(searchHistoryUseCase.loadSearchHistoryList())
     }
 }
 
@@ -53,32 +57,43 @@ extension DefaultSearchViewModel {
     /// 검색 기록을 추가합니다.
     func addSearchHistory(text: String) {
         let newSearchHistory = SearchHistory(text: text)
-        searchHistoryList.value.insert(newSearchHistory, at: 0)
+
+        guard var searchHistoryListValue = try? searchHistoryList.value() else { return }
+        searchHistoryListValue.insert(newSearchHistory, at: 0)
+        searchHistoryList.onNext(searchHistoryListValue)
         saveSearchHistory()
     }
 
     /// 검색 기록을 삭제합니다.
     func removeSearchHistory(at index: Int) {
-        searchHistoryList.value.remove(at: index)
+        guard var searchHistoryListValue = try? searchHistoryList.value() else { return }
+        searchHistoryListValue.remove(at: index)
+        searchHistoryList.onNext(searchHistoryListValue)
         saveSearchHistory()
     }
 
     /// 검색 기록을 초기화합니다.
     func clearSearchHistory() {
-        searchHistoryList.value.removeAll()
+        searchHistoryList.onNext([])
         saveSearchHistory()
     }
 
     func didSelectItem(at index: Int) {
-        let searchKeyword = searchHistoryList.value[index].text
-        searchResultViewController.value = AppDIContainer()
-            .makeDIContainer()
-            .makeSearchResultViewController(searchKeyword: searchKeyword)
+        guard let searchHistoryListValue = try? searchHistoryList.value() else { return }
+        let searchKeyword = searchHistoryListValue[index].text
+        
+        searchResultViewController.onNext(
+            AppDIContainer()
+                .makeDIContainer()
+                .makeSearchResultViewController(searchKeyword: searchKeyword)
+        )
     }
 
     func didSearchItem(with text: String) {
-        searchResultViewController.value = AppDIContainer()
-            .makeDIContainer()
-            .makeSearchResultViewController(searchKeyword: text)
+        searchResultViewController.onNext(
+            AppDIContainer()
+                .makeDIContainer()
+                .makeSearchResultViewController(searchKeyword: text)
+        )
     }
 }
