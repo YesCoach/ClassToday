@@ -6,94 +6,74 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 protocol SearchResultViewModelInput {
     func refreshClassItemList()
-    func didSelectItem(segmentControlIndex: Int, at index: Int)
+    func fetchData()
+    func didSelectItem(at index: Int)
+    func didSelectSegmentControl(segmentControlIndex: Int)
 }
 
 protocol SearchResultViewModelOutput {
-    var isLocationAuthorizationAllowed: CustomObservable<Bool> { get }
-    var isNowLocationFetching: CustomObservable<Bool> { get }
-    var isNowDataFetching: CustomObservable<Bool> { get }
+    var isNowLocationFetching: BehaviorRelay<Bool> { get }
+    var isNowDataFetching: BehaviorRelay<Bool> { get }
     
-    var data: CustomObservable<[ClassItem]> { get }
-    var dataBuy: CustomObservable<[ClassItem]> { get }
-    var dataSell: CustomObservable<[ClassItem]> { get }
-    var selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> { get }
+    var currentUser: BehaviorSubject<User?> { get }
+    var outPutData: BehaviorSubject<[ClassItem]> { get }
+    
+    var classDetailViewController: BehaviorSubject<ClassDetailViewController?> { get }
     var searchKeyword: String { get }
 }
 
 protocol SearchResultViewModel: SearchResultViewModelInput, SearchResultViewModelOutput { }
 
 public class DefaultSearchResultViewModel: SearchResultViewModel {
-
+    
     private let fetchClassItemUseCase: FetchClassItemUseCase
-    private var currentUser: User?
-
+    private let disposeBag = DisposeBag()
+    
     // MARK: - OUTPUT
-    let isLocationAuthorizationAllowed: CustomObservable<Bool> = CustomObservable(true)
-    let isNowLocationFetching: CustomObservable<Bool> = CustomObservable(false)
-    let isNowDataFetching: CustomObservable<Bool> = CustomObservable(false)
-
-    let data: CustomObservable<[ClassItem]> = CustomObservable([])
-    let dataBuy: CustomObservable<[ClassItem]> = CustomObservable([])
-    let dataSell: CustomObservable<[ClassItem]> = CustomObservable([])
-    let selectedClassDetailViewController: CustomObservable<ClassDetailViewController?> = CustomObservable(nil)
+    let isNowLocationFetching: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    let isNowDataFetching: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    
+    let currentUser: BehaviorSubject<User?> = BehaviorSubject(value: nil)
+    let outPutData: BehaviorSubject<[ClassItem]> = BehaviorSubject(value: [])
+    
+    let classDetailViewController: BehaviorSubject<ClassDetailViewController?> = BehaviorSubject(value: nil)
     let searchKeyword: String
-
+    
+    private let viewModelData: BehaviorSubject<[ClassItem]> = BehaviorSubject(value: [])
+    private var currentSegmentControlIndex: Int = 0
+    
     // MARK: - Init
     init(fetchClassItemUseCase: FetchClassItemUseCase, searchKeyword: String) {
         self.fetchClassItemUseCase = fetchClassItemUseCase
         self.searchKeyword = searchKeyword
         configureLocation()
     }
-
-    /// 키워드 주소를 기준으로 수업 아이템을 검색합니다.
-    ///
-    /// - 패칭 기준: User의 KeywordLocation 값 ("@@구")
-    func fetchData() {
-        isNowDataFetching.value = true
-        guard let currentUser = currentUser else {
-            debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
-            isNowDataFetching.value = false
-            return
-        }
-        guard let keyword = currentUser.keywordLocation else {
-            debugPrint("유저의 키워드 주소 설정 값이 없습니다. 주소 설정 먼저 해주세요😭")
-            isNowDataFetching.value = false
-            return
-        }
-        fetchClassItemUseCase.excute(param:
-                .fetchByKeywordSearch(keyword: keyword, searchKeyword: searchKeyword)) { [weak self] data in
-                    self?.isNowDataFetching.value = false
-                    // 최신순 정렬
-                    self?.data.value = data.sorted { $0 > $1 }
-                    self?.dataBuy.value = data.filter { $0.itemType == ClassItemType.buy }.sorted { $0 > $1 }
-                    self?.dataSell.value = data.filter { $0.itemType == ClassItemType.sell }.sorted { $0 > $1 }
-        }
-    }
-
+    
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     private func configureLocation() {
-        isNowLocationFetching.value = true
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser = user
-                self.isNowLocationFetching.value = false
-                guard let _ = user.detailLocation else {
-                    // TODO: 위치 설정 얼럿 호출 해야됨
-                    return
+        isNowLocationFetching.accept(true)
+        _ = User.getCurrentUserRx()
+            .subscribe(
+                onNext: { user in
+                    self.currentUser.onNext(user)
+                    self.isNowLocationFetching.accept(false)
+                    guard let _ = user.detailLocation else {
+                        // TODO: 위치 설정 얼럿 호출 해야됨
+                        return
+                    }
+                    self.fetchData()
+                },
+                onError: { error in
+                    self.isNowLocationFetching.accept(false)
+                    print("ERROR \(error)🌔")
                 }
-                self.fetchData()
-
-            case .failure(let error):
-                self.isNowLocationFetching.value = false
-                print("ERROR \(error)🌔")
-            }
-        }
+            )
+            .disposed(by: disposeBag)
     }
 }
 
@@ -102,17 +82,66 @@ extension DefaultSearchResultViewModel {
     func refreshClassItemList() {
         fetchData()
     }
-
-    func didSelectItem(segmentControlIndex: Int, at index: Int) {
-        let classItem: ClassItem
-        switch segmentControlIndex {
-            case 1:
-            classItem = dataBuy.value[index]
-            case 2:
-            classItem = dataSell.value[index]
-            default:
-            classItem = data.value[index]
+    
+    /// cell select 시 호출하는 item 반환 메서드
+    func didSelectItem(at index: Int) {
+        if let classItem = try? outPutData.value()[index] {
+            classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
         }
-        selectedClassDetailViewController.value = ClassDetailViewController(classItem: classItem)
+    }
+    
+    /// 검색어를 기준으로 수업 아이템을 패칭합니다.
+    func fetchData() {
+        isNowDataFetching.accept(true)
+        guard let currentUser = try? currentUser.value() else {
+            debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
+            isNowDataFetching.accept(false)
+            return
+        }
+        guard let keyword = currentUser.keywordLocation else {
+            debugPrint("유저의 키워드 주소 설정 값이 없습니다. 주소 설정 먼저 해주세요😭")
+            isNowDataFetching.accept(false)
+            return
+        }
+        fetchClassItemUseCase.excuteRx(
+            param: .fetchByKeywordSearch(
+                keyword: keyword,
+                searchKeyword: searchKeyword
+            )
+        )
+        .map { (classItems) -> [ClassItem] in
+            classItems.sorted { $0 > $1 }
+        }
+        .subscribe( onNext: { [weak self] classItems in
+            self?.isNowDataFetching.accept(false)
+            self?.viewModelData.onNext(classItems)
+            switch self?.currentSegmentControlIndex {
+            case 1:
+                self?.outPutData.onNext(classItems.filter { $0.itemType == ClassItemType.buy })
+            case 2:
+                self?.outPutData.onNext(classItems.filter { $0.itemType == ClassItemType.sell })
+            default:
+                self?.outPutData.onNext(classItems)
+            }
+        })
+        .disposed(by: disposeBag)
+    }
+    
+    func didSelectSegmentControl(segmentControlIndex: Int) {
+        self.currentSegmentControlIndex = segmentControlIndex
+        
+        guard let datas = try? viewModelData.value() else {
+            outPutData.onNext([])
+            return
+        }
+        
+        switch segmentControlIndex {
+        case 1:
+            outPutData.onNext(datas.filter { $0.itemType == .buy })
+        case 2:
+            outPutData.onNext(datas.filter { $0.itemType == .sell })
+        default:
+            outPutData.onNext(datas)
+        }
     }
 }

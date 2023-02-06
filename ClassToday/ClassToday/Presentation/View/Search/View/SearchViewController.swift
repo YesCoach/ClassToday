@@ -90,20 +90,18 @@ class SearchViewController: UIViewController {
     }
 
     private func bindViewModel() {
-        // subscribe event handler; 이벤트를 구독, element는 이벤트에 감싸진 형태
         viewModel.searchHistoryList
-            .subscribe { [weak self] _ in
+            .bind { [weak self] _ in
                 self?.searchRecentTableView.reloadData()
             }
             .disposed(by: disposeBag)
 
-        // subscribe element handler, error handler, etc; 이벤트에 감싸진 값을 가져옴(element, error 등)
         viewModel.searchResultViewController
-            .subscribe(onNext: { [weak self] viewController in
+            .bind { [weak self] viewController in
                 if let viewController = viewController {
                     self?.navigationController?.pushViewController(viewController, animated: true)
                 }
-            })
+            }
             .disposed(by: disposeBag)
     }
 }
