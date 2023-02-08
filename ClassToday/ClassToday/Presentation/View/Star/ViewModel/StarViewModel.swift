@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 protocol StarViewModelInput {
     func refreshClassItemList()
@@ -14,10 +16,10 @@ protocol StarViewModelInput {
 }
 
 protocol StarViewModelOutput {
-    var isNowDataFetching: CustomObservable<Bool> { get }
-    var data: CustomObservable<[ClassItem]> { get }
-    var currentUser: CustomObservable<User?> { get }
-    var classDetailViewController: CustomObservable<ClassDetailViewController?> { get }
+    var isNowDataFetching: BehaviorRelay<Bool> { get }
+    var data: BehaviorSubject<[ClassItem]> { get }
+    var currentUser: BehaviorSubject<User?> { get }
+    var classDetailViewController: BehaviorSubject<ClassDetailViewController?> { get }
 }
 
 protocol StarViewModel: StarViewModelInput, StarViewModelOutput { }
@@ -25,17 +27,17 @@ protocol StarViewModel: StarViewModelInput, StarViewModelOutput { }
 public class DefaultStarViewModel: StarViewModel {
 
     private let fetchUseCase: FetchClassItemUseCase
+    private let disposeBag = DisposeBag()
 
     // MARK: - OUTPUT
-    let isNowDataFetching: CustomObservable<Bool> = CustomObservable(false)
-    let data: CustomObservable<[ClassItem]> = CustomObservable([])
-    let currentUser: CustomObservable<User?> = CustomObservable(nil)
-    let classDetailViewController: CustomObservable<ClassDetailViewController?> = CustomObservable(nil)
+    let isNowDataFetching: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    let data: BehaviorSubject<[ClassItem]> = BehaviorSubject(value: [])
+    let currentUser: BehaviorSubject<User?> = BehaviorSubject(value: nil)
+    let classDetailViewController: BehaviorSubject<ClassDetailViewController?> = BehaviorSubject(value: nil)
 
     init(fetchUseCase: FetchClassItemUseCase) {
         self.fetchUseCase = fetchUseCase
         configureLocation()
-        fetchData()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateUserData(_:)),
                                                name: NSNotification.Name("updateUserData"),
@@ -44,15 +46,16 @@ public class DefaultStarViewModel: StarViewModel {
 
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     private func configureLocation() {
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser.value = user
-            case .failure(let error):
-                print("ERROR \(error)🌔")
-            }
-        }
+        _ = User.getCurrentUserRx()
+            .subscribe(
+                onNext: { user in
+                    self.currentUser.onNext(user)
+                },
+                onError: { error in
+                    print("ERROR \(error)🌔")
+                }
+            )
+            .disposed(by: disposeBag)
     }
 
     /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
@@ -63,25 +66,31 @@ public class DefaultStarViewModel: StarViewModel {
 
 // MARK: - INPUT
 extension DefaultStarViewModel {
-    /// 즐겨찾기 수업 정보를 패칭하는 메서드
-    func fetchData() {
-        isNowDataFetching.value = true
-        guard let currentUser = currentUser.value else {
-            debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
-            isNowDataFetching.value = false
-            return
-        }
-        fetchUseCase.excute(param: .fetchByStarlist(starlist: currentUser.stars)) { [weak self] data in
-            self?.isNowDataFetching.value = false
-            self?.data.value = data
-        }
-    }
-
     func refreshClassItemList() {
         fetchData()
     }
 
+    /// 즐겨찾기 수업 정보를 패칭하는 메서드
+    func fetchData() {
+        isNowDataFetching.accept(true)
+
+        guard let currentUser = try? currentUser.value() else {
+            debugPrint("유저 정보가 없거나 아직 받아오지 못했습니다😭")
+            isNowDataFetching.accept(false)
+            return
+        }
+
+        fetchUseCase.excute(
+            param: .fetchByStarlist(starlist: currentUser.stars)
+        ) { [weak self] data in
+            self?.isNowDataFetching.accept(false)
+            self?.data.onNext(data)
+        }
+    }
+
     func didSelectItem(at index: Int) {
-        classDetailViewController.value = ClassDetailViewController(classItem: data.value[index])
+        if let classItem = try? data.value()[index] {
+            classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
+        }
     }
 }
