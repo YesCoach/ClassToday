@@ -94,12 +94,12 @@ class SearchResultViewController: UIViewController {
         /// 수업아이템 바인딩
         viewModel.outPutData
             .bind { [weak self] classItems in
+                self?.classItemTableView.reloadData()
                 if classItems.isEmpty {
                     self?.nonDataAlertLabel.isHidden = false
                 } else {
                     self?.nonDataAlertLabel.isHidden = true
                 }
-                self?.classItemTableView.reloadData()
             }
             .disposed(by: disposeBag)
 

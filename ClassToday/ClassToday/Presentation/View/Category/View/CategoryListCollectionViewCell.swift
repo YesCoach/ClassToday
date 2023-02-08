@@ -37,14 +37,12 @@ class CategoryListCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // 이후에 이미지 설정도 여기서 진행
     func configureWith(categoryItem: CategoryItem) {
         categoryLabel.text = categoryItem.description
         if let categoryItem = categoryItem as? Subject {
             imageView.image = categoryItem.image
         }
     }
-
 }
 
 //MARK: - set autolayout
