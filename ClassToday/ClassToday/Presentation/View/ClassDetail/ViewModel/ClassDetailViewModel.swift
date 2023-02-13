@@ -45,6 +45,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     private let fetchClassItemUseCase: FetchClassItemUseCase
     private let userUseCase: UserUseCase
     private let chatUseCase: ChatUseCase
+    private let disposeBag = DisposeBag()
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
@@ -93,27 +94,20 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     }
 
     func checkIsChannelAlreadyMade() {
-        switch classItem.itemType {
-            case .buy:
-            chatUseCase.checkChannel(
-                sellerID: userUseCase.isLogin()!,
-                buyerID: classItem.writer,
+        // TODO: - 로직 유효성 검토하기
+        chatUseCase
+            .checkChannelRx(
+                sellerID: classItem.itemType == .buy ? userUseCase.isLogin()! : classItem.writer,
+                buyerID: classItem.itemType == .buy ? classItem.writer : userUseCase.isLogin()!,
                 classItemID: classItem.id
-            ) { [weak self] data in
-                    guard let self = self else { return }
-                    self.checkChannel = data
+            )
+            .subscribe(
+                onNext: { [weak self] data in
+                    self?.checkChannel = data
+                    print(data.count)
                 }
-            case .sell:
-                chatUseCase.checkChannel(
-                    sellerID: classItem.writer,
-                    buyerID: userUseCase.isLogin()!,
-                    classItemID: classItem.id
-                ) { [weak self] data in
-                    guard let self = self else { return }
-                    self.checkChannel = data
-                }
-        }
-        print(checkChannel.count)
+            )
+            .disposed(by: disposeBag)
     }
 
     /// 매치를 진행하는 메서드
