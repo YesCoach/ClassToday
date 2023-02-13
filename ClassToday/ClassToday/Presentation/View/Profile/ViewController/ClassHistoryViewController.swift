@@ -138,6 +138,11 @@ extension ClassHistoryViewController: UITableViewDataSource {
 extension ClassHistoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let classItem = classItems[indexPath.row]
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        navigationController?.pushViewController(
+            AppDIContainer()
+                .makeDIContainer()
+                .makeClassDetailViewController(classItem: classItem),
+            animated: true
+        )
     }
 }

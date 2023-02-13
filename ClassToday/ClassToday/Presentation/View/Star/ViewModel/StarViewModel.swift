@@ -90,7 +90,11 @@ extension DefaultStarViewModel {
 
     func didSelectItem(at index: Int) {
         if let classItem = try? data.value()[index] {
-            classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
+            classDetailViewController.onNext(
+                AppDIContainer()
+                    .makeDIContainer()
+                    .makeClassDetailViewController(classItem: classItem)
+            )
         }
     }
 }

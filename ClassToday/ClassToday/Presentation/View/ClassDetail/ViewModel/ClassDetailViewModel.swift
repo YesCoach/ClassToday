@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 protocol ClassDetailViewModelDelegate: AnyObject {
     func presentDisableAlert()
@@ -13,29 +15,61 @@ protocol ClassDetailViewModelDelegate: AnyObject {
     func pushViewÇontroller(vc: UIViewController)
 }
 
-public class ClassDetailViewModel {
-    private let storageManager = StorageManager.shared
-    private let firestoreManager = FirestoreManager.shared
-    private let firebaseAuthManager = FirebaseAuthManager.shared
-    private let userDefaultsManager = UserDefaultsManager.shared
+protocol ClassDetailViewModelInput {
+    func checkIsChannelAlreadyMade()
+    func matchingUsers()
+    func deleteClassItem()
+    func toggleClassItem()
+    func addStar()
+    func deleteStar()
+}
+
+protocol ClassDetailViewModelOutput {
+    var isStarButtonSelected: BehaviorRelay<Bool> { get }
+    var isClassItemOnSale: BehaviorRelay<Bool> { get }
+    var isNowFetchingImages: BehaviorRelay<Bool> { get }
+    var isMyClassItem: Bool { get }
+    var classItemImages: BehaviorSubject<[UIImage]> { get }
+    var writer: BehaviorSubject<User?> { get }
+    var classItem: ClassItem { get }
+}
+
+protocol ClassDetailViewModel: ClassDetailViewModelInput, ClassDetailViewModelOutput {
+    var delegate: ClassDetailViewModelDelegate? { get set }
+}
+
+final class DefaultClassDetailViewModel: ClassDetailViewModel {
+
+    private let deleteClassItemUseCase: DeleteClassItemUseCase
+    private let firestoreManager: FirestoreManager
+    private let userDefaultsManager: UserDefaultsManager
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
     private var currentUser: User?
     weak var delegate: ClassDetailViewModelDelegate?
 
-    let isStarButtonSelected: CustomObservable<Bool> = CustomObservable(false)
-    let isClassItemOnSale: CustomObservable<Bool> = CustomObservable(true)
-    let isNowFetchingImages: CustomObservable<Bool> = CustomObservable(true)
-    let classItemImages: CustomObservable<[UIImage]> = CustomObservable([])
-    let writer: CustomObservable<User?> = CustomObservable(nil)
+    // MARK: - Output
+    let isStarButtonSelected: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    let isClassItemOnSale: BehaviorRelay<Bool> = BehaviorRelay(value: true)
+    let isNowFetchingImages: BehaviorRelay<Bool> = BehaviorRelay(value: true)
+    let classItemImages: BehaviorSubject<[UIImage]> = BehaviorSubject(value: [])
+    let writer: BehaviorSubject<User?> = BehaviorSubject(value: nil)
     var isMyClassItem: Bool {
         return classItem.writer == currentUser?.id
     }
 
-    init(classItem: ClassItem) {
+    init(
+        classItem: ClassItem,
+        deleteClassItemUseCase: DeleteClassItemUseCase,
+        firestoreManager: FirestoreManager,
+        userDefaultsManager: UserDefaultsManager
+    ) {
+        self.deleteClassItemUseCase = deleteClassItemUseCase
         self.classItem = classItem
-        isClassItemOnSale.value = classItem.validity
+        self.firestoreManager = firestoreManager
+        self.userDefaultsManager = userDefaultsManager
+        isClassItemOnSale.accept(classItem.validity)
         getUserData()
         checkStar()
         fetchClassItemImages()
@@ -43,6 +77,10 @@ public class ClassDetailViewModel {
                                                selector: #selector(updateUserData(_:)),
                                                name: NSNotification.Name("updateUserData"),
                                                object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     func checkIsChannelAlreadyMade() {
@@ -64,7 +102,7 @@ public class ClassDetailViewModel {
     /// 매치를 진행하는 메서드
     func matchingUsers() {
         guard let _currentUser = currentUser,
-              let _writer = writer.value else { return }
+              var _writer = try? writer.value() else { return }
         if classItem.validity == true {
             if classItem.writer == _currentUser.id {
                 delegate?.presentDisableAlert()
@@ -83,9 +121,11 @@ public class ClassDetailViewModel {
                         currentUser?.channels = [channel.id]
                     }
                     if let _ = _writer.channels {
-                        writer.value?.channels?.append(channel.id)
+                        _writer.channels?.append(channel.id)
+                        writer.onNext(_writer)
                     } else {
-                        writer.value?.channels = [channel.id]
+                        _writer.channels = [channel.id]
+                        writer.onNext(_writer)
                     }
                     firestoreManager.uploadUser(user: currentUser!) { result in
                         switch result {
@@ -95,7 +135,7 @@ public class ClassDetailViewModel {
                                 print("업로드 실패")
                         }
                     }
-                    firestoreManager.uploadUser(user: writer.value!) { result in
+                    firestoreManager.uploadUser(user: _writer) { result in
                         switch result {
                             case .success(_):
                                 print("업로드 성공2")
@@ -127,16 +167,16 @@ public class ClassDetailViewModel {
     /// 수업 활성화/비활성화 메서드
     func toggleClassItem() {
         classItem.validity.toggle()
-        isClassItemOnSale.value = classItem.validity
+        isClassItemOnSale.accept(classItem.validity)
         firestoreManager.update(classItem: classItem) {}
     }
 
     /// 수업 이미지 패칭 메서드
     private func fetchClassItemImages() {
-        isNowFetchingImages.value = true
+        isNowFetchingImages.accept(true)
         classItem.fetchedImages { [weak self] images in
-            self?.isNowFetchingImages.value = false
-            self?.classItemImages.value = images ?? []
+            self?.isNowFetchingImages.accept(false)
+            self?.classItemImages.onNext(images ?? [])
         }
     }
     
@@ -144,7 +184,7 @@ public class ClassDetailViewModel {
         firestoreManager.readUser(uid: classItem.writer) { [weak self] result in
             switch result {
             case .success(let user):
-                self?.writer.value = user
+                self?.writer.onNext(user)
             case .failure(let error):
                 debugPrint(error)
             }
@@ -167,7 +207,7 @@ public class ClassDetailViewModel {
             guard let self = self else { return }
             switch result {
                 case .success(let user):
-                self.writer.value = user
+                self.writer.onNext(user)
                 case .failure(let error):
                     print(error)
             }
@@ -179,10 +219,10 @@ public class ClassDetailViewModel {
         guard let starList: [String] = currentUser?.stars else { return }
         if starList.contains(classItem.id) {
             print("isalreadystared")
-            isStarButtonSelected.value = true
+            isStarButtonSelected.accept(true)
         } else {
             print("nostared")
-            isStarButtonSelected.value = false
+            isStarButtonSelected.accept(false)
         }
     }
 

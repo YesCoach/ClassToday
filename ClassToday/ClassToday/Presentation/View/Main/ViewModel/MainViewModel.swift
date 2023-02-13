@@ -177,7 +177,11 @@ extension DefaultMainViewModel {
     /// cell select 시 호출하는 item 반환 메서드
     func didSelectItem(at index: Int) {
         if let classItem = try? outPutData.value()[index] {
-            classDetailViewController.onNext(ClassDetailViewController(classItem: classItem))
+            classDetailViewController.onNext(
+                AppDIContainer()
+                    .makeDIContainer()
+                    .makeClassDetailViewController(classItem: classItem)
+            )
         }
     }
 

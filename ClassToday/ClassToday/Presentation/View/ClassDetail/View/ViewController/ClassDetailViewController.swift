@@ -84,11 +84,12 @@ class ClassDetailViewController: UIViewController {
     private var viewModel: ClassDetailViewModel
 
     // MARK: - Initialize
-    init(classItem: ClassItem) {
-        viewModel = ClassDetailViewModel(classItem: classItem)
+    init(classDetailViewModel: ClassDetailViewModel) {
+        viewModel = classDetailViewModel
         super.init(nibName: nil, bundle: nil)
         viewModel.delegate = self
     }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -299,7 +300,10 @@ extension ClassDetailViewController: DetailCustomNavigationBarDelegate {
 // MARK: - ClassUpdateDelegate
 extension ClassDetailViewController: ClassUpdateDelegate {
     func update(with classItem: ClassItem) {
-        viewModel.classItem = classItem
+//        viewModel.classItem = classItem
+        viewModel = AppDIContainer()
+            .makeDIContainer()
+            .makeClassDetailViewModel(classItem: classItem)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.tableView.reloadData()

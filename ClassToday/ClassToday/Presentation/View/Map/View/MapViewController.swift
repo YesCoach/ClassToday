@@ -152,7 +152,12 @@ class MapViewController: UIViewController {
         mapView.removeMarkers()
         data.forEach {
             mapView.configureClassItemMarker(classItem: $0) {
-                self.navigationController?.pushViewController(ClassDetailViewController(classItem: $0), animated: true)
+                self.navigationController?.pushViewController(
+                    AppDIContainer()
+                        .makeDIContainer()
+                        .makeClassDetailViewController(classItem: $0),
+                    animated: true
+                )
             }
         }
     }
@@ -220,6 +225,11 @@ extension MapViewController: MapCategorySelectViewControllerDelegate {
 
 extension MapViewController: MapClassListViewDelegate {
     func presentViewController(with classItem: ClassItem) {
-        navigationController?.pushViewController(ClassDetailViewController(classItem: classItem), animated: true)
+        navigationController?.pushViewController(
+            AppDIContainer()
+                .makeDIContainer()
+                .makeClassDetailViewController(classItem: classItem),
+            animated: true
+        )
     }
 }

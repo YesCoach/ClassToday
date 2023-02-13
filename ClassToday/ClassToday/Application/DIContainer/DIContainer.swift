@@ -35,6 +35,10 @@ final class DIContainer {
         return DefaultUploadClassItemUseCase(classItemRepository: makeClassItemRepository())
     }
 
+    func makeDeleteClassItemUseCase() -> DeleteClassItemUseCase {
+        return DefaultDeleteClassItemUseCase(classItemRepository: makeClassItemRepository())
+    }
+
     func makeLocationUseCase() -> LocationUseCase {
         return DefaultLocationUseCase(locationManager: locationManager)
     }
@@ -150,6 +154,23 @@ final class DIContainer {
 
     func makeEnrollImageViewModel(limitImageCount: Int) -> EnrollImageViewModel {
         return DefaultEnrollImageViewModel(imageUseCase: makeImageUseCase(), limitImageCount: limitImageCount)
+    }
+    
+    // MARK: - Class Detail View
+    func makeClassDetailViewController(classItem: ClassItem) -> ClassDetailViewController {
+        return ClassDetailViewController(
+            classDetailViewModel: makeClassDetailViewModel(classItem: classItem)
+        )
+    }
+
+    func makeClassDetailViewModel(classItem: ClassItem) -> ClassDetailViewModel {
+        // TODO: userDefaultsManager -> Clean Architecture에 맞게 Data 영역으로 리팩토링하기
+        return DefaultClassDetailViewModel(
+            classItem: classItem,
+            deleteClassItemUseCase: makeDeleteClassItemUseCase(),
+            firestoreManager: dependencies.apiDataTransferService,
+            userDefaultsManager: UserDefaultsManager.shared
+        )
     }
     
     // MARK: - Map Selection View

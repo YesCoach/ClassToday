@@ -520,10 +520,12 @@ extension ChatViewController: MessageCellDelegate {
 //MARK: - classItem cell delegate
 extension ChatViewController: ChatClassItemCellDelegate {
     func pushToDetailViewController(classItem: ClassItem) {
-        let viewController = ClassDetailViewController(classItem: classItem)
+        let viewController = AppDIContainer()
+            .makeDIContainer()
+            .makeClassDetailViewController(classItem: classItem)
         navigationController?.pushViewController(viewController, animated: true)
     }
-    
+
     func presentMatchInputViewController(classItem: ClassItem) {
         switch classItemCellView.matchButton.titleLabel?.text {
             case "매칭 작성":
