@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol UserUseCase {
     /// 유저 정보를 저장하는 메서드
@@ -46,6 +47,21 @@ protocol UserUseCase {
 
     /// 로그아웃 시 로그인 정보 및 유저 정보를 삭제하는 메서드
     func removeLoginStatus()
+
+    // MARK: - RxSwift 메서드
+
+    /// 유저 정보를 저장하는 메서드
+    func uploadUserRx(user: User) -> Observable<Void>
+
+    /// 유저 정보를 가져오는 메서드
+    func readUserRx(uid: String) -> Observable<User>
+
+    /// 로그인 정보 및 유저 정보를 저장하는 메서드
+    /// UserDefaults에 해당 정보 저장
+    /// - Parameters :
+    ///    - uid: User's UUID Value.
+    ///    - type: User's Login Type.
+    func saveLoginStatusRx(uid: String, type: LoginType) -> Observable<Void>
 }
 
 final class DefaultUserUseCase: UserUseCase {
@@ -90,5 +106,54 @@ final class DefaultUserUseCase: UserUseCase {
 
     func removeLoginStatus() {
         userRepository.removeLoginStatus()
+    }
+}
+
+// MARK: - RxSwift 메서드 구현부
+
+extension DefaultUserUseCase {
+    /// 유저 정보를 저장하는 메서드
+    func uploadUserRx(user: User) -> Observable<Void> {
+        return Observable.create { emitter in
+            self.userRepository.uploadUser(user: user) { result in
+                switch result {
+                case .success():
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
+    /// 유저 정보를 가져오는 메서드
+    func readUserRx(uid: String) -> Observable<User> {
+        return Observable.create { emitter in
+            self.userRepository.readUser(uid: uid) { result in
+                switch result {
+                case .success(let user):
+                    emitter.onNext(user)
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
+    /// 로그인 정보 및 유저 정보를 저장하는 메서드
+    /// UserDefaults에 해당 정보 저장
+    /// - Parameters :
+    ///    - uid: User's UUID Value.
+    ///    - type: User's Login Type.
+    func saveLoginStatusRx(uid: String, type: LoginType) -> Observable<Void> {
+        return Observable.create { emitter in
+            self.userRepository.saveLoginStatus(uid: uid, type: type) {
+                emitter.onCompleted()
+            }
+            return Disposables.create()
+        }
     }
 }

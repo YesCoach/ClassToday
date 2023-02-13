@@ -93,12 +93,88 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         NotificationCenter.default.removeObserver(self)
     }
 
+    private func uploadUserData(user: User?) {
+        guard let user = user else { return }
+        userUseCase.uploadUserRx(user: user)
+            .subscribe(
+                onError: { error in
+                    debugPrint(error)
+                    print("\(user.nickName)님의 데이터 업로드, 실패")
+                },
+                onCompleted: {
+                    print("\(user.nickName)님의 데이터 업로드, 성공")
+                }
+            )
+            .disposed(by: disposeBag)
+    }
+
+    /// 수업 이미지 패칭 메서드
+    private func fetchClassItemImages() {
+        isNowFetchingImages.accept(true)
+        classItem.fetchedImages { [weak self] images in
+            self?.isNowFetchingImages.accept(false)
+            self?.classItemImages.onNext(images ?? [])
+        }
+    }
+
+    /// 현재 유저 정보와 작성자 정보를 불러오는 메서드
+    private func getUserData() {
+        User.getCurrentUserRx()
+            .subscribe(
+                onNext: { [weak self] user in
+                    self?.currentUser = user
+                    self?.checkStar()
+                },
+                onError: { error in
+                    debugPrint("ERROR \(error)🌔")
+                }
+            )
+            .disposed(by: disposeBag)
+        fetchClassItemWriter()
+    }
+
+    private func fetchClassItemWriter() {
+        userUseCase.readUserRx(uid: classItem.writer)
+            .subscribe { [weak self] user in
+                self?.writer.onNext(user)
+            } onError: { error in
+                debugPrint(error)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    /// 즐겨찾기 여부 반영
+    private func checkStar() {
+        guard let starList: [String] = currentUser?.stars else { return }
+        if starList.contains(classItem.id) {
+            print("isalreadystared")
+            isStarButtonSelected.accept(true)
+        } else {
+            print("nostared")
+            isStarButtonSelected.accept(false)
+        }
+    }
+
+    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
+    @objc func updateUserData(_ notification: Notification) {
+        getUserData()
+    }
+
+
+}
+
+// MARK: - Input
+
+extension DefaultClassDetailViewModel {
+
     func checkIsChannelAlreadyMade() {
+        guard let currentUserID = userUseCase.isLogin() else { return }
+
         // TODO: - 로직 유효성 검토하기
         chatUseCase
             .checkChannelRx(
-                sellerID: classItem.itemType == .buy ? userUseCase.isLogin()! : classItem.writer,
-                buyerID: classItem.itemType == .buy ? classItem.writer : userUseCase.isLogin()!,
+                sellerID: classItem.itemType == .buy ? currentUserID : classItem.writer,
+                buyerID: classItem.itemType == .buy ? classItem.writer : currentUserID,
                 classItemID: classItem.id
             )
             .subscribe(
@@ -115,6 +191,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         guard let _currentUser = currentUser,
               var _writer = try? writer.value()
         else { return }
+
         if classItem.validity == true {
             if classItem.writer == _currentUser.id {
                 delegate?.presentDisableAlert()
@@ -147,22 +224,10 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                         _writer.channels = [channel.id]
                         writer.onNext(_writer)
                     }
-                    userUseCase.uploadUser(user: currentUser!) { result in
-                        switch result {
-                            case .success(_):
-                                print("업로드 성공")
-                            case .failure(_):
-                                print("업로드 실패")
-                        }
-                    }
-                    userUseCase.uploadUser(user: _writer) { result in
-                        switch result {
-                            case .success(_):
-                                print("업로드 성공2")
-                            case .failure(_):
-                                print("업로드 실패2")
-                        }
-                    }
+
+                    uploadUserData(user: currentUser)
+                    uploadUserData(user: _writer)
+
                     chatUseCase.uploadChannel(channel: channel)
                     let viewcontroller = ChatViewController(channel: channel)
                     delegate?.pushViewÇontroller(vc: viewcontroller)
@@ -191,78 +256,10 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         uploadClassItemUseCase.execute(param: .update(item: classItem)) {}
     }
 
-    /// 수업 이미지 패칭 메서드
-    private func fetchClassItemImages() {
-        isNowFetchingImages.accept(true)
-        classItem.fetchedImages { [weak self] images in
-            self?.isNowFetchingImages.accept(false)
-            self?.classItemImages.onNext(images ?? [])
-        }
-    }
-    
-    private func fetchClassItemWriter() {
-        userUseCase.readUser(uid: classItem.writer) { [weak self] result in
-            switch result {
-            case .success(let user):
-                self?.writer.onNext(user)
-            case .failure(let error):
-                debugPrint(error)
-            }
-        }
-    }
-
-    /// 현재 유저 정보와 작성자 정보를 불러오는 메서드
-    private func getUserData() {
-        User.getCurrentUser { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.currentUser = user
-                self.checkStar()
-            case .failure(let error):
-                print("ERROR \(error)🌔")
-            }
-        }
-        userUseCase.readUser(uid: classItem.writer) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-                case .success(let user):
-                self.writer.onNext(user)
-                case .failure(let error):
-                    print(error)
-            }
-        }
-    }
-
-    /// 즐겨찾기 여부 반영
-    private func checkStar() {
-        guard let starList: [String] = currentUser?.stars else { return }
-        if starList.contains(classItem.id) {
-            print("isalreadystared")
-            isStarButtonSelected.accept(true)
-        } else {
-            print("nostared")
-            isStarButtonSelected.accept(false)
-        }
-    }
-
-    /// 유저 정보에 변경이 있으면, 새로 업데이트 진행
-    @objc func updateUserData(_ notification: Notification) {
-        getUserData()
-    }
-
-    // MARK: - 즐겨찾기 관련 메서드
     /// 즐겨찾기 추가 메서드
     func addStar() {
         currentUser?.stars?.append(classItem.id)
-        userUseCase.uploadUser(user: currentUser!) { result in
-            switch result {
-                case .success(_):
-                    print("업로드 성공")
-                case .failure(_):
-                    print("업로드 실패")
-            }
-        }
+        uploadUserData(user: currentUser)
     }
 
     /// 즐겨찾기 삭제 메서드
@@ -270,13 +267,6 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         if let index = currentUser?.stars?.firstIndex(of: classItem.id) {
             currentUser?.stars?.remove(at: index)
         }
-        userUseCase.uploadUser(user: currentUser!) { result in
-            switch result {
-                case .success(_):
-                    print("업로드 성공")
-                case .failure(_):
-                    print("업로드 실패")
-            }
-        }
+        uploadUserData(user: currentUser)
     }
 }

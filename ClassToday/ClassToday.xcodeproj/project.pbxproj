@@ -781,8 +781,8 @@
 				8966A044292B1FD00070B10C /* ImageUseCase.swift */,
 				8966A048292B4E970070B10C /* AddressTransferUseCase.swift */,
 				893B530C2999DA8C00293304 /* UserUseCase.swift */,
-				8966A028292487A60070B10C /* SearchHistoryUseCase.swift */,
 				893B530E2999EBCA00293304 /* ChatUseCase.swift */,
+				8966A028292487A60070B10C /* SearchHistoryUseCase.swift */,
 				895A0575291E0F7E009103CC /* Protocol */,
 			);
 			path = UseCases;
