@@ -76,13 +76,18 @@ class ClassModifyViewController: UIViewController {
     weak var delegate: ClassItemCellUpdateDelegate?
     weak var imageDelegate: ClassImageUpdateDelegate?
     weak var classUpdateDelegate: ClassUpdateDelegate?
-    private let viewModel: ClassEnrollModifyViewModel
+    private var viewModel: ClassEnrollModifyViewModel
     
     // MARK: - Initialize
     init(viewModel: ClassEnrollModifyViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        self.viewModel.delegate = self
         self.modalPresentationStyle = .fullScreen
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     required init?(coder: NSCoder) {
@@ -141,9 +146,11 @@ class ClassModifyViewController: UIViewController {
                 if isTrue {
                     self?.refreshControl.isHidden = false
                     self?.refreshControl.beginRefreshing()
+                    self?.view.isUserInteractionEnabled = false
                 } else {
                     self?.refreshControl.isHidden = true
                     self?.refreshControl.endRefreshing()
+                    self?.view.isUserInteractionEnabled = true
                 }
             }
         }

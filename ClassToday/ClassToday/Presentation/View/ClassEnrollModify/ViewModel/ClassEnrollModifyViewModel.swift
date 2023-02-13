@@ -20,6 +20,8 @@ protocol ClassEnrollModifyViewModelInput {
     func inputCategory(categoryType: CategoryType, categoryItems: [CategoryItem])
     func enrollClassItem(completion: @escaping ()->())
     func modifyClassItem(completion: @escaping (ClassItem)->())
+
+    var delegate: ClassEnrollModifyViewModelDelegate? { get set }
 }
 
 protocol ClassEnrollModifyViewModelOutput {
@@ -106,18 +108,22 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
     }
 
     func enrollClassItem(completion: @escaping ()->()) {
+        isNowDataUploading.value = true
+
         classImagesURL = []
         let group = DispatchGroup()
 
         /// 수업 등록시 필수 항목 체크
         guard let className = className, let classDescription = classDescription else {
             delegate?.presentAlert()
+            isNowDataUploading.value = false
             return
         }
 
         /// 수업 판매 등록시
         if classItemType == .sell, classTime == nil {
             delegate?.presentAlert()
+            isNowDataUploading.value = false
             return
         }
 
@@ -143,6 +149,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         guard let classLocation = classLocation else {
             // TODO: Location 없을 경우 얼럿 호출(위치정보권한 필요)
+            isNowDataUploading.value = false
             return
         }
 
@@ -186,7 +193,6 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         group.notify(queue: .global()) { [weak self] in
             guard let self = self else { return }
-            self.isNowDataUploading.value = true
             let classItem = ClassItem(name: className,
                                       date: self.classDate,
                                       time: self.classTime,
@@ -216,16 +222,23 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
     }
 
     func modifyClassItem(completion: @escaping (ClassItem)->()) {
+        isNowDataUploading.value = true
+
         let group = DispatchGroup()
-        guard let classItem = classItem else { return }
+        guard let classItem = classItem else {
+            isNowDataUploading.value = false
+            return
+        }
         /// 수업 등록시 필수 항목 체크
         guard let className = className, let classDescription = classDescription else {
             delegate?.presentAlert()
+            isNowDataUploading.value = false
             return
         }
         /// 수업 판매 등록시
         if classItem.itemType == .sell, classTime == nil {
             delegate?.presentAlert()
+            isNowDataUploading.value = false
             return
         }
 
@@ -258,6 +271,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
             classLocation = locationUseCase.getCurrentLocation()
         }
         guard let classLocation = classLocation else {
+            isNowDataUploading.value = false
             return
         }
         if classLocation != classItem.location {

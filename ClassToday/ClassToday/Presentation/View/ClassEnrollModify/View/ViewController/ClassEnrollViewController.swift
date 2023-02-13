@@ -83,7 +83,12 @@ class ClassEnrollViewController: UIViewController {
     init(viewModel: ClassEnrollModifyViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        self.viewModel.delegate = self
         modalPresentationStyle = .fullScreen
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     required init?(coder: NSCoder) {
@@ -143,9 +148,11 @@ class ClassEnrollViewController: UIViewController {
                 if isTrue {
                     self?.refreshControl.isHidden = false
                     self?.refreshControl.beginRefreshing()
+                    self?.view.isUserInteractionEnabled = false
                 } else {
                     self?.refreshControl.isHidden = true
                     self?.refreshControl.endRefreshing()
+                    self?.view.isUserInteractionEnabled = true
                 }
             }
         }
@@ -156,9 +163,11 @@ class ClassEnrollViewController: UIViewController {
     @objc func myTapMethod(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
+
     @objc func didTapBackButton(_ button: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
+
     /// 수업 등록 메서드
     @objc func didTapEnrollButton(_ button: UIBarButtonItem) {
         view.endEditing(true)
