@@ -17,7 +17,10 @@ final class DIContainer {
     private let dependencies: Dependencies
 
     // MARK: - Persistent Storage
-    lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory(userDefaults: .standard)
+    lazy var userStorage: UserStorage = UserDefaultsUser(userDefaults: .standard)
+    lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory(
+        userDefaults: .standard
+    )
 
     // MARK: - Framework Manager
     lazy var locationManager: LocationManager = LocationManager.shared
@@ -48,7 +51,13 @@ final class DIContainer {
     }
 
     func makeAddressTransferUseCase() -> AddressTransferUseCase {
-        return DefaultAddressTransferUseCase(addressTransferRepository: makeAddressTransferRepository())
+        return DefaultAddressTransferUseCase(
+            addressTransferRepository: makeAddressTransferRepository()
+        )
+    }
+
+    func makeUserUseCase() -> UserUseCase {
+        return DefaultUserUseCase(userRepository: makeUserRepository())
     }
 
     func makeSearchHistoryUseCase() -> SearchHistoryUseCase {
@@ -58,6 +67,10 @@ final class DIContainer {
     // MARK: - Repositories
     func makeClassItemRepository() -> ClassItemRepository {
         return DefaultClassItemRepository(firestoreManager: dependencies.apiDataTransferService)
+    }
+
+    func makeUserRepository() -> UserRepository {
+        return DefaultUserRepository(userPersistentStorage: userStorage)
     }
 
     func makeSearchHistoryRepository() -> SearchHistoryRepository {
@@ -92,17 +105,23 @@ final class DIContainer {
 
     // MARK: - Search Result View
     func makeSearchResultViewController(searchKeyword: String) -> SearchResultViewController {
-        return SearchResultViewController(viewModel: makeSearchResultViewModel(searchKeyword: searchKeyword))
+        return SearchResultViewController(
+            viewModel: makeSearchResultViewModel(searchKeyword: searchKeyword)
+        )
     }
 
     func makeSearchResultViewModel(searchKeyword: String) -> SearchResultViewModel {
-        return DefaultSearchResultViewModel(fetchClassItemUseCase: makeFetchClassItemUseCase(),
-                                            searchKeyword: searchKeyword)
+        return DefaultSearchResultViewModel(
+            fetchClassItemUseCase: makeFetchClassItemUseCase(),
+            searchKeyword: searchKeyword
+        )
     }
 
     // MARK: - Category List View
     func makeCategoryListViewController(categoryType: CategoryType) -> CategoryListViewController {
-        return CategoryListViewController(viewModel: makeCategoryListViewModel(categoryType: categoryType))
+        return CategoryListViewController(
+            viewModel: makeCategoryListViewModel(categoryType: categoryType)
+        )
     }
 
     func makeCategoryListViewModel(categoryType: CategoryType) -> CategoryListViewModel {
@@ -110,12 +129,19 @@ final class DIContainer {
     }
 
     // MARK: - Category View
-    func makeCategoryDetailViewController(categoryItem: CategoryItem) -> CategoryDetailViewController {
-        return CategoryDetailViewController(viewModel: makeCategoryDetailViewModel(categoryItem: categoryItem))
+    func makeCategoryDetailViewController(
+        categoryItem: CategoryItem
+    ) -> CategoryDetailViewController {
+        return CategoryDetailViewController(
+            viewModel: makeCategoryDetailViewModel(categoryItem: categoryItem)
+        )
     }
 
     func makeCategoryDetailViewModel(categoryItem: CategoryItem) -> CategoryDetailViewModel {
-        return DefaultCategoryDetailViewModel(fetchClassItemUseCase: makeFetchClassItemUseCase(), categoryItem: categoryItem)
+        return DefaultCategoryDetailViewModel(
+            fetchClassItemUseCase: makeFetchClassItemUseCase(),
+            categoryItem: categoryItem
+        )
     }
 
     // MARK: - Star View
@@ -128,32 +154,47 @@ final class DIContainer {
     }
     
     // MARK: - Class Enroll Modify View
-    func makeClassEnrollViewController(classItempType: ClassItemType) -> ClassEnrollViewController {
-        return ClassEnrollViewController(viewModel: makeClassEnrollModifyViewModel(classItemType: classItempType))
+    func makeClassEnrollViewController(
+        classItempType: ClassItemType
+    ) -> ClassEnrollViewController {
+        return ClassEnrollViewController(
+            viewModel: makeClassEnrollModifyViewModel(classItemType: classItempType)
+        )
     }
 
     func makeClassModifyViewController(classItem: ClassItem) -> ClassModifyViewController {
-        return ClassModifyViewController(viewModel: makeClassEnrollModifyViewModel(classItem: classItem))
+        return ClassModifyViewController(
+            viewModel: makeClassEnrollModifyViewModel(classItem: classItem)
+        )
     }
 
-    func makeClassEnrollModifyViewModel(classItemType: ClassItemType) -> ClassEnrollModifyViewModel {
-        return DefaultClassEnrollModifyViewModel(uploadClassItemUseCase: makeUploadClassItemUseCase(),
-                                                 imageUseCase: makeImageUseCase(),
-                                                 locationUseCase: makeLocationUseCase(),
-                                                 addressTransferUseCase: makeAddressTransferUseCase(),
-                                                 classItemType: classItemType)
+    func makeClassEnrollModifyViewModel(
+        classItemType: ClassItemType
+    ) -> ClassEnrollModifyViewModel {
+        return DefaultClassEnrollModifyViewModel(
+            uploadClassItemUseCase: makeUploadClassItemUseCase(),
+            imageUseCase: makeImageUseCase(),
+            locationUseCase: makeLocationUseCase(),
+            addressTransferUseCase: makeAddressTransferUseCase(),
+            classItemType: classItemType
+        )
     }
 
     func makeClassEnrollModifyViewModel(classItem: ClassItem) -> ClassEnrollModifyViewModel {
-        return DefaultClassEnrollModifyViewModel(uploadClassItemUseCase: makeUploadClassItemUseCase(),
-                                                 imageUseCase: makeImageUseCase(),
-                                                 locationUseCase: makeLocationUseCase(),
-                                                 addressTransferUseCase: makeAddressTransferUseCase(),
-                                                 classItem: classItem)
+        return DefaultClassEnrollModifyViewModel(
+            uploadClassItemUseCase: makeUploadClassItemUseCase(),
+            imageUseCase: makeImageUseCase(),
+            locationUseCase: makeLocationUseCase(),
+            addressTransferUseCase: makeAddressTransferUseCase(),
+            classItem: classItem
+        )
     }
 
     func makeEnrollImageViewModel(limitImageCount: Int) -> EnrollImageViewModel {
-        return DefaultEnrollImageViewModel(imageUseCase: makeImageUseCase(), limitImageCount: limitImageCount)
+        return DefaultEnrollImageViewModel(
+            imageUseCase: makeImageUseCase(),
+            limitImageCount: limitImageCount
+        )
     }
     
     // MARK: - Class Detail View
@@ -169,7 +210,7 @@ final class DIContainer {
             classItem: classItem,
             deleteClassItemUseCase: makeDeleteClassItemUseCase(),
             firestoreManager: dependencies.apiDataTransferService,
-            userDefaultsManager: UserDefaultsManager.shared
+            userUseCase: makeUserUseCase()
         )
     }
     
@@ -179,7 +220,9 @@ final class DIContainer {
     }
 
     func makeMapSelectionViewModel() -> MapSelectionViewModel {
-        return DefaultMapSelectionViewModel(addressTransferUseCase: makeAddressTransferUseCase(),
-                                            locationUseCase: makeLocationUseCase())
+        return DefaultMapSelectionViewModel(
+            addressTransferUseCase: makeAddressTransferUseCase(),
+            locationUseCase: makeLocationUseCase()
+        )
     }
 }

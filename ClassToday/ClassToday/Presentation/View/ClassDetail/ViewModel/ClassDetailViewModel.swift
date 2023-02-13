@@ -42,7 +42,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
 
     private let deleteClassItemUseCase: DeleteClassItemUseCase
     private let firestoreManager: FirestoreManager
-    private let userDefaultsManager: UserDefaultsManager
+    private let userUseCase: UserUseCase
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
@@ -63,22 +63,24 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         classItem: ClassItem,
         deleteClassItemUseCase: DeleteClassItemUseCase,
         firestoreManager: FirestoreManager,
-        userDefaultsManager: UserDefaultsManager
+        userUseCase: UserUseCase
     ) {
         self.deleteClassItemUseCase = deleteClassItemUseCase
         self.classItem = classItem
         self.firestoreManager = firestoreManager
-        self.userDefaultsManager = userDefaultsManager
+        self.userUseCase = userUseCase
         isClassItemOnSale.accept(classItem.validity)
         getUserData()
         checkStar()
         fetchClassItemImages()
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(updateUserData(_:)),
-                                               name: NSNotification.Name("updateUserData"),
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateUserData(_:)),
+            name: NSNotification.Name("updateUserData"),
+            object: nil
+        )
     }
-    
+
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -86,12 +88,20 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     func checkIsChannelAlreadyMade() {
         switch classItem.itemType {
             case .buy:
-                firestoreManager.checkChannel(sellerID: UserDefaultsManager.shared.isLogin()!, buyerID: classItem.writer, classItemID: classItem.id) { [weak self] data in
+            firestoreManager.checkChannel(
+                sellerID: userUseCase.isLogin()!,
+                buyerID: classItem.writer,
+                classItemID: classItem.id
+            ) { [weak self] data in
                     guard let self = self else { return }
                     self.checkChannel = data
                 }
             case .sell:
-                firestoreManager.checkChannel(sellerID: classItem.writer, buyerID: UserDefaultsManager.shared.isLogin()!, classItemID: classItem.id) { [weak self] data in
+                firestoreManager.checkChannel(
+                    sellerID: classItem.writer,
+                    buyerID: userUseCase.isLogin()!,
+                    classItemID: classItem.id
+                ) { [weak self] data in
                     guard let self = self else { return }
                     self.checkChannel = data
                 }
@@ -102,7 +112,8 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     /// 매치를 진행하는 메서드
     func matchingUsers() {
         guard let _currentUser = currentUser,
-              var _writer = try? writer.value() else { return }
+              var _writer = try? writer.value()
+        else { return }
         if classItem.validity == true {
             if classItem.writer == _currentUser.id {
                 delegate?.presentDisableAlert()
@@ -111,9 +122,17 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                     let channel: Channel
                     switch classItem.itemType {
                         case .buy:
-                            channel = Channel(sellerID: _currentUser.id, buyerID: classItem.writer, classItem: classItem)
+                            channel = Channel(
+                                sellerID: _currentUser.id,
+                                buyerID: classItem.writer,
+                                classItem: classItem
+                            )
                         case .sell:
-                            channel = Channel(sellerID: classItem.writer, buyerID: _currentUser.id, classItem: classItem)
+                            channel = Channel(
+                                sellerID: classItem.writer,
+                                buyerID: _currentUser.id,
+                                classItem: classItem
+                            )
                     }
                     if let _ = _currentUser.channels {
                         currentUser?.channels?.append(channel.id)

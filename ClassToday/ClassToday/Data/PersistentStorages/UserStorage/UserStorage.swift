@@ -1,25 +1,24 @@
 //
-//  UserRepository.swift
+//  UserStorage.swift
 //  ClassToday
 //
-//  Created by 박태현 on 2022/11/11.
+//  Created by 박태현 on 2023/02/13.
 //
 
 import Foundation
 
-protocol UserRepository {
-    // MARK: - Create
-    func initUserData(user: User)
+enum LoginType: String {
+    case naver
+    case email
+    case kakao
+}
 
-    // MARK: - Read
+protocol UserStorage {
+    func initUserData(user: User)
     func isLogin() -> String?
     func getUserData() -> User?
     func getLoginType() -> LoginType?
-
-    // MARK: - Update
     func saveLoginStatus(uid: String, type: LoginType, completion: @escaping ()->())
     func updateUserData(user: User)
-
-    // MARK: - Delete
     func removeLoginStatus()
 }

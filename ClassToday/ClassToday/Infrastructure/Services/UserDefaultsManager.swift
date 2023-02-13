@@ -7,12 +7,6 @@
 
 import Foundation
 
-enum LoginType: String {
-    case naver
-    case email
-    case kakao
-}
-
 class UserDefaultsManager {
     static let shared = UserDefaultsManager()
     private let statusKey = "LoginStatus"
