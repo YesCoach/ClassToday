@@ -41,8 +41,10 @@ protocol ClassDetailViewModel: ClassDetailViewModelInput, ClassDetailViewModelOu
 final class DefaultClassDetailViewModel: ClassDetailViewModel {
 
     private let deleteClassItemUseCase: DeleteClassItemUseCase
-    private let firestoreManager: FirestoreManager
+    private let uploadClassItemUseCase: UploadClassItemUseCase
+    private let fetchClassItemUseCase: FetchClassItemUseCase
     private let userUseCase: UserUseCase
+    private let chatUseCase: ChatUseCase
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
@@ -62,13 +64,18 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     init(
         classItem: ClassItem,
         deleteClassItemUseCase: DeleteClassItemUseCase,
-        firestoreManager: FirestoreManager,
-        userUseCase: UserUseCase
+        uploadClassItemUseCase: UploadClassItemUseCase,
+        fetchClassItemUseCase: FetchClassItemUseCase,
+        userUseCase: UserUseCase,
+        chatUseCase: ChatUseCase
     ) {
         self.deleteClassItemUseCase = deleteClassItemUseCase
+        self.uploadClassItemUseCase = uploadClassItemUseCase
+        self.fetchClassItemUseCase = fetchClassItemUseCase
         self.classItem = classItem
-        self.firestoreManager = firestoreManager
         self.userUseCase = userUseCase
+        self.chatUseCase = chatUseCase
+
         isClassItemOnSale.accept(classItem.validity)
         getUserData()
         checkStar()
@@ -88,7 +95,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     func checkIsChannelAlreadyMade() {
         switch classItem.itemType {
             case .buy:
-            firestoreManager.checkChannel(
+            chatUseCase.checkChannel(
                 sellerID: userUseCase.isLogin()!,
                 buyerID: classItem.writer,
                 classItemID: classItem.id
@@ -97,7 +104,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                     self.checkChannel = data
                 }
             case .sell:
-                firestoreManager.checkChannel(
+                chatUseCase.checkChannel(
                     sellerID: classItem.writer,
                     buyerID: userUseCase.isLogin()!,
                     classItemID: classItem.id
@@ -146,7 +153,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                         _writer.channels = [channel.id]
                         writer.onNext(_writer)
                     }
-                    firestoreManager.uploadUser(user: currentUser!) { result in
+                    userUseCase.uploadUser(user: currentUser!) { result in
                         switch result {
                             case .success(_):
                                 print("업로드 성공")
@@ -154,7 +161,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                                 print("업로드 실패")
                         }
                     }
-                    firestoreManager.uploadUser(user: _writer) { result in
+                    userUseCase.uploadUser(user: _writer) { result in
                         switch result {
                             case .success(_):
                                 print("업로드 성공2")
@@ -162,7 +169,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                                 print("업로드 실패2")
                         }
                     }
-                    firestoreManager.uploadChannel(channel: channel)
+                    chatUseCase.uploadChannel(channel: channel)
                     let viewcontroller = ChatViewController(channel: channel)
                     delegate?.pushViewÇontroller(vc: viewcontroller)
                 } else {
@@ -180,14 +187,14 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
 
     /// 수업 아이템 삭제 메서드
     func deleteClassItem() {
-        firestoreManager.delete(classItem: classItem) {}
+        deleteClassItemUseCase.execute(param: .delete(item: classItem)) {}
     }
 
     /// 수업 활성화/비활성화 메서드
     func toggleClassItem() {
         classItem.validity.toggle()
         isClassItemOnSale.accept(classItem.validity)
-        firestoreManager.update(classItem: classItem) {}
+        uploadClassItemUseCase.execute(param: .update(item: classItem)) {}
     }
 
     /// 수업 이미지 패칭 메서드
@@ -200,7 +207,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     }
     
     private func fetchClassItemWriter() {
-        firestoreManager.readUser(uid: classItem.writer) { [weak self] result in
+        userUseCase.readUser(uid: classItem.writer) { [weak self] result in
             switch result {
             case .success(let user):
                 self?.writer.onNext(user)
@@ -222,7 +229,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
                 print("ERROR \(error)🌔")
             }
         }
-        firestoreManager.readUser(uid: classItem.writer) { [weak self] result in
+        userUseCase.readUser(uid: classItem.writer) { [weak self] result in
             guard let self = self else { return }
             switch result {
                 case .success(let user):
@@ -254,7 +261,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     /// 즐겨찾기 추가 메서드
     func addStar() {
         currentUser?.stars?.append(classItem.id)
-        firestoreManager.uploadUser(user: currentUser!) { result in
+        userUseCase.uploadUser(user: currentUser!) { result in
             switch result {
                 case .success(_):
                     print("업로드 성공")
@@ -269,7 +276,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         if let index = currentUser?.stars?.firstIndex(of: classItem.id) {
             currentUser?.stars?.remove(at: index)
         }
-        firestoreManager.uploadUser(user: currentUser!) { result in
+        userUseCase.uploadUser(user: currentUser!) { result in
             switch result {
                 case .success(_):
                     print("업로드 성공")

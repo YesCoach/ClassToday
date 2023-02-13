@@ -83,6 +83,9 @@
 		893B53092999D44D00293304 /* UserDefaultsUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B53082999D44D00293304 /* UserDefaultsUser.swift */; };
 		893B530B2999D7AA00293304 /* DefaultUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B530A2999D7AA00293304 /* DefaultUserRepository.swift */; };
 		893B530D2999DA8C00293304 /* UserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B530C2999DA8C00293304 /* UserUseCase.swift */; };
+		893B530F2999EBCA00293304 /* ChatUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B530E2999EBCA00293304 /* ChatUseCase.swift */; };
+		893B53112999F5F800293304 /* ChatRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B53102999F5F800293304 /* ChatRepository.swift */; };
+		893B53132999F8A700293304 /* DefaultChatRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893B53122999F8A600293304 /* DefaultChatRepository.swift */; };
 		893D70E4281B1935006CD232 /* ClassCategoryCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893D70E3281B1935006CD232 /* ClassCategoryCollectionViewCell.swift */; };
 		8941FF1D2830C2B600A90AB0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8941FF1C2830C2B600A90AB0 /* GoogleService-Info.plist */; };
 		8941FF1F2830C97300A90AB0 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8941FF1E2830C97300A90AB0 /* Location.swift */; };
@@ -292,6 +295,9 @@
 		893B53082999D44D00293304 /* UserDefaultsUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsUser.swift; sourceTree = "<group>"; };
 		893B530A2999D7AA00293304 /* DefaultUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUserRepository.swift; sourceTree = "<group>"; };
 		893B530C2999DA8C00293304 /* UserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserUseCase.swift; sourceTree = "<group>"; };
+		893B530E2999EBCA00293304 /* ChatUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatUseCase.swift; sourceTree = "<group>"; };
+		893B53102999F5F800293304 /* ChatRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRepository.swift; sourceTree = "<group>"; };
+		893B53122999F8A600293304 /* DefaultChatRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultChatRepository.swift; sourceTree = "<group>"; };
 		893D70E3281B1935006CD232 /* ClassCategoryCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassCategoryCollectionViewCell.swift; sourceTree = "<group>"; };
 		8941FF1C2830C2B600A90AB0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8941FF1E2830C97300A90AB0 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
@@ -768,7 +774,6 @@
 		895A0572291B9140009103CC /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
-				895A0575291E0F7E009103CC /* Protocol */,
 				895A0573291E0F48009103CC /* FetchClassItemUseCase.swift */,
 				8966A03E292B14E10070B10C /* UploadClassItemUseCase.swift */,
 				893B53022993888600293304 /* DeleteClassItemUseCase.swift */,
@@ -777,6 +782,8 @@
 				8966A048292B4E970070B10C /* AddressTransferUseCase.swift */,
 				893B530C2999DA8C00293304 /* UserUseCase.swift */,
 				8966A028292487A60070B10C /* SearchHistoryUseCase.swift */,
+				893B530E2999EBCA00293304 /* ChatUseCase.swift */,
+				895A0575291E0F7E009103CC /* Protocol */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -805,6 +812,7 @@
 				8966A04A292B4EEF0070B10C /* AddressTransferRepository.swift */,
 				895A0584291E317D009103CC /* UserRepository.swift */,
 				8966A034292496870070B10C /* SearchHistoryRepository.swift */,
+				893B53102999F5F800293304 /* ChatRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -826,6 +834,7 @@
 				8966A04E292C66110070B10C /* DefaultAddressTransferRepository.swift */,
 				893B530A2999D7AA00293304 /* DefaultUserRepository.swift */,
 				8966A036292497220070B10C /* DefaultSearchHistoryRepository.swift */,
+				893B53122999F8A600293304 /* DefaultChatRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -1462,6 +1471,7 @@
 				6B1483FB287DC992009B49FB /* ProfileDetailViewControllerDelegate.swift in Sources */,
 				892C1CC9283211B300DE27D3 /* FirestoreManager.swift in Sources */,
 				89A0CD3F280D4E17006FDF89 /* ClassImageEnrollCell.swift in Sources */,
+				893B53132999F8A700293304 /* DefaultChatRepository.swift in Sources */,
 				89675B382827F10C00933C48 /* DetailContentPriceView.swift in Sources */,
 				89098E4728245371006EFD4E /* ClassDateSelectionViewController.swift in Sources */,
 				89098E4428228BE5006EFD4E /* String+.swift in Sources */,
@@ -1485,6 +1495,7 @@
 				8966A03D29276F650070B10C /* CategoryListViewModel.swift in Sources */,
 				8966CF5B28100652001CBBDC /* FullImagesViewController.swift in Sources */,
 				89865EA8282A70FD00113242 /* CustomBarButton.swift in Sources */,
+				893B530F2999EBCA00293304 /* ChatUseCase.swift in Sources */,
 				89846E1D2912635300121B40 /* MapSelectionViewModel.swift in Sources */,
 				8966A027292471330070B10C /* AppDIContainer.swift in Sources */,
 				89675B3F2828101400933C48 /* DetailContentCategoryCollectionViewCell.swift in Sources */,
@@ -1523,6 +1534,7 @@
 				FC25F8B12865DF9F00B2BBEB /* Channel.swift in Sources */,
 				FCFDFCD02897C6550031F77D /* ChatStreamManager.swift in Sources */,
 				89675B122826776100933C48 /* PriceUnitTableView.swift in Sources */,
+				893B53112999F5F800293304 /* ChatRepository.swift in Sources */,
 				FCBCABF8287C96AF001C4687 /* StreamError.swift in Sources */,
 				89675B222826EC1A00933C48 /* ClassDetailViewController.swift in Sources */,
 				FC25F8BD2865E1F400B2BBEB /* ChatViewController.swift in Sources */,

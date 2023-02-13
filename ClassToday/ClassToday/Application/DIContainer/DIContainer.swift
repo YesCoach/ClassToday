@@ -17,10 +17,8 @@ final class DIContainer {
     private let dependencies: Dependencies
 
     // MARK: - Persistent Storage
-    lazy var userStorage: UserStorage = UserDefaultsUser(userDefaults: .standard)
-    lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory(
-        userDefaults: .standard
-    )
+    lazy var userStorage: UserStorage = UserDefaultsUser()
+    lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory()
 
     // MARK: - Framework Manager
     lazy var locationManager: LocationManager = LocationManager.shared
@@ -64,13 +62,20 @@ final class DIContainer {
         return DefaultSearchHistoryUseCase(searchHistoryRepository: makeSearchHistoryRepository())
     }
 
+    func makeChatUseCase() -> ChatUseCase {
+        return DefaultChatUseCase(chatRepository: makeChatRepository())
+    }
+
     // MARK: - Repositories
     func makeClassItemRepository() -> ClassItemRepository {
         return DefaultClassItemRepository(firestoreManager: dependencies.apiDataTransferService)
     }
 
     func makeUserRepository() -> UserRepository {
-        return DefaultUserRepository(userPersistentStorage: userStorage)
+        return DefaultUserRepository(
+            firestoreManager: dependencies.apiDataTransferService,
+            userPersistentStorage: userStorage
+        )
     }
 
     func makeSearchHistoryRepository() -> SearchHistoryRepository {
@@ -83,6 +88,10 @@ final class DIContainer {
 
     func makeAddressTransferRepository() -> AddressTransferRepository {
         return DefaultAddressTransferRepository(naverMapAPIProvider: NaverMapAPIProvider())
+    }
+
+    func makeChatRepository() -> ChatRepository {
+        return DefaultChatRepository(firestoreManager: dependencies.apiDataTransferService)
     }
 
     // MARK: - Main
@@ -209,8 +218,10 @@ final class DIContainer {
         return DefaultClassDetailViewModel(
             classItem: classItem,
             deleteClassItemUseCase: makeDeleteClassItemUseCase(),
-            firestoreManager: dependencies.apiDataTransferService,
-            userUseCase: makeUserUseCase()
+            uploadClassItemUseCase: makeUploadClassItemUseCase(),
+            fetchClassItemUseCase: makeFetchClassItemUseCase(),
+            userUseCase: makeUserUseCase(),
+            chatUseCase: makeChatUseCase()
         )
     }
     

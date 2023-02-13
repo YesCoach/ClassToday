@@ -83,7 +83,7 @@ extension DefaultMapSelectionViewModel {
             return
         }
         let location = Location(lat: position.lat, lon: position.lng)
-        addressTransferUseCase.excute(location: location, param: .detailAddress) { [weak self] result in
+        addressTransferUseCase.execute(location: location, param: .detailAddress) { [weak self] result in
             switch result {
             case .success(let address):
                 self?.placeName.value = address

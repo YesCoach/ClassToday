@@ -80,7 +80,7 @@ extension DefaultStarViewModel {
             return
         }
 
-        fetchUseCase.excute(
+        fetchUseCase.execute(
             param: .fetchByStarlist(starlist: currentUser.stars)
         ) { [weak self] data in
             self?.isNowDataFetching.accept(false)

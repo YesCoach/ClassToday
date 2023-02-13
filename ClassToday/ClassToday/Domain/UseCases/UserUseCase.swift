@@ -8,6 +8,12 @@
 import Foundation
 
 protocol UserUseCase {
+    /// 유저 정보를 저장하는 메서드
+    func uploadUser(user: User, completion: @escaping (Result<Void, Error>) -> Void)
+    
+    /// 유저 정보를 가져오는 메서드
+    func readUser(uid: String, completion: @escaping (Result<User, Error>) -> Void)
+    
     /// 앱 실행시 유저 정보를 최신화하기 위한 메서드
     func initUserData(user: User)
     
@@ -33,6 +39,7 @@ protocol UserUseCase {
     func saveLoginStatus(uid: String, type: LoginType, completion: @escaping ()->())
 
     /// 유저 정보 변경시 필수 호출 메서드
+    /// 서버와 별개로 클라이언트에도 저장합니다.
     /// - Parameters :
     /// - user: User to update
     func updateUserData(user: User)
@@ -47,6 +54,14 @@ final class DefaultUserUseCase: UserUseCase {
 
     init(userRepository: UserRepository) {
         self.userRepository = userRepository
+    }
+
+    func uploadUser(user: User, completion: @escaping (Result<Void, Error>) -> Void) {
+        userRepository.uploadUser(user: user, completion: completion)
+    }
+
+    func readUser(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        userRepository.readUser(uid: uid, completion: completion)
     }
 
     func initUserData(user: User) {

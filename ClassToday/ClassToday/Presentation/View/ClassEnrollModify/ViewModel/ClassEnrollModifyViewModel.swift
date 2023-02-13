@@ -149,7 +149,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         /// place (도로명주소) 추가
         if classPlace == nil {
             group.enter()
-            addressTransferUseCase.excute(location: classLocation, param: .detailAddress) { [weak self] result in
+            addressTransferUseCase.execute(location: classLocation, param: .detailAddress) { [weak self] result in
                 switch result {
                 case .success(let address):
                     self?.classPlace = address
@@ -162,7 +162,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         /// keyword 주소 추가 (@@구)
         group.enter()
-        addressTransferUseCase.excute(location: classLocation, param: .keywordAddress) { [weak self] result in
+        addressTransferUseCase.execute(location: classLocation, param: .keywordAddress) { [weak self] result in
             switch result {
                 case .success(let keyword):
                     self?.classKeywordLocation = keyword
@@ -174,7 +174,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         /// semiKeyword 주소 추가 (@@동)
         group.enter()
-        addressTransferUseCase.excute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
+        addressTransferUseCase.execute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
             switch result {
             case .success(let semiKeyword):
                 self?.classSemiKeywordLocation = semiKeyword
@@ -207,7 +207,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                                       modifiedTime: nil
             )
 
-            self.uploadClassItemUseCase.excute(param: .create(item: classItem)) { [weak self] in
+            self.uploadClassItemUseCase.execute(param: .create(item: classItem)) { [weak self] in
                 debugPrint("\(classItem) 등록")
                 self?.isNowDataUploading.value = false
                 completion()
@@ -263,7 +263,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         if classLocation != classItem.location {
             if classPlace == nil {
                 group.enter()
-                addressTransferUseCase.excute(location: classLocation, param: .detailAddress) { [weak self] result in
+                addressTransferUseCase.execute(location: classLocation, param: .detailAddress) { [weak self] result in
                     switch result {
                     case .success(let address):
                         self?.classPlace = address
@@ -274,7 +274,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                 }
             }
             group.enter()
-            addressTransferUseCase.excute(location: classLocation, param: .keywordAddress) { [weak self] result in
+            addressTransferUseCase.execute(location: classLocation, param: .keywordAddress) { [weak self] result in
                 switch result {
                 case .success(let keyword):
                     self?.classKeywordLocation = keyword
@@ -283,7 +283,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                 }
                 group.leave()
             }
-            addressTransferUseCase.excute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
+            addressTransferUseCase.execute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
                 switch result {
                 case .success(let semiKeyword):
                     self?.classSemiKeywordLocation = semiKeyword
@@ -316,7 +316,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                                               writer: UserDefaultsManager.shared.isLogin()!,
                                               createdTime: Date(),
                                               modifiedTime: nil)
-            self.uploadClassItemUseCase.excute(param: .update(item: modifiedClassItem)) { [weak self] in
+            self.uploadClassItemUseCase.execute(param: .update(item: modifiedClassItem)) { [weak self] in
                 self?.isNowDataUploading.value = false
                 self?.delegate?.dismissViewController()
                 debugPrint("\(modifiedClassItem) 수정")

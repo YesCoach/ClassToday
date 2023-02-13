@@ -8,6 +8,12 @@
 import Foundation
 
 protocol UserRepository {
+    
+    // MARK: - Server
+    func uploadUser(user: User, completion: @escaping (Result<Void, Error>) -> Void)
+    func readUser(uid: String, completion: @escaping (Result<User, Error>) -> Void)
+
+    // MARK: - Local
     // MARK: - Create
     func initUserData(user: User)
 

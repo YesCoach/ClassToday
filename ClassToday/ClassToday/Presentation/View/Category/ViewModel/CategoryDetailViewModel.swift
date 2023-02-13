@@ -105,7 +105,7 @@ extension DefaultCategoryDetailViewModel {
             isNowDataFetching.accept(false)
             return
         }
-        fetchClassItemUseCase.excuteRx(
+        fetchClassItemUseCase.executeRx(
             param: .fetchByKeywordCategory(
                 keyword: keyword,
                 category: categoryItem.rawValue

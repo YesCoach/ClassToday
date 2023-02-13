@@ -6,8 +6,7 @@
 //
 
 import UIKit
-import SwiftUI
-
+import RxSwift
 
 class ClassDetailViewController: UIViewController {
     
@@ -82,6 +81,7 @@ class ClassDetailViewController: UIViewController {
     // MARK: - Properties
     var delegate: ClassUpdateDelegate?
     private var viewModel: ClassDetailViewModel
+    private let disposeBag = DisposeBag()
 
     // MARK: - Initialize
     init(classDetailViewModel: ClassDetailViewModel) {
@@ -93,6 +93,7 @@ class ClassDetailViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
     deinit {
         print("------------------------------")
     }
@@ -161,18 +162,27 @@ class ClassDetailViewController: UIViewController {
     }
 
     private func bindingViewModel() {
-        viewModel.isNowFetchingImages.bind { [weak self] isTrue in
-            DispatchQueue.main.async {
-                isTrue ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
+        viewModel.isNowFetchingImages
+            .bind { [weak self] isTrue in
+                DispatchQueue.main.async {
+                    isTrue ? self?.activityIndicator.startAnimating() : self?.activityIndicator.stopAnimating()
+                }
             }
-        }
-        viewModel.isClassItemOnSale.bind { [weak self] isTrue in
-            isTrue ? self?.setButtonOnSale() : self?.setButtonOffSale()
-        }
-        viewModel.isStarButtonSelected.bind { [weak self] isTrue in
-            self?.navigationBar.starButton.isSelected = isTrue
-        }
+            .disposed(by: disposeBag)
+        
+        viewModel.isClassItemOnSale
+            .bind { [weak self] isTrue in
+                isTrue ? self?.setButtonOnSale() : self?.setButtonOffSale()
+            }
+            .disposed(by: disposeBag)
+        
+        viewModel.isStarButtonSelected
+            .bind { [weak self] isTrue in
+                self?.navigationBar.starButton.isSelected = isTrue
+            }
+            .disposed(by: disposeBag)
     }
+
     // MARK: - Actions
     @objc func didTapMatchingButton(_ button: UIButton) {
         viewModel.matchingUsers()
@@ -192,31 +202,58 @@ extension ClassDetailViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
         case 0:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailImageCell.identifier, for: indexPath) as? DetailImageCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: DetailImageCell.identifier,
+                for: indexPath
+            ) as? DetailImageCell
+            else {
                 return UITableViewCell()
             }
+
             cell.delegate = self
-            viewModel.classItemImages.bind { images in
-                cell.configureWith(images: images)
-            }
+
+            viewModel.classItemImages
+                .bind { images in
+                    cell.configureWith(images: images)
+                }
+                .disposed(by: disposeBag)
+
             return cell
         case 1:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailUserCell.identifier, for: indexPath) as? DetailUserCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: DetailUserCell.identifier,
+                for: indexPath
+            ) as? DetailUserCell
+            else {
                 return UITableViewCell()
             }
-            viewModel.writer.bind { [weak self] user in
-                if let user = user {
-                    cell.configure(with: user) {
-                        self?.navigationController?.pushViewController(ProfileDetailViewController(user: $0), animated: true)
+
+            viewModel.writer
+                .bind { [weak self] user in
+                    if let user = user {
+                        cell.configure(with: user) {
+                            self?.navigationController?
+                                .pushViewController(
+                                    ProfileDetailViewController(user: $0),
+                                    animated: true
+                                )
+                        }
                     }
                 }
-            }
+                .disposed(by: disposeBag)
+
             return cell
         case 2:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailContentCell.identifier, for: indexPath) as? DetailContentCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: DetailContentCell.identifier,
+                for: indexPath
+            ) as? DetailContentCell
+            else {
                 return UITableViewCell()
             }
+
             cell.configureWith(classItem: viewModel.classItem)
+
             return cell
         default:
             return UITableViewCell()
@@ -331,6 +368,7 @@ extension ClassDetailViewController {
         matchingButton.backgroundColor = .mainColor
         matchingButton.titleLabel?.font = UIFont.systemFont(ofSize: 24, weight: .bold)
     }
+
     func setButtonOffSale() {
         matchingButton.setTitle("종료된 수업입니다", for: .normal)
         matchingButton.backgroundColor = .systemGray

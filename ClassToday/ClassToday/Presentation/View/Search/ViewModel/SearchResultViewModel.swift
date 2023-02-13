@@ -107,7 +107,7 @@ extension DefaultSearchResultViewModel {
             isNowDataFetching.accept(false)
             return
         }
-        fetchClassItemUseCase.excuteRx(
+        fetchClassItemUseCase.executeRx(
             param: .fetchByKeywordSearch(
                 keyword: keyword,
                 searchKeyword: searchKeyword

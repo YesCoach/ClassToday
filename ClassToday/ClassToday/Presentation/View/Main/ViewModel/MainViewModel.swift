@@ -136,7 +136,7 @@ extension DefaultMainViewModel {
             isNowDataFetching.accept(false)
             return
         }
-        fetchClassItemUseCase.excuteRx(param: .fetchByKeyword(keyword: keyword))
+        fetchClassItemUseCase.executeRx(param: .fetchByKeyword(keyword: keyword))
             .map { (classItems) -> [ClassItem] in
                 classItems.sorted { $0 > $1 }
             }

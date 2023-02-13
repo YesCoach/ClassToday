@@ -8,8 +8,8 @@
 import Foundation
 
 protocol UploadClassItemUseCase {
-    func excute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ())
-    func excute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ())
+    func execute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ())
+    func execute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ())
 }
 
 final class DefaultUploadClassItemUseCase: UploadClassItemUseCase {
@@ -20,11 +20,11 @@ final class DefaultUploadClassItemUseCase: UploadClassItemUseCase {
         self.classItemRepository = classItemRepository
     }
 
-    func excute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ()) {
+    func execute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ()) {
         classItemRepository.create(param: param, completion: completion)
     }
 
-    func excute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ()) {
+    func execute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ()) {
         classItemRepository.update(param: param, completion: completion)
     }
 }

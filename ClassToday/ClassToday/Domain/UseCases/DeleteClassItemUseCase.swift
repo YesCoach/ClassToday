@@ -8,7 +8,7 @@
 import Foundation
 
 protocol DeleteClassItemUseCase {
-    func excute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ())
+    func execute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ())
 }
 
 final class DefaultDeleteClassItemUseCase: DeleteClassItemUseCase {
@@ -19,7 +19,7 @@ final class DefaultDeleteClassItemUseCase: DeleteClassItemUseCase {
         self.classItemRepository = classItemRepository
     }
 
-    func excute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ()) {
+    func execute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ()) {
         classItemRepository.delete(param: param, completion: completion)
     }
 }

@@ -9,14 +9,24 @@ import Foundation
 
 final class DefaultUserRepository {
 
+    private let firestoreManager: FirestoreManager
     private let userPersistentStorage: UserStorage
 
-    init(userPersistentStorage: UserStorage) {
+    init(firestoreManager: FirestoreManager, userPersistentStorage: UserStorage) {
+        self.firestoreManager = firestoreManager
         self.userPersistentStorage = userPersistentStorage
     }
 }
 
 extension DefaultUserRepository: UserRepository {
+    func uploadUser(user: User, completion: @escaping (Result<Void, Error>) -> Void) {
+        firestoreManager.uploadUser(user: user, completion: completion)
+    }
+
+    func readUser(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
+        firestoreManager.readUser(uid: uid, completion: completion)
+    }
+
     func initUserData(user: User) {
         userPersistentStorage.initUserData(user: user)
     }

@@ -10,7 +10,7 @@ import Foundation
 // TODO: Data Mapping 구현 및 반영하기
 
 protocol AddressTransferUseCase {
-    func excute(location: Location, param: DefaultAddressTransferUseCase.Request, completion: @escaping (Result<String, Error>) -> Void)
+    func execute(location: Location, param: DefaultAddressTransferUseCase.Request, completion: @escaping (Result<String, Error>) -> Void)
 }
 
 final class DefaultAddressTransferUseCase: AddressTransferUseCase {
@@ -32,7 +32,7 @@ final class DefaultAddressTransferUseCase: AddressTransferUseCase {
         self.addressTransferRepository = addressTransferRepository
     }
 
-    func excute(location: Location, param: Request, completion: @escaping (Result<String, Error>) -> Void) {
+    func execute(location: Location, param: Request, completion: @escaping (Result<String, Error>) -> Void) {
         addressTransferRepository.fetchAddress(location: location) { result in
             switch result {
             case .success(let data):
