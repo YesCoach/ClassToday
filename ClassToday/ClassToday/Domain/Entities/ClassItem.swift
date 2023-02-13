@@ -7,6 +7,11 @@
 
 import UIKit
 import CoreLocation
+import RxSwift
+
+enum ClassItemError: Error {
+    case invalidImageURL
+}
 
 struct ClassItem: Codable, Equatable {
     var id: String = UUID().uuidString
@@ -76,7 +81,74 @@ struct ClassItem: Codable, Equatable {
             completion(nil)
         }
     }
-    
+
+    // MARK: - RxSwift 메서드
+
+    func thumbnailImageRx() -> Observable<UIImage> {
+        return Observable.create { emitter in
+            guard let imagesURL = images, let url = imagesURL.first else {
+                emitter.onError(ClassItemError.invalidImageURL)
+                return Disposables.create()
+            }
+
+            if let cachedImage = ImageCacheManager.shared.object(forKey: url as NSString) {
+                emitter.onNext(cachedImage)
+                emitter.onCompleted()
+                return Disposables.create()
+            }
+
+            StorageManager.shared.downloadImage(urlString: url) { result in
+                switch result {
+                case .success(let image):
+                    ImageCacheManager.shared.setObject(image, forKey: url as NSString)
+                    emitter.onNext(image)
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
+    }
+
+    func fetchedImagesRx() -> Observable<[UIImage]> {
+        return Observable.create { emitter in
+            var fetchedImages: [UIImage] = []
+            let group = DispatchGroup()
+
+            guard let imagesURL = images else {
+                emitter.onNext([])
+                emitter.onCompleted()
+                return Disposables.create()
+            }
+
+            imagesURL.forEach { url in
+                if let cachedImage = ImageCacheManager.shared.object(forKey: url as NSString) {
+                    fetchedImages.append(cachedImage)
+                } else {
+                    group.enter()
+                    StorageManager.shared.downloadImage(urlString: url) { result in
+                        switch result {
+                        case .success(let image):
+                            ImageCacheManager.shared.setObject(image, forKey: url as NSString)
+                            fetchedImages.append(image)
+                        case .failure(let error):
+                            debugPrint(error)
+                        }
+                        group.leave()
+                    }
+                }
+            }
+
+            group.notify(queue: DispatchQueue.main) {
+                emitter.onNext(fetchedImages)
+                emitter.onCompleted()
+            }
+
+            return Disposables.create()
+        }
+    }
+
     /// 수업이 업로드 되고 경과된 시간을 계산하여, 문자열로 반환합니다.
     ///
     /// - form: " | @개월 전" [개월, 일, 시간, 분, 방금 전]

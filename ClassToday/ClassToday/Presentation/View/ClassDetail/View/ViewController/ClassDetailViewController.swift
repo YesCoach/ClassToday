@@ -23,12 +23,14 @@ class ClassDetailViewController: UIViewController {
         tableView.contentInsetAdjustmentBehavior = .never
         return tableView
     }()
+
     private lazy var navigationBar: DetailCustomNavigationBar = {
         let navigationBar = DetailCustomNavigationBar(isImages: true)
         navigationBar.setupButton(with: viewModel.classItem.writer)
         navigationBar.delegate = self
         return navigationBar
     }()
+
     private lazy var matchingButton: UIButton = {
         let button = UIButton()
         button.addTarget(self, action: #selector(didTapMatchingButton(_:)), for: .touchUpInside)

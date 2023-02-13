@@ -111,10 +111,14 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     /// 수업 이미지 패칭 메서드
     private func fetchClassItemImages() {
         isNowFetchingImages.accept(true)
-        classItem.fetchedImages { [weak self] images in
-            self?.isNowFetchingImages.accept(false)
-            self?.classItemImages.onNext(images ?? [])
-        }
+        classItem.fetchedImagesRx()
+            .subscribe(
+                onNext: { [weak self] images in
+                    self?.isNowFetchingImages.accept(false)
+                    self?.classItemImages.onNext(images)
+                }
+            )
+            .disposed(by: disposeBag)
     }
 
     /// 현재 유저 정보와 작성자 정보를 불러오는 메서드
