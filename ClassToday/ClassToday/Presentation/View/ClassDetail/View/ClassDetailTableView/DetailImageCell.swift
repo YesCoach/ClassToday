@@ -55,18 +55,27 @@ class DetailImageCell: UITableViewCell {
         let width = contentView.frame.width
         let height = contentView.frame.height
         guard let images = images else { return }
+        
+        scrollView.contentSize = CGSize(
+            width: CGFloat(images.count) * contentView.frame.maxX,
+            height: 0
+        )
 
         for index in 0 ..< images.count {
-            let imageView = UIImageView(frame: CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height))
+            let imageView = UIImageView(
+                frame: CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
+            )
             imageView.contentMode = .scaleAspectFill
             imageView.image = images[index]
             imageView.isUserInteractionEnabled = true
+            imageView.clipsToBounds = true
             scrollView.addSubview(imageView)
+            print("index: \(index), origin: \(imageView.frame.origin.x), width: \(imageView.frame.width)")
         }
 
         contentView.addSubview(scrollView)
         contentView.addSubview(pageControl)
-        scrollView.contentSize = CGSize(width: CGFloat(images.count) * contentView.frame.maxX, height: 0)
+
         scrollView.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.height.equalToSuperview()
@@ -97,7 +106,10 @@ class DetailImageCell: UITableViewCell {
             return
         }
         let selectedIndex = pageControl.currentPage
-        let fullImageViewController = FullImagesViewController(images: images, startIndex: selectedIndex)
+        let fullImageViewController = FullImagesViewController(
+            images: images,
+            startIndex: selectedIndex
+        )
         delegate?.present(fullImageViewController)
     }
 }
