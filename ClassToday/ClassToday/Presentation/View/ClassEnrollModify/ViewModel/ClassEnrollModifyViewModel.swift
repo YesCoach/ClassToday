@@ -33,7 +33,8 @@ protocol ClassEnrollModifyViewModelOutput {
     var modifiedClassItem: PublishSubject<ClassItem> { get}
 }
 
-protocol ClassEnrollModifyViewModel: ClassEnrollModifyViewModelInput, ClassEnrollModifyViewModelOutput { }
+protocol ClassEnrollModifyViewModel: ClassEnrollModifyViewModelInput,
+                                     ClassEnrollModifyViewModelOutput { }
 
 public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
@@ -160,64 +161,71 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         /// place (도로명주소) 추가
         if classPlace == nil {
             group.enter()
-            addressTransferUseCase.execute(
-                location: classLocation,
-                param: .detailAddress
-            ) { [weak self] result in
-                switch result {
-                case .success(let address):
-                    self?.classPlace = address
-                case .failure(let error):
-                    debugPrint(error)
-                }
-                group.leave()
-            }
+            addressTransferUseCase.executeRx(location: classLocation, param: .detailAddress)
+                .subscribe(
+                    onNext: { [weak self] address in
+                        self?.classPlace = address
+                        group.leave()
+                    },
+                    onError: { error in
+                        debugPrint(error.localizedDescription)
+                        group.leave()
+                    }
+                )
+                .disposed(by: disposeBag)
         }
 
         /// keyword 주소 추가 (@@구)
         group.enter()
-        addressTransferUseCase.execute(location: classLocation, param: .keywordAddress) { [weak self] result in
-            switch result {
-                case .success(let keyword):
+        addressTransferUseCase.executeRx(location: classLocation, param: .keywordAddress)
+            .subscribe(
+                onNext: { [weak self] keyword in
                     self?.classKeywordLocation = keyword
-                case .failure(let error):
-                    debugPrint(error)
-            }
-            group.leave()
-        }
+                    group.leave()
+                },
+                onError: { error in
+                    debugPrint(error.localizedDescription)
+                    group.leave()
+                }
+            )
+            .disposed(by: disposeBag)
 
         /// semiKeyword 주소 추가 (@@동)
         group.enter()
-        addressTransferUseCase.execute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
-            switch result {
-            case .success(let semiKeyword):
-                self?.classSemiKeywordLocation = semiKeyword
-            case .failure(let error):
-                debugPrint(error)
-            }
-            group.leave()
-        }
+        addressTransferUseCase.executeRx(location: classLocation, param: .semiKeywordAddress)
+            .subscribe(
+                onNext: { [weak self] semiKeyword in
+                    self?.classSemiKeywordLocation = semiKeyword
+                    group.leave()
+                },
+                onError: { error in
+                    debugPrint(error.localizedDescription)
+                    group.leave()
+                }
+            )
+            .disposed(by: disposeBag)
 
         group.notify(queue: .global()) { [weak self] in
             guard let self = self else { return }
-            let classItem = ClassItem(name: className,
-                                      date: self.classDate,
-                                      time: self.classTime,
-                                      place: self.classPlace,
-                                      location: self.classLocation,
-                                      semiKeywordLocation: self.classSemiKeywordLocation,
-                                      keywordLocation: self.classKeywordLocation,
-                                      price: self.classPrice,
-                                      priceUnit: self.classPriceUnit,
-                                      description: classDescription,
-                                      images: self.classImagesURL,
-                                      subjects: self.classSubject,
-                                      targets: self.classTarget,
-                                      itemType: self.classItemType,
-                                      validity: true,
-                                      writer: UserDefaultsManager.shared.isLogin()!,
-                                      createdTime: Date(),
-                                      modifiedTime: nil
+            let classItem = ClassItem(
+                name: className,
+                date: self.classDate,
+                time: self.classTime,
+                place: self.classPlace,
+                location: self.classLocation,
+                semiKeywordLocation: self.classSemiKeywordLocation,
+                keywordLocation: self.classKeywordLocation,
+                price: self.classPrice,
+                priceUnit: self.classPriceUnit,
+                description: classDescription,
+                images: self.classImagesURL,
+                subjects: self.classSubject,
+                targets: self.classTarget,
+                itemType: self.classItemType,
+                validity: true,
+                writer: UserDefaultsManager.shared.isLogin()!,
+                createdTime: Date(),
+                modifiedTime: nil
             )
 
             self.uploadClassItemUseCase.executeRx(param: .create(item: classItem))
@@ -285,62 +293,78 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
             return
         }
         if classLocation != classItem.location {
+            /// place (도로명주소) 추가
             if classPlace == nil {
                 group.enter()
-                addressTransferUseCase.execute(location: classLocation, param: .detailAddress) { [weak self] result in
-                    switch result {
-                    case .success(let address):
-                        self?.classPlace = address
-                    case .failure(let error):
+                addressTransferUseCase.executeRx(location: classLocation, param: .detailAddress)
+                    .subscribe(
+                        onNext: { [weak self] address in
+                            self?.classPlace = address
+                            group.leave()
+                        },
+                        onError: { error in
+                            debugPrint(error.localizedDescription)
+                            group.leave()
+                        }
+                    )
+                    .disposed(by: disposeBag)
+            }
+
+            /// keyword 주소 추가 (@@구)
+            group.enter()
+            addressTransferUseCase.executeRx(location: classLocation, param: .keywordAddress)
+                .subscribe(
+                    onNext: { [weak self] keyword in
+                        self?.classKeywordLocation = keyword
+                        group.leave()
+                    },
+                    onError: { error in
                         debugPrint(error.localizedDescription)
+                        group.leave()
                     }
-                    group.leave()
-                }
-            }
+                )
+                .disposed(by: disposeBag)
+
+            /// semiKeyword 주소 추가 (@@동)
             group.enter()
-            addressTransferUseCase.execute(location: classLocation, param: .keywordAddress) { [weak self] result in
-                switch result {
-                case .success(let keyword):
-                    self?.classKeywordLocation = keyword
-                case .failure(let error):
-                    debugPrint(error.localizedDescription)
-                }
-                group.leave()
-            }
-            group.enter()
-            addressTransferUseCase.execute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
-                switch result {
-                case .success(let semiKeyword):
-                    self?.classSemiKeywordLocation = semiKeyword
-                case .failure(let error):
-                    debugPrint(error.localizedDescription)
-                }
-                group.leave()
-            }
+            addressTransferUseCase.executeRx(location: classLocation, param: .semiKeywordAddress)
+                .subscribe(
+                    onNext: { [weak self] semiKeyword in
+                        self?.classSemiKeywordLocation = semiKeyword
+                        group.leave()
+                    },
+                    onError: { error in
+                        debugPrint(error.localizedDescription)
+                        group.leave()
+                    }
+                )
+                .disposed(by: disposeBag)
         }
 
         group.notify(queue: DispatchQueue.main) { [weak self] in
             guard let self = self else { return }
             self.isNowDataUploading.accept(false)
-            let modifiedClassItem = ClassItem(id: classItem.id,
-                                              name: className,
-                                              date: self.classDate,
-                                              time: self.classTime,
-                                              place: self.classPlace,
-                                              location: self.classLocation,
-                                              semiKeywordLocation: self.classSemiKeywordLocation,
-                                              keywordLocation: self.classKeywordLocation,
-                                              price: self.classPrice,
-                                              priceUnit: self.classPriceUnit,
-                                              description: classDescription,
-                                              images: self.classImagesURL,
-                                              subjects: self.classSubject,
-                                              targets: self.classTarget,
-                                              itemType: classItem.itemType,
-                                              validity: true,
-                                              writer: UserDefaultsManager.shared.isLogin()!,
-                                              createdTime: Date(),
-                                              modifiedTime: nil)
+            let modifiedClassItem = ClassItem(
+                id: classItem.id,
+                name: className,
+                date: self.classDate,
+                time: self.classTime,
+                place: self.classPlace,
+                location: self.classLocation,
+                semiKeywordLocation: self.classSemiKeywordLocation,
+                keywordLocation: self.classKeywordLocation,
+                price: self.classPrice,
+                priceUnit: self.classPriceUnit,
+                description: classDescription,
+                images: self.classImagesURL,
+                subjects: self.classSubject,
+                targets: self.classTarget,
+                itemType: classItem.itemType,
+                validity: true,
+                writer: UserDefaultsManager.shared.isLogin()!,
+                createdTime: Date(),
+                modifiedTime: nil
+            )
 
             self.uploadClassItemUseCase.executeRx(param: .update(item: modifiedClassItem))
                 .subscribe(onCompleted: { [weak self] in
