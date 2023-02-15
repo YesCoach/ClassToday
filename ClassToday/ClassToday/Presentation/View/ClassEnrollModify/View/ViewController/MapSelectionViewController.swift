@@ -8,6 +8,7 @@
 import UIKit
 import NMapsMap
 import Moya
+import RxSwift
 
 protocol MapSelectionViewControllerDelegate: AnyObject {
     func didSelectLocation(location: Location?, place: String?)
@@ -66,7 +67,11 @@ class MapSelectionViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("현재 위치로 설정하기", for: .normal)
         button.setTitleColor(UIColor.mainColor, for: .normal)
-        button.addTarget(self, action: #selector(didTapCurrentLocationButton(_:)), for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(didTapCurrentLocationButton(_:)),
+            for: .touchUpInside
+        )
         return button
     }()
 
@@ -97,6 +102,7 @@ class MapSelectionViewController: UIViewController {
     // MARK: - Properties
     weak var delegate: MapSelectionViewControllerDelegate?
     private let viewModel: MapSelectionViewModel
+    private let disposeBag = DisposeBag()
 
     init(viewModel: MapSelectionViewModel) {
         self.viewModel = viewModel
@@ -111,7 +117,7 @@ class MapSelectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpLayout()
-        bindingViewModel()
+        bindViewModel()
         viewModel.viewDidLoad()
         modalPresentationStyle = .pageSheet
     }
@@ -160,41 +166,47 @@ class MapSelectionViewController: UIViewController {
         }
     }
 
-    private func bindingViewModel() {
-        viewModel.userPosition.bind { [weak self] position in
-            guard let position = position else {
-                return
+    private func bindViewModel() {
+        viewModel.userPosition
+            .bind { [weak self] position in
+                guard let position = position else { return }
+                self?.mapView.mapView.moveCamera(NMFCameraUpdate(scrollTo: position))
             }
-            self?.mapView.mapView.moveCamera(NMFCameraUpdate(scrollTo: position))
-        }
+            .disposed(by: disposeBag)
 
-        viewModel.selectedPosition.bind { [weak self] position in
-            guard let position = position else {
-                self?.marker.mapView = nil
-                self?.viewModel.setPlaceName(with: nil)
-                return
+        viewModel.selectedPosition
+            .bind { [weak self] position in
+                guard let position = position else {
+                    self?.marker.mapView = nil
+                    self?.viewModel.setPlaceName(with: nil)
+                    return
+                }
+                self?.marker.position = position
+                self?.marker.mapView = self?.mapView.mapView
+                self?.viewModel.setPlaceName(with: position)
             }
-            self?.marker.position = position
-            self?.marker.mapView = self?.mapView.mapView
-            self?.viewModel.setPlaceName(with: position)
-        }
+            .disposed(by: disposeBag)
 
-        viewModel.placeName.bind { [weak self] name in
-            self?.locationDescriptionLabel.text = name
-        }
-
-        viewModel.isSubmitButtonOn.bind { [weak self] isTrue in
-            if isTrue {
-                self?.submitButton.isEnabled = true
-            } else {
-                self?.submitButton.isEnabled = false
+        viewModel.placeName
+            .bind { [weak self] name in
+                self?.locationDescriptionLabel.text = name
             }
-        }
+            .disposed(by: disposeBag)
+
+        viewModel.isSubmitButtonOn
+            .asDriver()
+            .drive { [weak self] isTrue in
+                self?.submitButton.isEnabled = isTrue
+            }
+            .disposed(by: disposeBag)
     }
 
     // MARK: - objc function
     @objc func didTapSubmitButton(_ sender: UIButton) {
-        delegate?.didSelectLocation(location: viewModel.selectedPositionToLocation, place: viewModel.placeName.value)
+        delegate?.didSelectLocation(
+            location: viewModel.selectedPositionToLocation,
+            place: try? viewModel.placeName.value() ?? ""
+        )
         dismiss(animated: true)
     }
 

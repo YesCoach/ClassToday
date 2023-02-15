@@ -307,6 +307,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                 }
                 group.leave()
             }
+            group.enter()
             addressTransferUseCase.execute(location: classLocation, param: .semiKeywordAddress) { [weak self] result in
                 switch result {
                 case .success(let semiKeyword):
