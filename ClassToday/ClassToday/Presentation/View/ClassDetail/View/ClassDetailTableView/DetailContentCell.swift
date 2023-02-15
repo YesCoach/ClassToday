@@ -85,6 +85,11 @@ class DetailContentCell: UITableViewCell {
 
     func configureWith(classItem: ClassItem) {
         self.classItem = classItem
+
+        stackView.arrangedSubviews.forEach {
+            $0.removeFromSuperview()
+        }
+
         stackView.addArrangedSubview(nameLabel)
         stackView.addArrangedSubview(descriptionTextView)
         stackView.setCustomSpacing(8, after: nameLabel)

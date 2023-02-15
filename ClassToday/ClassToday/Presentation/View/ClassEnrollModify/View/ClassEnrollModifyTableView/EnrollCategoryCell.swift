@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 protocol EnrollCategoryCellDelegate: AnyObject {
     func passData(categoryType: CategoryType, categoryItems: [CategoryItem])
@@ -40,13 +41,14 @@ class EnrollCategoryCell: UITableViewCell {
     weak var delegate: EnrollCategoryCellDelegate?
     static let identifier = "EnrollCategoryCell"
     private var viewModel: EnrollCategoryViewModel = DefaultEnrollCategoryViewModel()
+    private let disposeBag = DisposeBag()
 
     // MARK: - Initialize
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
         configureUI()
-        bindingViewModel()
+        bindViewModel()
     }
 
     required init?(coder: NSCoder) {
@@ -62,17 +64,20 @@ class EnrollCategoryCell: UITableViewCell {
         }
     }
 
-    private func bindingViewModel() {
-        viewModel.categoryType.bind { [weak self] _ in
-            DispatchQueue.main.async {
+    private func bindViewModel() {
+        viewModel.categoryType
+            .asDriver()
+            .drive { [weak self] _ in
                 self?.collectionView.reloadData()
             }
-        }
-        viewModel.selectedCategory.bind { [weak self] _ in
-            DispatchQueue.main.async {
+            .disposed(by: disposeBag)
+
+        viewModel.selectedCategory
+            .asDriver()
+            .drive { [weak self] _ in
                 self?.collectionView.reloadData()
             }
-        }
+            .disposed(by: disposeBag)
     }
 
     // MARK: - categoryTypeMethod

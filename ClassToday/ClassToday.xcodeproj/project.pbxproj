@@ -731,9 +731,9 @@
 			isa = PBXGroup;
 			children = (
 				89846E1A2910E6E200121B40 /* ClassEnrollModifyViewModel.swift */,
-				89846E1C2912635300121B40 /* MapSelectionViewModel.swift */,
 				89846E1E2912C10C00121B40 /* EnrollImageViewModel.swift */,
 				89846E2029137EE600121B40 /* EnrollCategoryViewModel.swift */,
+				89846E1C2912635300121B40 /* MapSelectionViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";

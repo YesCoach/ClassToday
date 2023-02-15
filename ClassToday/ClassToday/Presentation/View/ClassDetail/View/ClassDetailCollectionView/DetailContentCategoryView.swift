@@ -32,7 +32,10 @@ class DetailContentCategoryView: UIView {
     }()
 
     private lazy var collectionView: DetailContentCategoryCollectionView = {
-        let collectionView = DetailContentCategoryCollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        let collectionView = DetailContentCategoryCollectionView(
+            frame: .zero,
+            collectionViewLayout: flowLayout
+        )
         collectionView.dataSource = self
         collectionView.delegate = self
         return collectionView
@@ -92,22 +95,35 @@ class DetailContentCategoryView: UIView {
         } else if categoryItems.first is Target {
             headLabel.text = "수업대상"
         }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.collectionView.reloadData()
+        }
     }
 }
 
 // MARK: - CollectionViewDataSource
 
 extension DetailContentCategoryView: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return data.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: DetailContentCategoryCollectionViewCell.identifier,
-                for: indexPath) as? DetailContentCategoryCollectionViewCell else {
+                for: indexPath
+        ) as? DetailContentCategoryCollectionViewCell
+        else {
             return UICollectionViewCell()
         }
+
         cell.configureWith(category: data[indexPath.item])
         return cell
     }
@@ -116,8 +132,19 @@ extension DetailContentCategoryView: UICollectionViewDataSource {
 // MARK: - CollectionViewDelegateFlowLayout
 
 extension DetailContentCategoryView: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let fontsize = data[indexPath.item].description.size(withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .medium)])
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        let fontsize = data[indexPath.item].description.size(
+            withAttributes: [NSAttributedString.Key.font: UIFont
+                .systemFont(
+                    ofSize: 16,
+                    weight: .medium
+                )
+            ]
+        )
         let width = fontsize.width
         let height = fontsize.height
         return CGSize(width: width + 24, height: height)

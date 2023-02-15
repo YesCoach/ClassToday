@@ -19,7 +19,12 @@ class DetailContentCategoryCollectionViewCell: UICollectionViewCell {
         button.titleLabel?.numberOfLines = 1
         if #available(iOS 15.0, *) {
             var config = UIButton.Configuration.plain()
-            config.contentInsets = NSDirectionalEdgeInsets.init(top: 4, leading: 8, bottom: 4, trailing: 8)
+            config.contentInsets = NSDirectionalEdgeInsets.init(
+                top: 4,
+                leading: 8,
+                bottom: 4,
+                trailing: 8
+            )
             button.configuration = config
         } else {
             button.contentEdgeInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)

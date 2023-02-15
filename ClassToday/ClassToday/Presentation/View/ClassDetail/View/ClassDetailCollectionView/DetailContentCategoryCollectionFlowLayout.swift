@@ -8,8 +8,9 @@
 import UIKit
 
 class DetailContentCategoryCollectionFlowLayout: UICollectionViewFlowLayout {
-
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+    override func layoutAttributesForElements(
+        in rect: CGRect
+    ) -> [UICollectionViewLayoutAttributes]? {
         let attributes = super.layoutAttributesForElements(in: rect)
 
         var leftMargin = sectionInset.left
