@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import RxSwift
 
 protocol EnrollImageCellDelegate: AnyObject {
     func presentFromImageCell(_ viewController: UIViewController)
@@ -17,6 +18,7 @@ protocol EnrollImageCellDelegate: AnyObject {
 class EnrollImageCell: UITableViewCell {
 
     // MARK: - Views
+
     private lazy var imageEnrollCollectionView: UICollectionView = {
         let flowlayout = UICollectionViewFlowLayout()
         flowlayout.scrollDirection = .horizontal
@@ -32,14 +34,17 @@ class EnrollImageCell: UITableViewCell {
     }()
 
     // MARK: - Properties
-    static var identifier = "EnrollImageCell"
 
+    static var identifier = "EnrollImageCell"
     weak var delegate: EnrollImageCellDelegate?
+
     private var viewModel: EnrollImageViewModel = AppDIContainer()
         .makeDIContainer()
         .makeEnrollImageViewModel(limitImageCount: 8)
+    private let disposeBag = DisposeBag()
 
     // MARK: - Initialize
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
@@ -52,6 +57,7 @@ class EnrollImageCell: UITableViewCell {
     }
 
     // MARK: - Method
+
     func configureWith(imagesURL: [String]?) {
         viewModel.configureWith(imagesURL: imagesURL)
     }
@@ -70,50 +76,77 @@ class EnrollImageCell: UITableViewCell {
                 self?.imageEnrollCollectionView.reloadData()
             }
         }
+        .disposed(by: disposeBag)
 
         viewModel.imagesURL.bind { [weak self] data in
             self?.delegate?.passData(imagesURL: data)
         }
+        .disposed(by: disposeBag)
 
         viewModel.alertController.bind { [weak self] alert in
-            if let alert = alert {
-                self?.delegate?.presentFromImageCell(alert)
-            }
+            self?.delegate?.presentFromImageCell(alert)
         }
+        .disposed(by: disposeBag)
 
         viewModel.viewController.bind { [weak self] viewController in
-            if let viewController = viewController {
-                self?.delegate?.presentFromImageCell(viewController)
-            }
+            self?.delegate?.presentFromImageCell(viewController)
         }
+        .disposed(by: disposeBag)
     }
 }
 
 // MARK: - CollectionViewDataSource
+
 extension EnrollImageCell: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.images.value.count + 1
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
+        guard let count = try? viewModel.images.value().count else {
+            return 1
+        }
+        return count + 1
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         if indexPath.row == 0 {
-            guard let classImageEnrollCell = collectionView.dequeueReusableCell(withReuseIdentifier: ClassImageEnrollCell.identifier, for: indexPath) as? ClassImageEnrollCell else {
+            guard let classImageEnrollCell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: ClassImageEnrollCell.identifier,
+                for: indexPath
+            ) as? ClassImageEnrollCell
+            else {
                 return UICollectionViewCell()
             }
-            classImageEnrollCell.configureWith(count: viewModel.images.value.count)
+
+            let count = try? viewModel.images.value().count
+            classImageEnrollCell.configureWith(count: count ?? 0)
+
             return classImageEnrollCell
         }
-        guard let classImageCell = collectionView.dequeueReusableCell(withReuseIdentifier: ClassImageCell.identifier, for: indexPath) as? ClassImageCell else {
+
+        guard let classImageCell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: ClassImageCell.identifier,
+            for: indexPath
+        ) as? ClassImageCell,
+              let image = try? viewModel.images.value()[indexPath.row - 1]
+        else {
             return UICollectionViewCell()
         }
-        let image = viewModel.images.value[indexPath.row-1]
+
+        print(image)
+        print(indexPath)
         classImageCell.configureWith(image: image, indexPath: indexPath)
         classImageCell.delegate = self
+
         return classImageCell
     }
 }
 
 // MARK: - CollectionViewDeleagetFlowLayout
+
 extension EnrollImageCell: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = collectionView.frame.width
@@ -127,6 +160,7 @@ extension EnrollImageCell: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - CollectionViewDelegate
+
 extension EnrollImageCell: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         viewModel.didSelectItem(at: indexPath.row)
@@ -134,6 +168,7 @@ extension EnrollImageCell: UICollectionViewDelegate {
 }
 
 // MARK: - ClassImageCellDelegate
+
 extension EnrollImageCell: ClassImageCellDelegate {
     func deleteImageCell(indexPath: IndexPath) {
         viewModel.removeImages(index: indexPath.row - 1)
