@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 protocol ClassEnrollModifyViewModelInput {
     func inputImages(images: [UIImage])
@@ -18,24 +20,20 @@ protocol ClassEnrollModifyViewModelInput {
     func inputPriceUnit(priceUnit: PriceUnit)
     func inputDescription(description: String?)
     func inputCategory(categoryType: CategoryType, categoryItems: [CategoryItem])
-    func enrollClassItem(completion: @escaping ()->())
-    func modifyClassItem(completion: @escaping (ClassItem)->())
-
-    var delegate: ClassEnrollModifyViewModelDelegate? { get set }
+    func enrollClassItem()
+    func modifyClassItem()
 }
 
 protocol ClassEnrollModifyViewModelOutput {
-    var isNowDataUploading: CustomObservable<Bool> { get }
+    var isNowDataUploading: BehaviorRelay<Bool> { get }
+    var finishedUpload: BehaviorSubject<Void> { get }
+    var occuredAlert: BehaviorSubject<Void> { get }
     var classItemType: ClassItemType { get }
     var classItem: ClassItem? { get }
+    var modifiedClassItem: PublishSubject<ClassItem> { get}
 }
 
 protocol ClassEnrollModifyViewModel: ClassEnrollModifyViewModelInput, ClassEnrollModifyViewModelOutput { }
-
-protocol ClassEnrollModifyViewModelDelegate {
-    func presentAlert()
-    func dismissViewController()
-}
 
 public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
@@ -43,9 +41,14 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
     private let imageUseCase: ImageUseCase
     private let locationUseCase: LocationUseCase
     private let addressTransferUseCase: AddressTransferUseCase
+    private let disposeBag = DisposeBag()
 
-    var delegate: ClassEnrollModifyViewModelDelegate?
-    let isNowDataUploading: CustomObservable<Bool> = CustomObservable(false)
+    // MARK: - Output
+    let isNowDataUploading: BehaviorRelay<Bool> = BehaviorRelay(value: false)
+    let finishedUpload: BehaviorSubject<Void> = BehaviorSubject(value: ())
+    let occuredAlert: BehaviorSubject<Void> = BehaviorSubject(value: ())
+
+    let modifiedClassItem: PublishSubject<ClassItem> = PublishSubject<ClassItem>()
 
     // MARK: - ClassItem Contents
     let classItemType: ClassItemType
@@ -107,23 +110,24 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         classImagesURL = classItem.images
     }
 
-    func enrollClassItem(completion: @escaping ()->()) {
-        isNowDataUploading.value = true
+    // MARK: - Enroll ClassItem
+    func enrollClassItem() {
+        isNowDataUploading.accept(true)
 
         classImagesURL = []
         let group = DispatchGroup()
 
         /// 수업 등록시 필수 항목 체크
         guard let className = className, let classDescription = classDescription else {
-            delegate?.presentAlert()
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
+            occuredAlert.onNext(())
             return
         }
 
         /// 수업 판매 등록시
         if classItemType == .sell, classTime == nil {
-            delegate?.presentAlert()
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
+            occuredAlert.onNext(())
             return
         }
 
@@ -149,14 +153,17 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         guard let classLocation = classLocation else {
             // TODO: Location 없을 경우 얼럿 호출(위치정보권한 필요)
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
             return
         }
 
         /// place (도로명주소) 추가
         if classPlace == nil {
             group.enter()
-            addressTransferUseCase.execute(location: classLocation, param: .detailAddress) { [weak self] result in
+            addressTransferUseCase.execute(
+                location: classLocation,
+                param: .detailAddress
+            ) { [weak self] result in
                 switch result {
                 case .success(let address):
                     self?.classPlace = address
@@ -213,32 +220,35 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                                       modifiedTime: nil
             )
 
-            self.uploadClassItemUseCase.execute(param: .create(item: classItem)) { [weak self] in
-                debugPrint("\(classItem) 등록")
-                self?.isNowDataUploading.value = false
-                completion()
-            }
+            self.uploadClassItemUseCase.executeRx(param: .create(item: classItem))
+                .subscribe(onCompleted: { [weak self] in
+                    debugPrint("\(classItem) 등록")
+                    self?.isNowDataUploading.accept(false)
+                    self?.finishedUpload.onCompleted()
+                })
+                .disposed(by: self.disposeBag)
         }
     }
 
-    func modifyClassItem(completion: @escaping (ClassItem)->()) {
-        isNowDataUploading.value = true
+    // MARK: - Modify ClassItem
+    func modifyClassItem() {
+        isNowDataUploading.accept(true)
 
         let group = DispatchGroup()
         guard let classItem = classItem else {
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
             return
         }
         /// 수업 등록시 필수 항목 체크
         guard let className = className, let classDescription = classDescription else {
-            delegate?.presentAlert()
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
+            occuredAlert.onNext(())
             return
         }
         /// 수업 판매 등록시
         if classItem.itemType == .sell, classTime == nil {
-            delegate?.presentAlert()
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
+            occuredAlert.onNext(())
             return
         }
 
@@ -271,7 +281,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
             classLocation = locationUseCase.getCurrentLocation()
         }
         guard let classLocation = classLocation else {
-            isNowDataUploading.value = false
+            isNowDataUploading.accept(false)
             return
         }
         if classLocation != classItem.location {
@@ -310,7 +320,7 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
 
         group.notify(queue: DispatchQueue.main) { [weak self] in
             guard let self = self else { return }
-            self.isNowDataUploading.value = true
+            self.isNowDataUploading.accept(false)
             let modifiedClassItem = ClassItem(id: classItem.id,
                                               name: className,
                                               date: self.classDate,
@@ -330,12 +340,15 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
                                               writer: UserDefaultsManager.shared.isLogin()!,
                                               createdTime: Date(),
                                               modifiedTime: nil)
-            self.uploadClassItemUseCase.execute(param: .update(item: modifiedClassItem)) { [weak self] in
-                self?.isNowDataUploading.value = false
-                self?.delegate?.dismissViewController()
-                debugPrint("\(modifiedClassItem) 수정")
-                completion(modifiedClassItem)
-            }
+
+            self.uploadClassItemUseCase.executeRx(param: .update(item: modifiedClassItem))
+                .subscribe(onCompleted: { [weak self] in
+                    debugPrint("\(modifiedClassItem) 수정")
+                    self?.isNowDataUploading.accept(false)
+                    self?.modifiedClassItem.onNext(modifiedClassItem)
+                    self?.finishedUpload.onCompleted()
+                })
+                .disposed(by: self.disposeBag)
         }
     }
 }

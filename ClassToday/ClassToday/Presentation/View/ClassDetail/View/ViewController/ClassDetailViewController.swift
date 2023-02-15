@@ -339,7 +339,6 @@ extension ClassDetailViewController: DetailCustomNavigationBarDelegate {
 // MARK: - ClassUpdateDelegate
 extension ClassDetailViewController: ClassUpdateDelegate {
     func update(with classItem: ClassItem) {
-//        viewModel.classItem = classItem
         viewModel = AppDIContainer()
             .makeDIContainer()
             .makeClassDetailViewModel(classItem: classItem)

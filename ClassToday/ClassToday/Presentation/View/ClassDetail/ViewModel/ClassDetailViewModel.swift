@@ -163,8 +163,6 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     @objc func updateUserData(_ notification: Notification) {
         getUserData()
     }
-
-
 }
 
 // MARK: - Input

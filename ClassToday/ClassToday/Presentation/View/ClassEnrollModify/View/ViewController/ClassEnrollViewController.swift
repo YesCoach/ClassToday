@@ -11,6 +11,7 @@ import Popover
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Moya
+import RxSwift
 
 protocol ClassItemCellUpdateDelegate: AnyObject {
     func updatePriceUnit(with priceUnit: PriceUnit)
@@ -78,12 +79,12 @@ class ClassEnrollViewController: UIViewController {
     // MARK: - Properties
     weak var delegate: ClassItemCellUpdateDelegate?
     private var viewModel: ClassEnrollModifyViewModel
+    private let disposeBag = DisposeBag()
 
     // MARK: - Initialize
     init(viewModel: ClassEnrollModifyViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.viewModel.delegate = self
         modalPresentationStyle = .fullScreen
     }
 
@@ -100,7 +101,7 @@ class ClassEnrollViewController: UIViewController {
         super.viewDidLoad()
         configureUI()
         configureGesture()
-        bindingViewModel()
+        bindViewModel()
     }
 
     // MARK: - Method
@@ -142,9 +143,10 @@ class ClassEnrollViewController: UIViewController {
         tableView.addGestureRecognizer(singleTapGestureRecognizer)
     }
     
-    private func bindingViewModel() {
-        viewModel.isNowDataUploading.bind { [weak self] isTrue in
-            DispatchQueue.main.async {
+    private func bindViewModel() {
+        viewModel.isNowDataUploading
+            .asDriver()
+            .drive { [weak self] isTrue in
                 if isTrue {
                     self?.refreshControl.isHidden = false
                     self?.refreshControl.beginRefreshing()
@@ -155,7 +157,20 @@ class ClassEnrollViewController: UIViewController {
                     self?.view.isUserInteractionEnabled = true
                 }
             }
-        }
+            .disposed(by: disposeBag)
+
+        viewModel.finishedUpload
+            .subscribe(onCompleted: { [weak self] in
+                self?.dismiss(animated: true)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.occuredAlert
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.present(self.alert, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Actions
@@ -171,9 +186,7 @@ class ClassEnrollViewController: UIViewController {
     /// 수업 등록 메서드
     @objc func didTapEnrollButton(_ button: UIBarButtonItem) {
         view.endEditing(true)
-        viewModel.enrollClassItem() { [weak self] in
-            self?.dismiss(animated: true)
-        }
+        viewModel.enrollClassItem()
     }
 }
 
@@ -383,16 +396,5 @@ extension ClassEnrollViewController: PriceUnitTableViewDelegate {
         viewModel.inputPriceUnit(priceUnit: priceUnit)
         delegate?.updatePriceUnit(with: priceUnit)
         popover.dismiss()
-    }
-}
-
-// MARK: - ClassEnrollModifyViewModelDelegate
-extension ClassEnrollViewController: ClassEnrollModifyViewModelDelegate {
-    func presentAlert() {
-        present(alert, animated: true)
-    }
-
-    func dismissViewController() {
-        dismiss(animated: true)
     }
 }
