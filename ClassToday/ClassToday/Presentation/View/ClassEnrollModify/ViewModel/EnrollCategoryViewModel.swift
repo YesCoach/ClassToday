@@ -7,7 +7,7 @@
 
 import Foundation
 import RxSwift
-import RxRelay
+import RxCocoa
 
 protocol EnrollCategoryViewModelInput {
     func setCategoryType(with categoryType: CategoryType)

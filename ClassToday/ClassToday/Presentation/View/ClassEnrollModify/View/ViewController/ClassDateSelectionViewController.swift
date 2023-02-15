@@ -17,7 +17,10 @@ class ClassDateSelectionViewController: UIViewController {
     // MARK: - Views
     private lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.itemSize = CGSize(width: view.frame.width * 0.30, height: ClassCategoryCollectionViewCell.height)
+        flowLayout.itemSize = CGSize(
+            width: view.frame.width * 0.30,
+            height: ClassCategoryCollectionViewCell.height
+        )
         flowLayout.minimumLineSpacing = 0
         flowLayout.scrollDirection = .vertical
         return flowLayout
@@ -25,11 +28,15 @@ class ClassDateSelectionViewController: UIViewController {
 
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
-        collectionView.register(ClassDateSelectionCollectionViewCell.self,
-                                forCellWithReuseIdentifier: ClassDateSelectionCollectionViewCell.identifier)
-        collectionView.register(ClassDateSelectionCollectionReusableView.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: ClassDateSelectionCollectionReusableView.identifier)
+        collectionView.register(
+            ClassDateSelectionCollectionViewCell.self,
+            forCellWithReuseIdentifier: ClassDateSelectionCollectionViewCell.identifier
+        )
+        collectionView.register(
+            ClassDateSelectionCollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: ClassDateSelectionCollectionReusableView.identifier
+        )
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .white
@@ -85,28 +92,47 @@ extension ClassDateSelectionViewController {
 
 // MARK: - CollectionViewDataSource
 extension ClassDateSelectionViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return DayWeek.allCases.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ClassDateSelectionCollectionViewCell.identifier,
-                                                            for: indexPath) as? ClassDateSelectionCollectionViewCell else {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath)
+    -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: ClassDateSelectionCollectionViewCell.identifier,
+            for: indexPath
+        ) as? ClassDateSelectionCollectionViewCell
+        else {
             return UICollectionViewCell()
         }
+
         let date = DayWeek.allCases[indexPath.row]
-        cell.configure(with: DayWeek.allCases[indexPath.row], isSelected: selectedDate.contains(date))
+        cell.configure(
+            with: DayWeek.allCases[indexPath.row],
+            isSelected: selectedDate.contains(date)
+        )
         cell.delegate = self
         return cell
     }
 
-    func collectionView(_ collectionView: UICollectionView,
-                        viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                             withReuseIdentifier: ClassDateSelectionCollectionReusableView.identifier,
-                                                                             for: indexPath) as? ClassDateSelectionCollectionReusableView else {
+            guard let headerView = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: ClassDateSelectionCollectionReusableView.identifier,
+                for: indexPath
+            ) as? ClassDateSelectionCollectionReusableView
+            else {
                 return UICollectionReusableView()
             }
             return headerView
@@ -119,7 +145,11 @@ extension ClassDateSelectionViewController: UICollectionViewDataSource {
 
 // MARK: - CollectionViewDelegateFlowLayout
 extension ClassDateSelectionViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
         let width: CGFloat = collectionView.frame.width
         let height: CGFloat = CGFloat(ClassDateSelectionCollectionReusableView.height)
         return CGSize(width: width, height: height)

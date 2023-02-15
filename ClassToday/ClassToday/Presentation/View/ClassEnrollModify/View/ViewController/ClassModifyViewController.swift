@@ -30,8 +30,18 @@ class ClassModifyViewController: UIViewController {
 
     private lazy var customNavigationItem: UINavigationItem = {
         let item = UINavigationItem(title: "게시글 수정")
-        let leftButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: self, action: #selector(didTapBackButton(_:)))
-        let rightButton = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(didTapEnrollButton(_:)))
+        let leftButton = UIBarButtonItem(
+            image: UIImage(systemName: "xmark"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBackButton(_:))
+        )
+        let rightButton = UIBarButtonItem(
+            title: "완료",
+            style: .plain,
+            target: self,
+            action: #selector(didTapEnrollButton(_:))
+        )
         item.leftBarButtonItem = leftButton
         item.rightBarButtonItem = rightButton
         return item
@@ -41,14 +51,29 @@ class ClassModifyViewController: UIViewController {
         let tableView = UITableView()
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(EnrollImageCell.self, forCellReuseIdentifier: EnrollImageCell.identifier)
         tableView.register(EnrollNameCell.self, forCellReuseIdentifier: EnrollNameCell.identifier)
         tableView.register(EnrollTimeCell.self, forCellReuseIdentifier: EnrollTimeCell.identifier)
         tableView.register(EnrollDateCell.self, forCellReuseIdentifier: EnrollDateCell.identifier)
-        tableView.register(EnrollPlaceCell.self, forCellReuseIdentifier: EnrollPlaceCell.identifier)
-        tableView.register(EnrollPriceCell.self, forCellReuseIdentifier: EnrollPriceCell.identifier)
-        tableView.register(EnrollDescriptionCell.self, forCellReuseIdentifier: EnrollDescriptionCell.identifier)
-        tableView.register(EnrollCategoryCell.self, forCellReuseIdentifier: EnrollCategoryCell.identifier)
+        tableView.register(
+            EnrollImageCell.self,
+            forCellReuseIdentifier: EnrollImageCell.identifier
+        )
+        tableView.register(
+            EnrollPlaceCell.self,
+            forCellReuseIdentifier: EnrollPlaceCell.identifier
+        )
+        tableView.register(
+            EnrollPriceCell.self,
+            forCellReuseIdentifier: EnrollPriceCell.identifier
+        )
+        tableView.register(
+            EnrollDescriptionCell.self,
+            forCellReuseIdentifier: EnrollDescriptionCell.identifier
+        )
+        tableView.register(
+            EnrollCategoryCell.self,
+            forCellReuseIdentifier: EnrollCategoryCell.identifier
+        )
         tableView.separatorStyle = .none
         tableView.selectionFollowsFocus = false
         return tableView
@@ -67,7 +92,11 @@ class ClassModifyViewController: UIViewController {
     }()
 
     private lazy var alert: UIAlertController = {
-        let alert = UIAlertController(title: "알림", message: "필수 항목을 입력해주세요", preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "알림",
+            message: "필수 항목을 입력해주세요",
+            preferredStyle: .alert
+        )
         let action = UIAlertAction(title: "확인", style: .default, handler: nil)
         alert.addAction(action)
         return alert
@@ -117,14 +146,18 @@ class ClassModifyViewController: UIViewController {
         refreshControl.snp.makeConstraints {
             $0.centerX.centerY.equalTo(view)
         }
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillShow),
-                                               name: UIResponder.keyboardWillShowNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillHide),
-                                               name: UIResponder.keyboardDidHideNotification,
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardDidHideNotification,
+            object: nil
+        )
     }
 
     private func configureNavigationBar() {
@@ -135,7 +168,10 @@ class ClassModifyViewController: UIViewController {
     }
 
     private func configureGesture() {
-        let singleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(myTapMethod(_:)))
+        let singleTapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(myTapMethod(_:))
+        )
         singleTapGestureRecognizer.numberOfTapsRequired = 1
         singleTapGestureRecognizer.isEnabled = true
         singleTapGestureRecognizer.cancelsTouchesInView = false
@@ -208,18 +244,29 @@ extension ClassModifyViewController: UITableViewDataSource {
         return 1
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
         guard let classItem = viewModel.classItem else { fatalError() }
         switch indexPath.section {
         case 0:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollImageCell.identifier, for: indexPath) as? EnrollImageCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollImageCell.identifier,
+                for: indexPath
+            ) as? EnrollImageCell
+            else {
                 return UITableViewCell()
             }
             cell.delegate = self
             cell.configureWith(imagesURL: classItem.images)
             return cell
         case 1:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollNameCell.identifier, for: indexPath) as? EnrollNameCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollNameCell.identifier,
+                for: indexPath
+            ) as? EnrollNameCell
+            else {
                 return UITableViewCell()
             }
             cell.delegate = self
@@ -227,7 +274,11 @@ extension ClassModifyViewController: UITableViewDataSource {
             cell.configureWith(name: classItem.name)
             return cell
         case 2:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollTimeCell.identifier, for: indexPath) as? EnrollTimeCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollTimeCell.identifier,
+                for: indexPath
+            ) as? EnrollTimeCell
+            else {
                 return UITableViewCell()
             }
             cell.delegate = self
@@ -236,7 +287,10 @@ extension ClassModifyViewController: UITableViewDataSource {
             cell.configureWith(time: classItem.time)
             return cell
         case 3:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollDateCell.identifier, for: indexPath) as? EnrollDateCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollDateCell.identifier,
+                for: indexPath
+            ) as? EnrollDateCell else {
                 return UITableViewCell()
             }
             cell.delegate = self
@@ -244,7 +298,10 @@ extension ClassModifyViewController: UITableViewDataSource {
             cell.configureWith(date: classItem.date)
             return cell
         case 4:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollPlaceCell.identifier, for: indexPath) as? EnrollPlaceCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollPlaceCell.identifier,
+                for: indexPath
+            ) as? EnrollPlaceCell else {
                 return UITableViewCell()
             }
             cell.delegate = self
@@ -252,7 +309,10 @@ extension ClassModifyViewController: UITableViewDataSource {
             cell.configureWith(place: classItem.place, location: classItem.location)
             return cell
         case 5:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollPriceCell.identifier, for: indexPath) as? EnrollPriceCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollPriceCell.identifier,
+                for: indexPath
+            ) as? EnrollPriceCell else {
                 return UITableViewCell()
             }
             cell.delegate = self
@@ -261,23 +321,35 @@ extension ClassModifyViewController: UITableViewDataSource {
             delegate = cell
             return cell
         case 6:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollDescriptionCell.identifier, for: indexPath) as? EnrollDescriptionCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollDescriptionCell.identifier,
+                for: indexPath
+            ) as? EnrollDescriptionCell else {
                 return UITableViewCell()
             }
             cell.delegate = self
             cell.configureWith(description: classItem.description)
             return cell
         case 7:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: EnrollCategoryCell.identifier, for: indexPath) as? EnrollCategoryCell else {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: EnrollCategoryCell.identifier,
+                for: indexPath
+            ) as? EnrollCategoryCell else {
                 return UITableViewCell()
             }
             cell.delegate = self
             let categoryType = CategoryType.allCases[indexPath.row]
             switch categoryType {
             case .subject:
-                cell.configure(with: categoryType, selectedCategory: Array(classItem.subjects ?? []))
+                cell.configure(
+                    with: categoryType,
+                    selectedCategory: Array(classItem.subjects ?? [])
+                )
             case .target:
-                cell.configure(with: categoryType, selectedCategory: Array(classItem.targets ?? []))
+                cell.configure(
+                    with: categoryType,
+                    selectedCategory: Array(classItem.targets ?? [])
+                )
             }
             return cell
         default:
@@ -319,8 +391,14 @@ extension ClassModifyViewController: UITableViewDelegate {
 extension ClassModifyViewController {
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.size.height, right: 0)
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+        else { return }
+        let contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: keyboardFrame.size.height,
+            right: 0
+        )
         tableView.contentInset = contentInset
         tableView.scrollIndicatorInsets = contentInset
     }
@@ -397,9 +475,12 @@ extension ClassModifyViewController: EnrollPriceCellDelegate {
         let rect = button.convert(button.bounds, to: self.view)
         let point = CGPoint(x: rect.midX, y: rect.midY)
         let view = PriceUnitTableView(
-            frame: CGRect(x: 0, y: 0,
-                          width: view.frame.width / 3,
-                          height: PriceUnitTableViewCell.height * CGFloat(PriceUnit.allCases.count)))
+            frame: CGRect(
+                x: 0,
+                y: 0,
+                width: view.frame.width / 3,
+                height: PriceUnitTableViewCell.height * CGFloat(PriceUnit.allCases.count))
+        )
         view.delegate = self
         popover.show(view, point: point)
     }
