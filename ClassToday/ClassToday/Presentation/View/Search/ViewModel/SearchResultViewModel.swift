@@ -91,6 +91,7 @@ extension DefaultSearchResultViewModel {
                     .makeDIContainer()
                     .makeClassDetailViewController(classItem: classItem)
             )
+            classDetailViewController.onNext(nil)
         }
     }
     

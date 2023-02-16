@@ -40,6 +40,10 @@ class NaverMapView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        print("NaverMapView Deinit Called")
+    }
+    
     private func setUpUI() {
         self.addSubview(mapView)
         mapView.snp.makeConstraints {

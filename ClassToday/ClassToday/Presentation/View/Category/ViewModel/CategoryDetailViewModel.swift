@@ -89,6 +89,7 @@ extension DefaultCategoryDetailViewModel {
                     .makeDIContainer()
                     .makeClassDetailViewController(classItem: classItem)
             )
+            classDetailViewController.onNext(nil)
         }
     }
     

@@ -44,5 +44,6 @@ extension DefaultCategoryListViewModel {
                 .makeDIContainer()
                 .makeCategoryDetailViewController(categoryItem: categoryType.allcases[index])
         )
+        categoryDetailViewController.onNext(nil)
     }
 }

@@ -87,6 +87,7 @@ extension DefaultSearchViewModel {
                 .makeDIContainer()
                 .makeSearchResultViewController(searchKeyword: searchKeyword)
         )
+        searchResultViewController.onNext(nil)
     }
 
     func didSearchItem(with text: String) {
@@ -95,5 +96,6 @@ extension DefaultSearchViewModel {
                 .makeDIContainer()
                 .makeSearchResultViewController(searchKeyword: text)
         )
+        searchResultViewController.onNext(nil)
     }
 }
