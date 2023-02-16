@@ -273,15 +273,18 @@ final class FirestoreManager {
     
     //star
     func starSort(starList: [String]?, completion: @escaping ([ClassItem]) -> ()) {
+        let dispatchGroup = DispatchGroup()
         var data: [ClassItem] = []
         guard let starList = starList, starList.isEmpty == false else {
             completion([])
             return
         }
         for classItem in starList {
+            dispatchGroup.enter()
             FirestoreRoute.classItem.ref.whereField("id", isEqualTo: classItem).getDocuments() { (snapshot, error) in
                 if let error = error {
                     debugPrint("Error getting documents: \(error)")
+                    dispatchGroup.leave()
                     return
                 }
                 if let snapshot = snapshot {
@@ -289,13 +292,17 @@ final class FirestoreManager {
                         do {
                             let classItem = try document.data(as: ClassItem.self)
                             data.append(classItem)
+                            dispatchGroup.leave()
                         } catch {
                             debugPrint(error)
+                            dispatchGroup.leave()
                         }
                     }
                 }
-                completion(data)
             }
+        }
+        dispatchGroup.notify(queue: .main) {
+            completion(data)
         }
     }
 }

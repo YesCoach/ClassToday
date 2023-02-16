@@ -38,10 +38,16 @@ public class DefaultStarViewModel: StarViewModel {
     init(fetchUseCase: FetchClassItemUseCase) {
         self.fetchUseCase = fetchUseCase
         configureLocation()
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(updateUserData(_:)),
-                                               name: NSNotification.Name("updateUserData"),
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateUserData(_:)),
+            name: NSNotification.Name("updateUserData"),
+            object: nil
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     /// 유저의 키워드 주소에 따른 기준 지역 구성
@@ -80,12 +86,16 @@ extension DefaultStarViewModel {
             return
         }
 
-        fetchUseCase.execute(
-            param: .fetchByStarlist(starlist: currentUser.stars)
-        ) { [weak self] data in
-            self?.isNowDataFetching.accept(false)
-            self?.data.onNext(data)
-        }
+        // TODO: Rx Method 적용시 하나의 값만 반환되는 버그 발생
+        fetchUseCase.executeRx(param: .fetchByStarlist(starlist: currentUser.stars))
+            .map { (classItems) -> [ClassItem] in
+                classItems.sorted { $0 > $1 }
+            }
+            .subscribe(onNext: { [weak self] data in
+                self?.isNowDataFetching.accept(false)
+                self?.data.onNext(data)
+            })
+            .disposed(by: disposeBag)
     }
 
     func didSelectItem(at index: Int) {
