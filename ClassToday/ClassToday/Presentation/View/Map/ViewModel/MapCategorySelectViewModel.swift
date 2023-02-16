@@ -6,37 +6,73 @@
 //
 
 import Foundation
+import RxSwift
 
-public class MapCategorySelectViewModel {
-    let selectedCategory: CustomObservable<[CategoryItem]> = CustomObservable([])
+protocol MapCategorySelectViewModelInput {
+    func updateData(data: [CategoryItem])
+    func insertData(data: CategoryItem)
+    func removeData(data: CategoryItem)
+}
+
+protocol MapCategorySelectViewModelOutput {
+    var selectedCategory: BehaviorSubject<[CategoryItem]> { get }
+    var categoryType: CategoryType { get }
+
+    /// 특정 카테고리 항목을 받아옵니다.
+    func getCategoryItem(at index: Int) -> CategoryItem
+    /// 포함되어 있는지 확인 후 Boolean 반환
+    func isCategorySelected(categoryItem: CategoryItem) -> Bool
+}
+
+protocol MapCategorySelectViewModel: MapCategorySelectViewModelInput,
+                                     MapCategorySelectViewModelOutput { }
+
+final class DefaultMapCategorySelectViewModel: MapCategorySelectViewModel {
+    let selectedCategory: BehaviorSubject<[CategoryItem]> = BehaviorSubject(value: [])
     let categoryType: CategoryType
 
     init(categoryType: CategoryType = .subject) {
         self.categoryType = categoryType
     }
 
-    func updateData(data: [CategoryItem]) {
-        selectedCategory.value = data
-    }
-    func insertData(data: CategoryItem) {
-        selectedCategory.value.append(data)
-    }
-    func removeData(data: CategoryItem) {
-        guard let index = selectedCategory.value.firstIndex(where: {$0.description == data.description}) else {
-            return
-        }
-        selectedCategory.value.remove(at: index)
-    }
-    
     /// 특정 카테고리 항목을 받아옵니다.
     func getCategoryItem(at index: Int) -> CategoryItem {
         return categoryType.allcases[index]
     }
-    
+
     /// 포함되어 있는지 확인 후 Boolean 반환
     func isCategorySelected(categoryItem: CategoryItem) -> Bool {
-        return selectedCategory.value.contains { item in
+        guard let selectedCategoryValue = try? selectedCategory.value() else {
+            return false
+        }
+        return selectedCategoryValue.contains { item in
             item.description == categoryItem.description
         }
+    }
+}
+
+// MARK: - Input
+
+extension DefaultMapCategorySelectViewModel {
+
+    func updateData(data: [CategoryItem]) {
+        selectedCategory.onNext(data)
+    }
+
+    func insertData(data: CategoryItem) {
+        if var selectedCategoryValue = try? selectedCategory.value() {
+            selectedCategoryValue.append(data)
+            selectedCategory.onNext(selectedCategoryValue)
+        }
+    }
+
+    func removeData(data: CategoryItem) {
+        guard var selectedCategoryValue = try? selectedCategory.value(),
+              let index = selectedCategoryValue.firstIndex(
+                where: { $0.description == data.description }
+              )
+        else { return }
+        selectedCategoryValue.remove(at: index)
+        selectedCategory.onNext(selectedCategoryValue)
     }
 }

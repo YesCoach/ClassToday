@@ -12,21 +12,31 @@ protocol MapCategorySelectViewControllerDelegate: AnyObject {
 }
 
 class MapCategorySelectViewController: UIViewController {
-    
+
     //MARK: - NavigationBar Components
+
     private lazy var leftBarItem: UIBarButtonItem = {
-        let leftBarItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(didTapBackButton))
+        let leftBarItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapBackButton)
+        )
         return leftBarItem
     }()
 
     private func setNavigationBar() {
         navigationItem.leftBarButtonItem = leftBarItem
     }
-    
+
     // MARK: - Views
+
     private lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.itemSize = CGSize(width: view.frame.width * 0.40, height: ClassCategoryCollectionViewCell.height)
+        flowLayout.itemSize = CGSize(
+            width: view.frame.width * 0.40,
+            height: ClassCategoryCollectionViewCell.height
+        )
         flowLayout.minimumLineSpacing = 0
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         flowLayout.scrollDirection = .vertical
@@ -35,11 +45,15 @@ class MapCategorySelectViewController: UIViewController {
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
-        collectionView.register(ClassCategoryCollectionViewCell.self,
-                                forCellWithReuseIdentifier: ClassCategoryCollectionViewCell.identifier)
-        collectionView.register(ClassCategoryCollectionReusableView.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: ClassCategoryCollectionReusableView.identifier)
+        collectionView.register(
+            ClassCategoryCollectionViewCell.self,
+            forCellWithReuseIdentifier: ClassCategoryCollectionViewCell.identifier
+        )
+        collectionView.register(
+            ClassCategoryCollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: ClassCategoryCollectionReusableView.identifier
+        )
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .white
@@ -47,19 +61,21 @@ class MapCategorySelectViewController: UIViewController {
     }()
 
     // MARK: - Properties
+
     weak var delegate: MapCategorySelectViewControllerDelegate?
     private var viewModel: MapCategorySelectViewModel
 
     // MARK: - Initialize
-    init(categoryType: CategoryType = .subject) {
-        viewModel = MapCategorySelectViewModel(categoryType: categoryType)
+
+    init(viewModel: MapCategorySelectViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -69,10 +85,13 @@ class MapCategorySelectViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        delegate?.passData(categoryItems: viewModel.selectedCategory.value)
+        if let items = try? viewModel.selectedCategory.value() {
+            delegate?.passData(categoryItems: items)
+        }
     }
-    
+
     // MARK: - Method
+
     private func configureUI() {
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints {
@@ -82,6 +101,7 @@ class MapCategorySelectViewController: UIViewController {
     }
 
     // MARK: - categoryTypeMethod
+
     func configure(with selectedItem: [CategoryItem]?) {
         guard let selectedItem = selectedItem else {
             return
@@ -95,28 +115,49 @@ class MapCategorySelectViewController: UIViewController {
 }
 
 // MARK: - UICollectionViewDataSource
+
 extension MapCategorySelectViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
         return viewModel.categoryType.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier:ClassCategoryCollectionViewCell.identifier,
-            for: indexPath) as? ClassCategoryCollectionViewCell else {
+            for: indexPath
+        ) as? ClassCategoryCollectionViewCell
+        else {
             return UICollectionViewCell()
         }
+
         let categoryItem = viewModel.getCategoryItem(at: indexPath.row)
-        cell.configure(with: categoryItem,
-                       isSelected: viewModel.isCategorySelected(categoryItem: categoryItem))
+        cell.configure(
+            with: categoryItem,
+            isSelected: viewModel.isCategorySelected(categoryItem: categoryItem)
+        )
         cell.delegate = self
         return cell
     }
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        viewForSupplementaryElementOfKind kind: String,
+        at indexPath: IndexPath
+    ) -> UICollectionReusableView {
         switch kind {
         case UICollectionView.elementKindSectionHeader:
-            guard let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: ClassCategoryCollectionReusableView.identifier, for: indexPath) as? ClassCategoryCollectionReusableView else {
+            guard let headerView = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: ClassCategoryCollectionReusableView.identifier,
+                for: indexPath
+            ) as? ClassCategoryCollectionReusableView
+            else {
                 return UICollectionReusableView()
             }
             headerView.configure(with: viewModel.categoryType)
@@ -129,8 +170,13 @@ extension MapCategorySelectViewController: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
+
 extension MapCategorySelectViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        referenceSizeForHeaderInSection section: Int
+    ) -> CGSize {
         let width: CGFloat = collectionView.frame.width
         let height: CGFloat = CGFloat(ClassCategoryCollectionReusableView.height)
         return CGSize(width: width, height: height)
@@ -138,6 +184,7 @@ extension MapCategorySelectViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - CategoryCollectionViewCellDelegate
+
 extension MapCategorySelectViewController: ClassCategoryCollectionViewCellDelegate {
     func reflectSelection(item: CategoryItem?, isChecked: Bool) {
         guard let item = item else { return }

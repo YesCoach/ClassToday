@@ -8,7 +8,8 @@
 import UIKit
 import NMapsMap
 import SwiftUI
-//import XCTest
+import RxSwift
+import RxCocoa
 
 class MapViewController: UIViewController {
     //MARK: - NavigationBar Components
@@ -64,7 +65,17 @@ class MapViewController: UIViewController {
     }()
 
     //MARK: - Properties
-    private let viewModel = MapViewModel()
+    private let viewModel: MapViewModel
+    private let disposeBag = DisposeBag()
+
+    init(viewModel: MapViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     //MARK: - Life Cycle
     override func viewDidLoad() {
@@ -72,7 +83,7 @@ class MapViewController: UIViewController {
         setupNavigationBar()
         setupLayout()
         bindViewModel()
-        viewModel.checkLocationAuthorization()
+        viewModel.viewDidLoad()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,40 +117,50 @@ class MapViewController: UIViewController {
             $0.width.equalToSuperview()
         }
     }
-
+    
     private func bindViewModel() {
         /// 위치 정보 권한이 없으면 얼럿 호출
-        viewModel.isLocationAuthorizationAllowed.bind { [weak self] isAllowed in
-            if !isAllowed {
-                self?.present(UIAlertController.locationAlert(), animated: true) {
-                    self?.viewModel.checkLocationAuthorization()
+        viewModel.isLocationAuthorizationAllowed
+            .asDriver()
+            .drive(onNext: { [weak self] isAllowed in
+                if isAllowed == false {
+                    self?.present(UIAlertController.locationAlert(), animated: true) {
+                        self?.viewModel.reloadView()
+                    }
+                }
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.currentLocation
+            .bind { [weak self] location in
+                guard let location = location else { return }
+                self?.setupMapView(location: location)
+            }
+            .disposed(by: disposeBag)
+
+        viewModel.mapClassItemData
+            .bind { [weak self] data in
+                self?.mapView.removeMarkers()
+                self?.configureMapView(data: data)
+            }
+            .disposed(by: disposeBag)
+
+        viewModel.listClassItemData
+            .bind { [weak self] data in
+                self?.mapClassListView.configure(with: data)
+            }
+            .disposed(by: disposeBag)
+
+        viewModel.categoryData
+            .bind { [weak self] data in
+                self?.categoryView.setPlaceHolderLabel(data.isEmpty)
+                if data.isEmpty {
+                    self?.viewModel.fetchData()
+                } else {
+                    self?.viewModel.fetchCategoryData()
                 }
             }
-        }
-        viewModel.currentLocation.bind { [weak self] location in
-            guard let location = location else { return }
-            self?.setupMapView(location: location)
-        }
-        viewModel.currentKeyword.bind { [weak self] keyword in
-            if let _ = keyword {
-                self?.viewModel.fetchKeywordData()
-            }
-        }
-        viewModel.mapClassItemData.bind { [weak self] data in
-            self?.mapView.removeMarkers()
-            self?.configureMapView(data: data)
-        }
-        viewModel.listClassItemData.bind { [weak self] data in
-            self?.mapClassListView.configure(with: data)
-        }
-        viewModel.categoryData.bind { [weak self] data in
-            self?.categoryView.setPlaceHolderLabel(data.isEmpty)
-            if data.isEmpty {
-                self?.viewModel.fetchData()
-            } else {
-                self?.viewModel.fetchCategoryData()
-            }
-        }
+            .disposed(by: disposeBag)
     }
 
     /// 지도 위치 설정
@@ -180,17 +201,32 @@ extension MapViewController {
 // MARK: - CollectionViewDataSource
 
 extension MapViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.categoryData.value.count
+    func collectionView(
+        _ collectionView: UICollectionView,
+        numberOfItemsInSection section: Int
+    ) -> Int {
+        guard let count = try? viewModel.categoryData.value().count else { return 0 }
+        return count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: DetailContentCategoryCollectionViewCell.identifier,
-            for: indexPath) as? DetailContentCategoryCollectionViewCell else {
+            for: indexPath
+        ) as? DetailContentCategoryCollectionViewCell
+        else {
             return UICollectionViewCell()
         }
-        cell.configureWith(category: viewModel.categoryData.value[indexPath.item])
+
+        guard let categoryItem = try? viewModel.categoryData.value()[indexPath.item]
+        else {
+            return UICollectionViewCell()
+        }
+
+        cell.configureWith(category: categoryItem)
         return cell
     }
 }
@@ -198,8 +234,18 @@ extension MapViewController: UICollectionViewDataSource {
 // MARK: - CollectionViewDelegateFlowLayout
 
 extension MapViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let fontsize = viewModel.categoryData.value[indexPath.item].description.size(withAttributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16, weight: .medium)])
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        guard let categoryItem = try? viewModel.categoryData.value()[indexPath.item]
+        else { return CGSize() }
+        let fontsize = categoryItem.description.size(
+            withAttributes: [NSAttributedString.Key.font:
+                                UIFont.systemFont(ofSize: 16, weight: .medium)
+                            ]
+        )
         let width = fontsize.width
         let height = fontsize.height
         return CGSize(width: width + 24, height: height)
@@ -208,10 +254,8 @@ extension MapViewController: UICollectionViewDelegateFlowLayout {
 
 extension MapViewController: MapCategoryViewDelegate {
     func pushCategorySelectViewController() {
-        let viewController = MapCategorySelectViewController(categoryType: .subject)
+        let viewController = viewModel.mapCategorySelectViewController
         viewController.delegate = self
-        let selectedCategory = viewModel.categoryData.value
-        viewController.configure(with: selectedCategory)
         navigationController?.pushViewController(viewController, animated: true)
     }
 }

@@ -17,17 +17,20 @@ final class DIContainer {
     private let dependencies: Dependencies
 
     // MARK: - Persistent Storage
+
     lazy var userStorage: UserStorage = UserDefaultsUser()
     lazy var searchHistoryStorage: SearchHistoryStorage = UserDefaultsSearchHistory()
 
     // MARK: - Framework Manager
+
     lazy var locationManager: LocationManager = LocationManager.shared
-    
+
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
-    
+
     // MARK: - Use Cases
+
     func makeFetchClassItemUseCase() -> FetchClassItemUseCase {
         return DefaultFetchClassItemUseCase(classItemRepository: makeClassItemRepository())
     }
@@ -67,6 +70,7 @@ final class DIContainer {
     }
 
     // MARK: - Repositories
+
     func makeClassItemRepository() -> ClassItemRepository {
         return DefaultClassItemRepository(firestoreManager: dependencies.apiDataTransferService)
     }
@@ -95,6 +99,7 @@ final class DIContainer {
     }
 
     // MARK: - Main
+
     func makeMainViewController() -> MainViewController {
         return MainViewController(viewModel: makeMainViewModel())
     }
@@ -104,6 +109,7 @@ final class DIContainer {
     }
 
     // MARK: - Search View
+
     func makeSearchViewController() -> SearchViewController {
         return SearchViewController(viewModel: makeSearchViewModel())
     }
@@ -113,6 +119,7 @@ final class DIContainer {
     }
 
     // MARK: - Search Result View
+
     func makeSearchResultViewController(searchKeyword: String) -> SearchResultViewController {
         return SearchResultViewController(
             viewModel: makeSearchResultViewModel(searchKeyword: searchKeyword)
@@ -127,6 +134,7 @@ final class DIContainer {
     }
 
     // MARK: - Category List View
+
     func makeCategoryListViewController(categoryType: CategoryType) -> CategoryListViewController {
         return CategoryListViewController(
             viewModel: makeCategoryListViewModel(categoryType: categoryType)
@@ -138,6 +146,7 @@ final class DIContainer {
     }
 
     // MARK: - Category View
+
     func makeCategoryDetailViewController(
         categoryItem: CategoryItem
     ) -> CategoryDetailViewController {
@@ -154,6 +163,7 @@ final class DIContainer {
     }
 
     // MARK: - Star View
+
     func makeStarViewController() -> StarViewController {
         return StarViewController(viewModel: makeStarViewModel())
     }
@@ -163,6 +173,7 @@ final class DIContainer {
     }
     
     // MARK: - Class Enroll Modify View
+
     func makeClassEnrollViewController(
         classItempType: ClassItemType
     ) -> ClassEnrollViewController {
@@ -207,6 +218,7 @@ final class DIContainer {
     }
     
     // MARK: - Class Detail View
+
     func makeClassDetailViewController(classItem: ClassItem) -> ClassDetailViewController {
         return ClassDetailViewController(
             classDetailViewModel: makeClassDetailViewModel(classItem: classItem)
@@ -224,8 +236,9 @@ final class DIContainer {
             chatUseCase: makeChatUseCase()
         )
     }
-    
+
     // MARK: - Map Selection View
+
     func makeMapSelectionViewController() -> MapSelectionViewController {
         return MapSelectionViewController(viewModel: makeMapSelectionViewModel())
     }
@@ -235,5 +248,31 @@ final class DIContainer {
             addressTransferUseCase: makeAddressTransferUseCase(),
             locationUseCase: makeLocationUseCase()
         )
+    }
+
+    // MARK: - Map View
+
+    func makeMapViewController() -> MapViewController {
+        return MapViewController(viewModel: makeMapViewModel())
+    }
+
+    func makeMapCategorySelectViewController(
+        categoryType: CategoryType = .subject
+    ) -> MapCategorySelectViewController {
+        return MapCategorySelectViewController(
+            viewModel: makeMapCategorySelectViewModel(categoryType: categoryType)
+        )
+    }
+
+    func makeMapViewModel() -> MapViewModel {
+        return DefaultMapViewModel(
+            userUseCase: makeUserUseCase(),
+            locationUseCase: makeLocationUseCase(),
+            fetchClassItemUseCase: makeFetchClassItemUseCase()
+        )
+    }
+
+    func makeMapCategorySelectViewModel(categoryType: CategoryType) -> MapCategorySelectViewModel {
+        return DefaultMapCategorySelectViewModel(categoryType: categoryType)
     }
 }
