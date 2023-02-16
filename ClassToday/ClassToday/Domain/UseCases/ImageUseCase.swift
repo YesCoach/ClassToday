@@ -6,11 +6,13 @@
 //
 
 import UIKit
+import RxSwift
 
 protocol ImageUseCase {
-    func upload(image: UIImage, completion: @escaping (Result<String, Error>) -> ())
-    func downloadImage(urlString: String, completion: @escaping (Result<UIImage, Error>) -> ())
-    func deleteImage(urlString: String, completion: @escaping() -> ())}
+    func uploadRx(image: UIImage) -> Observable<String>
+    func downloadImageRx(urlString: String) -> Observable<UIImage>
+    func deleteImageRx(urlString: String) -> Observable<Void>
+}
 
 final class DefaultImageUseCase: ImageUseCase {
 
@@ -20,15 +22,42 @@ final class DefaultImageUseCase: ImageUseCase {
         self.imageRepository = imageRepository
     }
 
-    func upload(image: UIImage, completion: @escaping (Result<String, Error>) -> ()) {
-        imageRepository.upload(image: image, completion: completion)
+    func uploadRx(image: UIImage) -> Observable<String> {
+        return Observable.create { [weak self] emitter in
+            self?.imageRepository.upload(image: image) { result in
+                switch result {
+                case .success(let url):
+                    emitter.onNext(url)
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
     }
 
-    func downloadImage(urlString: String, completion: @escaping (Result<UIImage, Error>) -> ()) {
-        imageRepository.downloadImage(urlString: urlString, completion: completion)
+    func downloadImageRx(urlString: String) -> Observable<UIImage> {
+        return Observable.create { [weak self] emitter in
+            self?.imageRepository.downloadImage(urlString: urlString) { result in
+                switch result {
+                case .success(let image):
+                    emitter.onNext(image)
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
     }
 
-    func deleteImage(urlString: String, completion: @escaping () -> ()) {
-        imageRepository.deleteImage(urlString: urlString, completion: completion)
+    func deleteImageRx(urlString: String) -> Observable<Void> {
+        return Observable.create { [weak self] emitter in
+            self?.imageRepository.deleteImage(urlString: urlString) {
+                emitter.onCompleted()
+            }
+            return Disposables.create()
+        }
     }
 }

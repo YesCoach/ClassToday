@@ -135,15 +135,19 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         if let classImages = classImages {
             for image in classImages {
                 group.enter()
-                imageUseCase.upload(image: image) { [weak self] result in
-                    switch result {
-                    case .success(let url):
-                        self?.classImagesURL?.append(url)
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
-                }
+                imageUseCase.uploadRx(image: image)
+                    .subscribe(
+                        onNext: { [weak self] url in
+                            self?.classImagesURL?.append(url)
+                        },
+                        onError: { error in
+                            debugPrint(error.localizedDescription)
+                        },
+                        onDisposed: {
+                            group.leave()
+                        }
+                    )
+                    .disposed(by: disposeBag)
             }
         }
 
@@ -265,23 +269,30 @@ public class DefaultClassEnrollModifyViewModel: ClassEnrollModifyViewModel {
         var existingImagesCount = 0
         classItem.images?.forEach { url in
             if classImagesURL?.contains(url) == false {
-                imageUseCase.deleteImage(urlString: url) {}
+                imageUseCase.deleteImageRx(urlString: url)
+                    .subscribe(onCompleted: {})
+                    .disposed(by: disposeBag)
             } else {
                 existingImagesCount += 1
             }
         }
+
         if let classImages = classImages {
             for index in existingImagesCount ..< classImages.count {
                 group.enter()
-                imageUseCase.upload(image: classImages[index]) { [weak self] result in
-                    switch result {
-                    case .success(let url):
-                        self?.classImagesURL?.append(url)
-                    case .failure(let error):
-                        debugPrint(error)
-                    }
-                    group.leave()
-                }
+                imageUseCase.uploadRx(image: classImages[index])
+                    .subscribe(
+                        onNext: { [weak self] url in
+                            self?.classImagesURL?.append(url)
+                        },
+                        onError: { error in
+                            debugPrint(error.localizedDescription)
+                        },
+                        onDisposed: {
+                            group.leave()
+                        }
+                    )
+                    .disposed(by: disposeBag)
             }
         }
 

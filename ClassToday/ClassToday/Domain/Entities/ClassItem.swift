@@ -91,16 +91,9 @@ struct ClassItem: Codable, Equatable {
                 return Disposables.create()
             }
 
-            if let cachedImage = ImageCacheManager.shared.object(forKey: url as NSString) {
-                emitter.onNext(cachedImage)
-                emitter.onCompleted()
-                return Disposables.create()
-            }
-
             StorageManager.shared.downloadImage(urlString: url) { result in
                 switch result {
                 case .success(let image):
-                    ImageCacheManager.shared.setObject(image, forKey: url as NSString)
                     emitter.onNext(image)
                     emitter.onCompleted()
                 case .failure(let error):
@@ -123,20 +116,15 @@ struct ClassItem: Codable, Equatable {
             }
 
             imagesURL.forEach { url in
-                if let cachedImage = ImageCacheManager.shared.object(forKey: url as NSString) {
-                    fetchedImages.append(cachedImage)
-                } else {
-                    group.enter()
-                    StorageManager.shared.downloadImage(urlString: url) { result in
-                        switch result {
-                        case .success(let image):
-                            ImageCacheManager.shared.setObject(image, forKey: url as NSString)
-                            fetchedImages.append(image)
-                        case .failure(let error):
-                            debugPrint(error)
-                        }
-                        group.leave()
+                group.enter()
+                StorageManager.shared.downloadImage(urlString: url) { result in
+                    switch result {
+                    case .success(let image):
+                        fetchedImages.append(image)
+                    case .failure(let error):
+                        debugPrint(error)
                     }
+                    group.leave()
                 }
             }
 

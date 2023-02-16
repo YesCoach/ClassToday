@@ -30,6 +30,7 @@ final class DefaultEnrollImageViewModel: EnrollImageViewModel {
     private let imageUseCase: ImageUseCase
     private let limitImageCount: Int
     private var isImagesAlreadyInitialized: Bool = false
+    private let disposeBag = DisposeBag()
 
     // MARK: - OUTPUT
 
@@ -78,16 +79,21 @@ extension DefaultEnrollImageViewModel {
 
         for url in imagesURL {
             group.enter()
-            imageUseCase.downloadImage(urlString: url) { result in
-                switch result {
-                case .success(let image):
-                    images.append(image)
-                case .failure(let error):
-                    debugPrint(error)
-                }
-                group.leave()
-            }
+            imageUseCase.downloadImageRx(urlString: url)
+                .subscribe(
+                    onNext: { image in
+                        images.append(image)
+                    },
+                    onError: { error in
+                        debugPrint(error.localizedDescription)
+                    },
+                    onDisposed: {
+                        group.leave()
+                    }
+                )
+                .disposed(by: disposeBag)
         }
+
         group.notify(queue: .global()) { [weak self] in
             self?.images.onNext(images)
         }

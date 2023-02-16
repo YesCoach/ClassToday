@@ -49,6 +49,11 @@ final class StorageManager {
     
     /// FireStorage에서 이미지를 다운로드 합니다.
     func downloadImage(urlString: String, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        if let cachedImage = ImageCacheManager.shared.object(forKey: urlString as NSString) {
+            completion(Result.success(cachedImage))
+            return
+        }
+
         let storageReference = Storage.storage().reference(forURL: urlString)
         let megaByte = Int64(1 * 1024 * 1024)
 
@@ -57,6 +62,7 @@ final class StorageManager {
                 completion(Result.failure(StorageError.invalidData))
                 return
             }
+            ImageCacheManager.shared.setObject(image, forKey: urlString as NSString)
             completion(Result.success(image))
         }
     }
@@ -69,6 +75,7 @@ final class StorageManager {
                 debugPrint(error)
             } else {
                 debugPrint("Image \(urlString) deleted")
+                ImageCacheManager.shared.removeObject(forKey: urlString as NSString)
             }
             completion()
         }
