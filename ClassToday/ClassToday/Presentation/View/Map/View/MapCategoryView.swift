@@ -22,7 +22,10 @@ class MapCategoryView: UIView {
         return flowLayout
     }()
     lazy var categoryCollectionView: DetailContentCategoryCollectionView = {
-        let collectionView = DetailContentCategoryCollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        let collectionView = DetailContentCategoryCollectionView(
+            frame: .zero,
+            collectionViewLayout: flowLayout
+        )
         collectionView.isScrollEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView

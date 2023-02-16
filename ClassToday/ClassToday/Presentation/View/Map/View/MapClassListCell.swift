@@ -10,59 +10,61 @@ import UIKit
 class MapClassListCell: UITableViewCell {
 
     // MARK: - Views
+
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         return label
     }()
-    
+
     private lazy var addressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         return label
     }()
-    
+
     private lazy var timeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         return label
     }()
-    
+
     private lazy var costLabel: UILabel = {
         let label = UILabel()
         return label
     }()
-    
+
     private lazy var priceUnitLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         return label
     }()
-    
+
     private lazy var countLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         return label
     }()
-    
+
     private lazy var recommendLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         return label
     }()
-    
+
     static let identifier = "MapClassListCell"
-    
+
     override init(style: UITableViewCell.CellStyle = .default, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setUpLayout()
         selectionStyle = .none
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Methods
+
     func configure(with classItem: ClassItem) {
         titleLabel.text = classItem.name
         addressLabel.text = "\(classItem.keywordLocation ?? "") \(classItem.semiKeywordLocation ?? "") "
@@ -78,7 +80,10 @@ class MapClassListCell: UITableViewCell {
     }
 
     private func setUpLayout() {
-        [titleLabel, addressLabel, timeLabel, costLabel, priceUnitLabel, countLabel, recommendLabel].forEach { self.addSubview($0)}
+        [
+            titleLabel, addressLabel, timeLabel, costLabel,
+            priceUnitLabel, countLabel, recommendLabel
+        ].forEach { self.addSubview($0)}
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(self.snp.top).offset(8)
             $0.leading.equalTo(self.snp.leading).offset(12)

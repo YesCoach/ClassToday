@@ -34,7 +34,10 @@ class MapClassListView: UIView {
 
     private lazy var listView: MapClassListTableView = {
         let tableView = MapClassListTableView()
-        tableView.register(MapClassListCell.self, forCellReuseIdentifier: MapClassListCell.identifier)
+        tableView.register(
+            MapClassListCell.self,
+            forCellReuseIdentifier: MapClassListCell.identifier
+        )
         tableView.isScrollEnabled = false
         tableView.dataSource = self
         tableView.delegate = self
@@ -86,8 +89,15 @@ extension MapClassListView: UITableViewDataSource {
         return datas.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: MapClassListCell.identifier, for: indexPath) as? MapClassListCell else {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: MapClassListCell.identifier,
+            for: indexPath
+        ) as? MapClassListCell
+        else {
             fatalError()
         }
         cell.configure(with: datas[indexPath.row])
