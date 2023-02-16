@@ -70,7 +70,6 @@ class DetailImageCell: UITableViewCell {
             imageView.isUserInteractionEnabled = true
             imageView.clipsToBounds = true
             scrollView.addSubview(imageView)
-            print("index: \(index), origin: \(imageView.frame.origin.x), width: \(imageView.frame.width)")
         }
 
         contentView.addSubview(scrollView)

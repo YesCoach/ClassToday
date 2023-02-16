@@ -34,8 +34,8 @@ final class DefaultFetchClassItemUseCase: FetchClassItemUseCase {
     
     // MARK: - Refactoring for RxSwift
     func executeRx(param: ClassItemQuery.FetchItems) -> Observable<[ClassItem]> {
-        return Observable.create() { emitter in
-            self.classItemRepository.fetchItems(param: param) { classItems in
+        return Observable.create() { [weak self] emitter in
+            self?.classItemRepository.fetchItems(param: param) { classItems in
                 emitter.onNext(classItems)
                 emitter.onCompleted()
             }
@@ -44,8 +44,8 @@ final class DefaultFetchClassItemUseCase: FetchClassItemUseCase {
     }
     
     func executeRx(param: ClassItemQuery.FetchItem) -> Observable<ClassItem> {
-        return Observable.create() { emitter in
-            self.classItemRepository.fetchItem(param: param) { classItem in
+        return Observable.create() { [weak self] emitter in
+            self?.classItemRepository.fetchItem(param: param) { classItem in
                 emitter.onNext(classItem)
                 emitter.onCompleted()
             }

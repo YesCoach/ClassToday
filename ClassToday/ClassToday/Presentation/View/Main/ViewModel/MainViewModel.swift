@@ -165,6 +165,7 @@ extension DefaultMainViewModel {
             .makeDIContainer()
             .makeCategoryListViewController(categoryType: .subject)
         )
+        categoryListViewController.onNext(nil)
     }
     
     func didTapStarButton() {
@@ -172,6 +173,7 @@ extension DefaultMainViewModel {
             .makeDIContainer()
             .makeStarViewController()
         )
+        starViewController.onNext(nil)
     }
 
     /// cell select 시 호출하는 item 반환 메서드
@@ -182,6 +184,7 @@ extension DefaultMainViewModel {
                     .makeDIContainer()
                     .makeClassDetailViewController(classItem: classItem)
             )
+            classDetailViewController.onNext(nil)
         }
     }
 

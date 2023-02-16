@@ -114,8 +114,8 @@ final class DefaultUserUseCase: UserUseCase {
 extension DefaultUserUseCase {
     /// 유저 정보를 저장하는 메서드
     func uploadUserRx(user: User) -> Observable<Void> {
-        return Observable.create { emitter in
-            self.userRepository.uploadUser(user: user) { result in
+        return Observable.create { [weak self] emitter in
+            self?.userRepository.uploadUser(user: user) { result in
                 switch result {
                 case .success():
                     emitter.onCompleted()
@@ -129,8 +129,8 @@ extension DefaultUserUseCase {
 
     /// 유저 정보를 가져오는 메서드
     func readUserRx(uid: String) -> Observable<User> {
-        return Observable.create { emitter in
-            self.userRepository.readUser(uid: uid) { result in
+        return Observable.create { [weak self] emitter in
+            self?.userRepository.readUser(uid: uid) { result in
                 switch result {
                 case .success(let user):
                     emitter.onNext(user)
@@ -149,8 +149,8 @@ extension DefaultUserUseCase {
     ///    - uid: User's UUID Value.
     ///    - type: User's Login Type.
     func saveLoginStatusRx(uid: String, type: LoginType) -> Observable<Void> {
-        return Observable.create { emitter in
-            self.userRepository.saveLoginStatus(uid: uid, type: type) {
+        return Observable.create { [weak self] emitter in
+            self?.userRepository.saveLoginStatus(uid: uid, type: type) {
                 emitter.onCompleted()
             }
             return Disposables.create()

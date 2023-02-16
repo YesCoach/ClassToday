@@ -96,8 +96,8 @@ final class DefaultChatUseCase: ChatUseCase {
 
 extension DefaultChatUseCase {
     func fetchMatchRx(userID: String) -> Observable<[Match]> {
-        return Observable.create() { emitter in
-            self.chatRepository.fetchMatch(userId: userID) { matches in
+        return Observable.create() { [weak self] emitter in
+            self?.chatRepository.fetchMatch(userId: userID) { matches in
                 emitter.onNext(matches)
                 emitter.onCompleted()
             }
@@ -106,8 +106,8 @@ extension DefaultChatUseCase {
     }
 
     func fetchMatchBuyRx(userID: String) -> Observable<[Match]> {
-        return Observable.create() { emitter in
-            self.chatRepository.fetchMatchBuy(userId: userID) { matches in
+        return Observable.create() { [weak self] emitter in
+            self?.chatRepository.fetchMatchBuy(userId: userID) { matches in
                 emitter.onNext(matches)
                 emitter.onCompleted()
             }
@@ -116,8 +116,8 @@ extension DefaultChatUseCase {
     }
 
     func fetchChannelRx(channels: [String]) -> Observable<[Channel]> {
-        return Observable.create() { emitter in
-            self.chatRepository.fetchChannel(channels: channels) { channels in
+        return Observable.create() { [weak self] emitter in
+            self?.chatRepository.fetchChannel(channels: channels) { channels in
                 emitter.onNext(channels)
                 emitter.onCompleted()
             }
@@ -126,8 +126,8 @@ extension DefaultChatUseCase {
     }
 
     func fetchRx(channel: Channel) -> Observable<Channel> {
-        return Observable.create() { emitter in
-            self.chatRepository.fetch(channel: channel) { channel in
+        return Observable.create() { [weak self] emitter in
+            self?.chatRepository.fetch(channel: channel) { channel in
                 emitter.onNext(channel)
                 emitter.onCompleted()
             }
@@ -140,8 +140,8 @@ extension DefaultChatUseCase {
         buyerID: String,
         classItemID: String
     ) -> Observable<[Channel]> {
-        return Observable.create() { emitter in
-            self.chatRepository.checkChannel(
+        return Observable.create() { [weak self] emitter in
+            self?.chatRepository.checkChannel(
                 sellerID: sellerID,
                 buyerID: buyerID,
                 classItemID: classItemID

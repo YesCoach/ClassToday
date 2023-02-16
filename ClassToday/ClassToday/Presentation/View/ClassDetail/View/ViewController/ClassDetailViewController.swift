@@ -15,9 +15,18 @@ class ClassDetailViewController: UIViewController {
         let tableView = UITableView()
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(DetailImageCell.self, forCellReuseIdentifier: DetailImageCell.identifier)
-        tableView.register(DetailUserCell.self, forCellReuseIdentifier: DetailUserCell.identifier)
-        tableView.register(DetailContentCell.self, forCellReuseIdentifier: DetailContentCell.identifier)
+        tableView.register(
+            DetailImageCell.self,
+            forCellReuseIdentifier: DetailImageCell.identifier
+        )
+        tableView.register(
+            DetailUserCell.self,
+            forCellReuseIdentifier: DetailUserCell.identifier
+        )
+        tableView.register(
+            DetailContentCell.self,
+            forCellReuseIdentifier: DetailContentCell.identifier
+        )
         tableView.separatorStyle = .none
         tableView.allowsSelection = false
         tableView.contentInsetAdjustmentBehavior = .never
@@ -39,7 +48,11 @@ class ClassDetailViewController: UIViewController {
     }()
 
     private lazy var disableAlertController: UIAlertController = {
-        let alert = UIAlertController(title: "모집을 종료하시겠습니까?", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "모집을 종료하시겠습니까?",
+            message: nil,
+            preferredStyle: .alert
+        )
         alert.view?.tintColor = .mainColor
         let closeAction = UIAlertAction(title: "예", style: .default) { [weak self] _ in
             guard let self = self else { return }
@@ -97,7 +110,7 @@ class ClassDetailViewController: UIViewController {
     }
 
     deinit {
-        print("------------------------------")
+        print("ClassDetailViewController Deinit Called")
     }
 
     // MARK: - Life Cycle
@@ -112,15 +125,14 @@ class ClassDetailViewController: UIViewController {
         viewModel.checkIsChannelAlreadyMade()
         navigationController?.navigationBar.isHidden = true
         blackBackNavigationBar()
-        print(#function)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
+        viewModel.delegate = nil
         super.viewWillDisappear(animated)
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.barStyle = .default
-        print(#function)
     }
 
     // MARK: - Method
@@ -177,10 +189,16 @@ class ClassDetailViewController: UIViewController {
                 isTrue ? self?.setButtonOnSale() : self?.setButtonOffSale()
             }
             .disposed(by: disposeBag)
-        
+
         viewModel.isStarButtonSelected
             .bind { [weak self] isTrue in
                 self?.navigationBar.starButton.isSelected = isTrue
+            }
+            .disposed(by: disposeBag)
+
+        viewModel.classItemImages
+            .bind { [weak self] _ in
+                self?.tableView.reloadData()
             }
             .disposed(by: disposeBag)
     }
@@ -212,13 +230,10 @@ extension ClassDetailViewController: UITableViewDataSource {
                 return UITableViewCell()
             }
 
-            cell.delegate = self
+            let images = try? viewModel.classItemImages.value()
 
-            viewModel.classItemImages
-                .bind { images in
-                    cell.configureWith(images: images)
-                }
-                .disposed(by: disposeBag)
+            cell.configureWith(images: images)
+            cell.delegate = self
 
             return cell
         case 1:
@@ -303,6 +318,7 @@ extension ClassDetailViewController: DetailImageCellDelegate {
 // MARK: - NavigationBarDelegate
 extension ClassDetailViewController: DetailCustomNavigationBarDelegate {
     func goBackPage() {
+        viewModel.goBackPage()
         navigationController?.popViewController(animated: true)
     }
  
@@ -342,6 +358,7 @@ extension ClassDetailViewController: ClassUpdateDelegate {
         viewModel = AppDIContainer()
             .makeDIContainer()
             .makeClassDetailViewModel(classItem: classItem)
+        viewModel.delegate = self
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.tableView.reloadData()

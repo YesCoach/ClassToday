@@ -22,6 +22,7 @@ protocol ClassDetailViewModelInput {
     func toggleClassItem()
     func addStar()
     func deleteStar()
+    func goBackPage()
 }
 
 protocol ClassDetailViewModelOutput {
@@ -70,10 +71,10 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         userUseCase: UserUseCase,
         chatUseCase: ChatUseCase
     ) {
+        self.classItem = classItem
         self.deleteClassItemUseCase = deleteClassItemUseCase
         self.uploadClassItemUseCase = uploadClassItemUseCase
         self.fetchClassItemUseCase = fetchClassItemUseCase
-        self.classItem = classItem
         self.userUseCase = userUseCase
         self.chatUseCase = chatUseCase
 
@@ -90,6 +91,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     }
 
     deinit {
+        print("ClassDetailViewModel Deinit Called")
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -151,10 +153,8 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
     private func checkStar() {
         guard let starList: [String] = currentUser?.stars else { return }
         if starList.contains(classItem.id) {
-            print("isalreadystared")
             isStarButtonSelected.accept(true)
         } else {
-            print("nostared")
             isStarButtonSelected.accept(false)
         }
     }
@@ -182,7 +182,6 @@ extension DefaultClassDetailViewModel {
             .subscribe(
                 onNext: { [weak self] data in
                     self?.checkChannel = data
-                    print(data.count)
                 }
             )
             .disposed(by: disposeBag)
@@ -255,7 +254,9 @@ extension DefaultClassDetailViewModel {
     func toggleClassItem() {
         classItem.validity.toggle()
         isClassItemOnSale.accept(classItem.validity)
-        uploadClassItemUseCase.execute(param: .update(item: classItem)) {}
+        uploadClassItemUseCase.executeRx(param: .update(item: classItem))
+            .subscribe(onCompleted: {})
+            .disposed(by: disposeBag)
     }
 
     /// 즐겨찾기 추가 메서드
@@ -270,5 +271,9 @@ extension DefaultClassDetailViewModel {
             currentUser?.stars?.remove(at: index)
         }
         uploadUserData(user: currentUser)
+    }
+
+    func goBackPage() {
+        delegate = nil
     }
 }

@@ -14,6 +14,10 @@ final class DefaultClassItemRepository {
     init(firestoreManager: FirestoreManager = FirestoreManager.shared) {
         self.firestoreManager = firestoreManager
     }
+    
+    deinit {
+        print("deinit!!!!!!")
+    }
 }
 
 extension DefaultClassItemRepository: ClassItemRepository {

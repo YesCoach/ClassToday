@@ -375,6 +375,7 @@ extension FirestoreManager {
         FirestoreRoute.channel.ref.whereField("sellerID", isEqualTo: sellerID).whereField("buyerID", isEqualTo: buyerID).whereField("classItemID", isEqualTo: classItemID).getDocuments() { (snapshot, error) in
             if let error = error {
                 debugPrint("Error getting documents: \(error)")
+                completion([])
                 return
             }
             if let snapshot = snapshot {

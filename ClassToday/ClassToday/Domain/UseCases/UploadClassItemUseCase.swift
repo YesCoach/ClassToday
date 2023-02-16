@@ -33,8 +33,8 @@ final class DefaultUploadClassItemUseCase: UploadClassItemUseCase {
     }
 
     func executeRx(param: ClassItemQuery.CreateItem) -> Observable<Void> {
-        return Observable.create { emitter in
-            self.classItemRepository.create(param: param) {
+        return Observable.create { [weak self] emitter in
+            self?.classItemRepository.create(param: param) {
                 emitter.onCompleted()
             }
             return Disposables.create()
@@ -42,8 +42,8 @@ final class DefaultUploadClassItemUseCase: UploadClassItemUseCase {
     }
 
     func executeRx(param: ClassItemQuery.UpdateItem) -> Observable<Void> {
-        return Observable.create { emitter in
-            self.classItemRepository.update(param: param) {
+        return Observable.create { [weak self] emitter in
+            self?.classItemRepository.update(param: param) {
                 emitter.onCompleted()
             }
             return Disposables.create()
