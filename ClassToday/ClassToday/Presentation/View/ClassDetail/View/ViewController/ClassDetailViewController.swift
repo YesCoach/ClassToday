@@ -128,7 +128,6 @@ class ClassDetailViewController: UIViewController {
     }
 
     override func viewWillDisappear(_ animated: Bool) {
-        viewModel.delegate = nil
         super.viewWillDisappear(animated)
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.shadowImage = UIImage()

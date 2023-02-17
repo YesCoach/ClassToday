@@ -886,8 +886,8 @@
 			children = (
 				8966A0212923894B0070B10C /* ClassToday.entitlements */,
 				8966A020292388A40070B10C /* Application */,
-				FCF850FD280E6A8700D5D3DC /* Presentation */,
 				895A0570291B8E74009103CC /* Domain */,
+				FCF850FD280E6A8700D5D3DC /* Presentation */,
 				895A057C291E1B0B009103CC /* Data */,
 				895A0580291E1F01009103CC /* Infrastructure */,
 				892C1CCD28322AA800DE27D3 /* Enum */,

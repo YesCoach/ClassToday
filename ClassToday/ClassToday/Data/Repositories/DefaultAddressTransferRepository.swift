@@ -17,7 +17,10 @@ final class DefaultAddressTransferRepository {
 }
 
 extension DefaultAddressTransferRepository: AddressTransferRepository {
-    func fetchAddress(location: Location, completion: @escaping (Result<AddrAPIResult, Error>) -> Void) {
+    func fetchAddress(
+        location: Location,
+        completion: @escaping (Result<AddrAPIResult, Error>) -> Void
+    ) {
         naverMapAPIProvider.locationToAddress(location: location, completion: completion)
     }
 }

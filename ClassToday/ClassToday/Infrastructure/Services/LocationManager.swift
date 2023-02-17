@@ -5,7 +5,6 @@
 //  Created by 박태현 on 2022/06/01.
 //
 
-import UIKit
 import CoreLocation
 
 enum LocationManagerError: Error {
@@ -22,9 +21,12 @@ protocol LocationManagerDelegate: AnyObject {
 }
 
 class LocationManager: NSObject {
+
     static let shared = LocationManager()
+
     private let locationManager = CLLocationManager()
     private var currentLocation: CLLocation?
+
     weak var delegate: LocationManagerDelegate?
 
     private override init() {
@@ -50,12 +52,19 @@ class LocationManager: NSObject {
 
     /// 위치정보권한이 활성화 되었는지 판단하는 메서드
     func isLocationAuthorizationAllowed() -> Bool {
-        return [CLAuthorizationStatus.authorizedAlways, .authorizedWhenInUse, .notDetermined].contains(locationManager.authorizationStatus)
+        return [
+            CLAuthorizationStatus.authorizedAlways,
+            .authorizedWhenInUse,
+            .notDetermined
+        ].contains(locationManager.authorizationStatus)
     }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    func locationManager(
+        _ manager: CLLocationManager,
+        didChangeAuthorization status: CLAuthorizationStatus
+    ) {
         delegate?.didUpdateAuthorization()
         switch status {
         case .notDetermined:
@@ -69,7 +78,10 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(
+        _ manager: CLLocationManager,
+        didUpdateLocations locations: [CLLocation]
+    ) {
         guard let location = locations.last else {
             return
         }

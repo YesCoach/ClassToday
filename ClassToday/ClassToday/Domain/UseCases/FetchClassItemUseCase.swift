@@ -9,9 +9,6 @@ import Foundation
 import RxSwift
 
 protocol FetchClassItemUseCase {
-    func execute(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ())
-    func execute(param: ClassItemQuery.FetchItem, completion: @escaping (ClassItem) -> ())
-    
     func executeRx(param: ClassItemQuery.FetchItems) -> Observable<[ClassItem]>
     func executeRx(param: ClassItemQuery.FetchItem) -> Observable<ClassItem>
 }
@@ -24,14 +21,6 @@ final class DefaultFetchClassItemUseCase: FetchClassItemUseCase {
         self.classItemRepository = classItemRepository
     }
 
-    func execute(param: ClassItemQuery.FetchItems, completion: @escaping ([ClassItem]) -> ()) {
-        classItemRepository.fetchItems(param: param, completion: completion)
-    }
-
-    func execute(param: ClassItemQuery.FetchItem, completion: @escaping (ClassItem) -> ()) {
-        classItemRepository.fetchItem(param: param, completion: completion)
-    }
-    
     // MARK: - Refactoring for RxSwift
     func executeRx(param: ClassItemQuery.FetchItems) -> Observable<[ClassItem]> {
         return Observable.create() { [weak self] emitter in
@@ -42,7 +31,7 @@ final class DefaultFetchClassItemUseCase: FetchClassItemUseCase {
             return Disposables.create()
         }
     }
-    
+
     func executeRx(param: ClassItemQuery.FetchItem) -> Observable<ClassItem> {
         return Observable.create() { [weak self] emitter in
             self?.classItemRepository.fetchItem(param: param) { classItem in

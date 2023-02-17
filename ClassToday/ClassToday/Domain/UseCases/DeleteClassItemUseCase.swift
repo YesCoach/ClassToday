@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol DeleteClassItemUseCase {
-    func execute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ())
+    func executeRx(param: ClassItemQuery.DeleteItem) -> Observable<Void>
 }
 
 final class DefaultDeleteClassItemUseCase: DeleteClassItemUseCase {
@@ -19,7 +20,12 @@ final class DefaultDeleteClassItemUseCase: DeleteClassItemUseCase {
         self.classItemRepository = classItemRepository
     }
 
-    func execute(param: ClassItemQuery.DeleteItem, completion: @escaping () -> ()) {
-        classItemRepository.delete(param: param, completion: completion)
+    func executeRx(param: ClassItemQuery.DeleteItem) -> Observable<Void> {
+        return Observable.create { emitter in
+            self.classItemRepository.delete(param: param) {
+                emitter.onCompleted()
+            }
+            return Disposables.create()
+        }
     }
 }

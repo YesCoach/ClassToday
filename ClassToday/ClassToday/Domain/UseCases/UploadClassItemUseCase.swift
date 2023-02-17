@@ -9,9 +9,6 @@ import Foundation
 import RxSwift
 
 protocol UploadClassItemUseCase {
-    func execute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ())
-    func execute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ())
-
     func executeRx(param: ClassItemQuery.CreateItem) -> Observable<Void>
     func executeRx(param: ClassItemQuery.UpdateItem) -> Observable<Void>
 }
@@ -22,14 +19,6 @@ final class DefaultUploadClassItemUseCase: UploadClassItemUseCase {
 
     init(classItemRepository: ClassItemRepository) {
         self.classItemRepository = classItemRepository
-    }
-
-    func execute(param: ClassItemQuery.CreateItem, completion: @escaping () -> ()) {
-        classItemRepository.create(param: param, completion: completion)
-    }
-
-    func execute(param: ClassItemQuery.UpdateItem, completion: @escaping () -> ()) {
-        classItemRepository.update(param: param, completion: completion)
     }
 
     func executeRx(param: ClassItemQuery.CreateItem) -> Observable<Void> {

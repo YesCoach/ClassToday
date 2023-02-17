@@ -8,13 +8,16 @@
 import Foundation
 
 class UserDefaultsManager {
+
     static let shared = UserDefaultsManager()
+
     private let statusKey = "LoginStatus"
     private let typeKey = "LoginType"
     private let userKey = "UserData"
     private let standard = UserDefaults.standard
 
     private init() {}
+
     /// 현재 로그인 상태인지 확인하는 메서드
     ///
     /// return: User의 UUID(Optional)

@@ -50,6 +50,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
 
     var classItem: ClassItem
     var checkChannel: [Channel] = []
+
     private var currentUser: User?
     weak var delegate: ClassDetailViewModelDelegate?
 
@@ -82,6 +83,7 @@ final class DefaultClassDetailViewModel: ClassDetailViewModel {
         getUserData()
         checkStar()
         fetchClassItemImages()
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(updateUserData(_:)),
@@ -247,7 +249,9 @@ extension DefaultClassDetailViewModel {
 
     /// 수업 아이템 삭제 메서드
     func deleteClassItem() {
-        deleteClassItemUseCase.execute(param: .delete(item: classItem)) {}
+        deleteClassItemUseCase.executeRx(param: .delete(item: classItem))
+            .subscribe(onCompleted: {})
+            .disposed(by: disposeBag)
     }
 
     /// 수업 활성화/비활성화 메서드
@@ -273,7 +277,5 @@ extension DefaultClassDetailViewModel {
         uploadUserData(user: currentUser)
     }
 
-    func goBackPage() {
-        delegate = nil
-    }
+    func goBackPage() {}
 }
