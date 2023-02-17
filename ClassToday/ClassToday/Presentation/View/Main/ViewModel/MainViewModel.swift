@@ -73,6 +73,9 @@ final class DefaultMainViewModel: MainViewModel {
                                                object: nil)
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
     /// 유저의 키워드 주소에 따른 기준 지역 구성
     ///
     ///  - 출력 형태: "@@시 @@구의 수업"
