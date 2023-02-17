@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 // public for test
 public struct ClassItemViewModel {
@@ -42,7 +43,7 @@ public struct ClassItemViewModel {
         return classItem.pastDateCalculate()
     }
 
-    func classThumbnailImage(_ completion: @escaping (UIImage?)->()) {
-        classItem.thumbnailImage(completion: completion)
+    func classThumbnailImage() -> Observable<UIImage> {
+        return classItem.thumbnailImageRx()
     }
 }

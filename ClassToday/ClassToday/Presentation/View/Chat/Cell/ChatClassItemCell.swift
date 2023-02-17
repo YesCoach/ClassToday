@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import RxSwift
 
 protocol ChatClassItemCellDelegate: AnyObject {
     func pushToDetailViewController(classItem: ClassItem)
@@ -78,20 +79,19 @@ class ChatClassItemCell: UIView {
         }
         return button
     }()
-    
+
     weak var delegate: ChatClassItemCellDelegate?
     private var classItem: ClassItem = MockData.classItem
     private let locationManager = LocationManager.shared
     private let firebaseAuthManager = FirebaseAuthManager.shared
     private let provider = NaverMapAPIProvider()
-    
+    private let disposeBag = DisposeBag()
+
     init(classItem: ClassItem) {
         super.init(frame: .zero)
         self.classItem = classItem
         self.backgroundColor = .white
-        configure(classItem: classItem) { image in
-            self.thumbnailView.image = image
-        }
+        configure(classItem: classItem)
         layout()
         setupStyle()
     }
@@ -100,7 +100,7 @@ class ChatClassItemCell: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configure(classItem: ClassItem, completion: @escaping (UIImage)->()) {
+    private func configure(classItem: ClassItem) {
         titleLabel.text = classItem.name
 
         provider.locationToSemiKeyword(location: classItem.location) { [weak self] result in
@@ -132,13 +132,11 @@ class ChatClassItemCell: UIView {
         } else {
             dateDiffLabel.text = " | 방금 전"
         }
-        classItem.thumbnailImage { image in
-            guard let image = image else {
-                return
-            }
-            completion(image)
-        }
-        
+        classItem.thumbnailImageRx()
+            .subscribe(onNext: { [weak self] image in
+                self?.thumbnailView.image = image
+            })
+            .disposed(by: disposeBag)
     }
     
     private func setupStyle() {

@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class ClassItemTableViewCell: UITableViewCell {
 
@@ -67,6 +68,7 @@ class ClassItemTableViewCell: UITableViewCell {
     // MARK: - Properties
 
     static let identifier = "ClassItemTableViewCell"
+    private let disposeBag = DisposeBag()
 
     // MARK: - Initialize
 
@@ -135,38 +137,17 @@ class ClassItemTableViewCell: UITableViewCell {
         priceLabel.text = viewModel.classPriceWithWon()
         priceUnitLabel.text = viewModel.classPriceUnit() ?? ""
         timeLabel.text = viewModel.classTime()
-        viewModel.classThumbnailImage { [weak self] image in
-            if let image = image {
-                self?.imageEmptyLabel.isHidden = true
-                completion(image)
-            } else {
-                self?.imageEmptyLabel.isHidden = false
-            }
-        }
-    }
-
-    /// deprecated function
-    func configureWith(classItem: ClassItem, completion: @escaping (UIImage)->()) {
-        titleLabel.text = classItem.name
-
-        if let semiKeywordLocation = classItem.semiKeywordLocation {
-            locationLabel.text = semiKeywordLocation
-        }
-        if let price = classItem.price {
-            priceLabel.text = price.formattedWithWon()
-            priceUnitLabel.text = classItem.priceUnit.description
-        } else {
-            priceLabel.text = "가격협의"
-            priceUnitLabel.text = nil
-        }
-        timeLabel.text = classItem.pastDateCalculate()
-        classItem.thumbnailImage { [weak self] image in
-            guard let image = image else {
-                self?.imageEmptyLabel.isHidden = false
-                return
-            }
-            completion(image)
-        }
+        viewModel.classThumbnailImage()
+            .subscribe(
+                onNext: { [weak self] image in
+                    self?.imageEmptyLabel.isHidden = true
+                    completion(image)
+                },
+                onError: { [weak self] _ in
+                    self?.imageEmptyLabel.isHidden = false
+                }
+            )
+            .disposed(by: disposeBag)
     }
 
     override func prepareForReuse() {

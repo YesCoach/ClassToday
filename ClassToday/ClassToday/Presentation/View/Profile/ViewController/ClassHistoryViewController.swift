@@ -123,7 +123,8 @@ extension ClassHistoryViewController: UITableViewDataSource {
             for: indexPath
         ) as? ClassItemTableViewCell else { return UITableViewCell() }
         let classItem = classItems[indexPath.row]
-        cell.configureWith(classItem: classItem) { image in
+
+        cell.configureWith(viewModel: ClassItemViewModel(classItem: classItem)) { image in
             DispatchQueue.main.async {
                 if indexPath == tableView.indexPath(for: cell) {
                     cell.thumbnailView.image = image

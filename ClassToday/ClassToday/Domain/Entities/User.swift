@@ -47,11 +47,33 @@ struct User: Codable, Equatable {
             }
         }
     }
+    
+    func thumbnailImageRX() -> Observable<UIImage?> {
+        return Observable.create { emitter in
+            guard let profileImageURL = profileImage else {
+                emitter.onNext(nil)
+                emitter.onCompleted()
+
+                return Disposables.create()
+            }
+            StorageManager.shared.downloadImage(urlString: profileImageURL) { result in
+                switch result {
+                case .success(let image):
+                    ImageCacheManager.shared.setObject(image, forKey: profileImageURL as NSString)
+                    emitter.onNext(image)
+                    emitter.onCompleted()
+                case .failure(let error):
+                    emitter.onError(error)
+                }
+            }
+            return Disposables.create()
+        }
+    }
 
     static func == (lhs: User, rhs: User) -> Bool {
         return lhs.id == rhs.id
     }
-    
+
     /// Rx 적용한 getCurrentUser 메서드
     /// 성공시 onNext로 user 값 전달
     /// 실패시 onError로 error 전달, onCompleted 필요 x
@@ -68,7 +90,7 @@ struct User: Codable, Equatable {
             return Disposables.create()
         }
     }
-    
+
     static func getCurrentUser(completion: @escaping (Result<User, Error>) -> Void) {
         guard let user = UserDefaultsManager.shared.getUserData() else {
             completion(.failure(LoginError.notLoggedIn))

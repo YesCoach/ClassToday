@@ -86,7 +86,6 @@ extension DefaultStarViewModel {
             return
         }
 
-        // TODO: Rx Method 적용시 하나의 값만 반환되는 버그 발생
         fetchUseCase.executeRx(param: .fetchByStarlist(starlist: currentUser.stars))
             .map { (classItems) -> [ClassItem] in
                 classItems.sorted { $0 > $1 }
