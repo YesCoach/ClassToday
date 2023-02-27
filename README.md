@@ -34,27 +34,21 @@ __🙆‍♂️ 클래스투데이 팀 구성원:__
 
 ## 📚 오픈소스
 
-|
-|
+![스크린샷 2022-10-05 00 47 12](https://user-images.githubusercontent.com/59643667/193865606-5c6cc0d7-0b95-4ea5-a58a-98bb3502c8ac.png)
 
-![스크린샷 2023-02-22 15.41.56](/Users/yescoach/Library/Application Support/typora-user-images/스크린샷 2023-02-22 15.41.56.png)
 
-### 
 
 ## 📏 기능 명세서 및 프로젝트 설계
 
-|
-|
-
 클래스투데이 팀은 노션을 통해 [기능 명세서](https://yescoach.notion.site/5d067b941e2c44498eceda7e15f48408)와 [프로젝스 설계](https://yescoach.notion.site/da72f49e546c4ce5a5f4bb82d584c420)를 작성했습니다.
+
 
 ## 🛹 기능 구현
 
 ### 1. 메인 화면
 
 ---
-
-<img src="/Users/yescoach/Downloads/IMG_0026.PNG" alt="IMG_0026" style="zoom:25%;" /> 
+<img src="https://user-images.githubusercontent.com/59643667/221517079-c783a07f-5c8c-456a-b6f9-53eff02e5b92.PNG" alt="IMG_0026" width="25%"> 
 
 (1) 카테고리 정렬 기능
 
@@ -66,93 +60,141 @@ __🙆‍♂️ 클래스투데이 팀 구성원:__
 
 (5) 수업 등록 기능
 
-### 카테고리 정렬
 
-<img src="/Users/yescoach/Downloads/IMG_0029.PNG" alt="IMG_0029" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0030.PNG" alt="IMG_0030" style="zoom:25%;" />
+### 카테고리 정렬 
 
->  카테고리 별로 수업들을 보여줍니다.
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221518143-47878fe6-3564-484d-bccd-3a22cbadc620.PNG" alt="IMG_0029" align="center" width="25%"> 
+<img src="https://user-images.githubusercontent.com/59643667/221518153-f59d9698-c8e9-40fe-bd51-8c0c208273d6.PNG" alt="IMG_0030" align="center" width="25%"> 
+</p>
+
+> 카테고리 별로 수업들을 보여줍니다.
+
 
 ### 수업 검색
 
-<img src="/Users/yescoach/Downloads/IMG_0031.PNG" alt="IMG_0031" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0032.PNG" alt="IMG_0032" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221520735-a94cd36b-1efb-4b41-8d6e-2373d4a98fea.PNG" alt="IMG_0031" align="center" width="25%"> 
+<img src="https://user-images.githubusercontent.com/59643667/221520984-20c576e7-b37f-4826-b050-9657d8acf691.PNG" alt="IMG_0032" align="center" width="25%"> 
+</p>
 
->  검색어에 해당하는 수업들을 보여줍니다.
+> 검색어에 해당하는 수업들을 보여줍니다.
+
 
 ### 즐겨찾기 정렬
 
-<img src="/Users/yescoach/Downloads/IMG_0033.PNG" alt="IMG_0033" style="zoom:25%;" />
+<img src="https://user-images.githubusercontent.com/59643667/221521224-a839f427-5f77-4bfa-8af7-0be84034e001.PNG" alt="IMG_0033" width="25%">
 
 >  즐겨찾기로 등록한 수업들을 보여줍니다.
 
+
 ### 유저 위치 설정 기능
 
-<img src="/Users/yescoach/Downloads/IMG_0034.PNG" alt="IMG_0034" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0035.PNG" alt="IMG_0035" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0036.PNG" alt="IMG_0036" style="zoom:25%;" />
+<p align="left">
+<img src="https://user-images.githubusercontent.com/59643667/221521508-bd824e69-4558-47f1-8376-7cd224fa8f69.PNG" alt="IMG_0034" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221521502-4d775944-dfa4-40c9-9cb8-d1150d68bec2.PNG" alt="IMG_0035" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221521727-99182422-f97a-40e8-8144-b56e1bef4451.PNG" alt="IMG_0036" align="center" width="25%">
+</p>
+
+> 유저의 위치를 설정합니다.
+
 
 ### 수업 등록 기능
 
-<img src="/Users/yescoach/Downloads/IMG_0037.PNG" alt="IMG_0037" style="zoom:25%;" /> 
+<img src="https://user-images.githubusercontent.com/59643667/221524084-65e2d1ea-cb20-48b6-843b-8794ee48ec7c.PNG" alt="IMG_0037" width="25%"> 
 
 >  중앙의 등록 버튼을 통해 구매글 / 판매글을 등록합니다.
+
 
 ### 2. 수업의 등록
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0038.PNG" alt="IMG_0038" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0039.PNG" alt="IMG_0039" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221524335-5eb39ca6-7542-4361-891c-6fac70c40d13.PNG" alt="IMG_0038" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221524353-8a57b4c2-dbc6-4222-b84e-e5295df4a76e.PNG" alt="IMG_0039" align="center" width="25%">
+</p>
 
 > 수업 구매글/판매글을 등록하려면, 수업에 대한 정보들을 입력해야 합니다.
 
+
 - 이미지 등록
 
-​        <img src="/Users/yescoach/Downloads/IMG_0040.PNG" alt="IMG_0040" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0041.PNG" alt="IMG_0041" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221524791-86d0dc01-c5d5-445d-adbd-b52d42f6c4c0.PNG" alt="IMG_0040" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221524819-6f040742-cec1-4202-b9e1-f580f1867adb.PNG" alt="IMG_0041" align="center" width="25%">
+</p>
 
 - 장소 등록
 
-    <img src="/Users/yescoach/Downloads/IMG_0042.PNG" alt="IMG_0042" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0043.PNG" alt="IMG_0043" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221525261-c2664ab8-46d3-4a8b-82b3-dc62f927f5ee.PNG" alt="IMG_0042" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221525275-82418544-1b89-446f-8aa8-c5a1313ce1fa.PNG" alt="IMG_0043" align="center" width="25%">
+</p>
 
-    > 지도의 특정 위치를 탭하면, 핀이 추가되며 해당 주소의 도로명 주소가 추가됩니다.
+> 지도의 특정 위치를 탭하면, 핀이 추가되며 해당 주소의 도로명 주소가 추가됩니다. &nbsp;
+> **필수 항목들을 모두 작성하여 등록하면, 해당 지역에 수업이 추가됩니다.**
 
-    **필수 항목들을 모두 작성하여 등록하면, 해당 지역에 수업이 추가됩니다.**
+<img src="https://user-images.githubusercontent.com/59643667/221526058-e1e724c4-0086-4ef4-bb54-a471919f50bb.PNG" alt="IMG_0044" width="25%">
 
-<img src="/Users/yescoach/Downloads/IMG_0044.PNG" alt="IMG_0044" style="zoom:25%;" />
 
 ### 3. 수업 수정 및 삭제
 
-<img src="/Users/yescoach/Downloads/IMG_0048.PNG" alt="IMG_0048" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0047.PNG" alt="IMG_0047" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221526369-1f5023af-f137-4791-900c-2ff69bfa8f71.PNG" alt="IMG_0048" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221526382-14471593-c1ac-42f2-80d3-fcfd709baaff.PNG" alt="IMG_0047" align="center" width="25%">
+</p>
 
 ### 4. 수업 상세 화면
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0045.PNG" alt="IMG_0045" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0046.PNG" alt="IMG_0046" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221526783-bcbac39d-8566-4190-b465-a8ff1fa6f268.PNG" alt="IMG_0045" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221526794-c1fee175-6c08-4605-977d-e6164bae98a7.PNG" alt="IMG_0046" align="center" width="25%">
+</p>
+
 
 ### 5. 수업 매칭
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0049.PNG" alt="IMG_0049" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0050.PNG" alt="IMG_0050" style="zoom:25%;" />
-
-<img src="/Users/yescoach/Downloads/IMG_0051.PNG" alt="IMG_0051" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0052.PNG" alt="IMG_0052" style="zoom:25%;" />
-
-
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221527086-a2f1d341-d227-42c9-9f79-4ae1466fdf2a.PNG" alt="IMG_0049" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221527105-f73194e1-e0f9-4f80-809b-e4ac309e6915.PNG" alt="IMG_0050" align="center" width="25%">
+ </p>
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221527320-92fb702b-9321-4d88-8922-1b540bfe4b2d.PNG" alt="IMG_0051" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221527330-2659da9e-5f32-4f96-b7c4-10fc77d5f1dc.PNG" alt="IMG_0052" align="center" width="25%">
+</p>
 
 ### 6. 맵뷰
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0053.PNG" alt="IMG_0053" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0055.PNG" alt="IMG_0055" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0056.PNG" alt="IMG_0056" style="zoom:25%;" />
+<p align="left">
+<img src="https://user-images.githubusercontent.com/59643667/221527496-25ed8007-47d1-48bd-b661-0f3bcdae9cc2.PNG" alt="IMG_0053" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221527546-8df0f827-14f9-465e-8031-5546623caec6.PNG" alt="IMG_0055" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221527568-bc1863ae-e5a3-43c7-bf84-02d4692db8bd.PNG" alt="IMG_0056" align="center" width="25%">
+</p>
+
 
 ### 7. 채팅
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0058.PNG" alt="IMG_0058" style="zoom:25%;" /><img src="/Users/yescoach/Downloads/IMG_0057.PNG" alt="IMG_0057" style="zoom:25%;" />
+<p alien="left">
+<img src="https://user-images.githubusercontent.com/59643667/221528051-f6e12196-99bd-4166-b5a7-c80a26bc45a1.PNG" alt="IMG_0058" align="center" width="25%">
+<img src="https://user-images.githubusercontent.com/59643667/221528057-609af306-486e-4f43-b02e-505d52f45cd8.PNG" alt="IMG_0057" align="center" width="25%">
+</p>
+
 
 ### 8. 프로필
 
 ---
 
-<img src="/Users/yescoach/Downloads/IMG_0059.PNG" alt="IMG_0059" style="zoom:25%;" />
+<img src="https://user-images.githubusercontent.com/59643667/221528069-482a690f-8b09-4f33-b6dd-367a3da2b6c3.PNG" alt="IMG_0059" width="25%">
+
 
 ### 9. 회원가입
 
