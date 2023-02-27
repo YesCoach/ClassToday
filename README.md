@@ -208,13 +208,15 @@ __🙆‍♂️ 클래스투데이 팀 구성원:__
 
 **주요 개념: MVVM, Clean Architecture, Dependency Container, Repository Pattern**
 
+**브랜치: https://github.com/YesCoach/ClassToday/tree/cleanArchitecture**
+
 ## ⛔️ 기존 프로젝트 구조
 
-<img src="/Users/yescoach/Library/Application Support/typora-user-images/스크린샷 2023-02-23 18.15.33.png" alt="스크린샷 2023-02-23 18.15.33" style="zoom:80%;" />
+<img src="https://user-images.githubusercontent.com/59643667/221531328-31ee9b37-4c75-4710-a101-721433ecedff.png" alt="스크린샷 2023-02-23 18.15.33" width="50%" />
 
 ## 🟢 Clean Architecture 적용
 
-<img src="/Users/yescoach/Library/Application Support/typora-user-images/스크린샷 2023-02-23 17.28.21.png" alt="스크린샷 2023-02-23 17.27.09" style="zoom:80%;" />
+<img src="https://user-images.githubusercontent.com/59643667/221531556-cd17aeeb-01af-4e25-8d44-6e297cb6e3c7.png" alt="스크린샷 2023-02-23 17.27.09" width="50%" />
 
 >   참고한 프로젝트: https://github.com/kudoleh/iOS-Clean-Architecture-MVVM
 
@@ -331,11 +333,6 @@ final class DefaultImageUseCase: ImageUseCase {
 ```
 
 
-
-
-
-## ⚒️ RxSwift 적용
-
 ## ⚒️ RxSwift 적용
 
 **개요: API Call을 비롯한 다양한 비동기 시퀀스를 RxSwift를 통해 더 직관적이고 효율적으로 처리할 수 있도록 리팩토링**
@@ -343,6 +340,8 @@ final class DefaultImageUseCase: ImageUseCase {
 **프로젝트 기간: 2023.01. ~ 2023.02**
 
 **주요 개념: RxSwift, RxCocoa, Observer, Observable, Disposable**
+
+**브랜치: https://github.com/YesCoach/ClassToday/tree/rxSwift**
 
 ### 기존 비동기 방식 및 Data Binding 코드
 
