@@ -42,6 +42,7 @@ __🙆‍♂️ 클래스투데이 팀 구성원:__
 
 클래스투데이 팀은 노션을 통해 [기능 명세서](https://yescoach.notion.site/5d067b941e2c44498eceda7e15f48408)와 [프로젝스 설계](https://yescoach.notion.site/da72f49e546c4ce5a5f4bb82d584c420)를 작성했습니다.
 
+🛝 앱 시연 영상: https://youtu.be/S9h5LEsYb5U
 
 ## 🛹 기능 구현
 
